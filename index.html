@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en" ><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="UTF-8">
+
+<title>balls</title>
+
+
+<style type="text/css">
+
+    html,
+    body {
+      height: 100%;
+      min-height: 100%;
+    }
+
+    body {
+      margin: 0;
+      overflow: hidden;
+      margin: 0 auto;
+      text-align: center;
+      width: 100%;
+      position: fixed;
+      font-family: sans-serif;
+      background-color: #efefef;
+
+    }
+
+
+
+    .container {
+      margin-left: -50%;
+      position: absolute;
+      left: 50%;
+    }
+
+    .pattern-def {
+      width: 0;
+      height: 0;
+    }
+
+    svg {
+      height: 100vh;
+      width: 100vw;
+    }
+
+    polygon {
+      //-webkit-transition: /*transform 1000ms cubic-bezier(0.46,-0.12, 0.35, 1.07),*/ fill 200ms ease;
+      //transition: /*transform 1000ms cubic-bezier(0.46,-0.12, 0.35, 1.07),*/ fill 200ms ease;
+    }
+
+
+    polygon {
+      mix-blend-mode: multiply;
+    }
+
+    path {
+      fill: none;
+      stroke: none;
+//      transform: rotate(-30deg);
+    }
+
+    [id='circ-0'] {
+      //fill: url(#image);
+    }
+
+    a {
+      transition: transform 150ms cubic-bezier(0.38,-0.27, 0.4, 1.10);
+      transform-origin: 50% 50%;
+      transition-delay: 0ms;
+      cursor: pointer;
+    }
+    a:hover,
+    a:focus {
+      transform: scale(1.2);
+      polygon {
+        fill: purple;
+      }
+    }
+    a.active {
+      transition: all 550ms cubic-bezier(0.38,-0.27, 0.4, 1.2);
+      transform: scale(10);// rotate(45deg);
+    }
+
+    a.active polygon {
+      mix-blend-mode: inherit;
+    }
+    .open a {
+      //opacity: 0;
+      //visibility: hidden;
+    }
+    .open a.active {
+      opacity: 1;
+      visibility: visible;
+      cursor: auto;
+    }
+    /*video {
+      mix-blend-mode: multiply;
+    }*/
+    text {
+      fill: #333;
+      text-transform: uppercase;
+      //visibility: hidden;
+      //opacity: 0;
+      transition: all 200ms ease;
+      white-space: nowrap;
+      text-anchor: middle;
+
+      opacity: 0;
+      transition: all 200ms ease;
+      paint-order: stroke;
+      stroke: #fff;
+      stroke-width: 2px;
+      stroke-linecap: butt;
+      stroke-linejoin: miter;
+
+    }
+    textPath {
+//      text-anchor: middle;
+  //    startOffset: 50%;
+
+    }
+
+    a:hover text,
+    a:focus text {
+      opacity: 1;
+      visibility: visible;
+      opacity: 1;
+      //transform: none;
+    }
+    text a {
+      fill: orange;
+      transition: all 200ms ease;
+    }
+    text a:hover {
+      fill: purple;
+    }
+
+
+
+</style>
+
+</head>
+<body>
+
+  <div class="container">
+
+    <svg id="my-svg" height="100%" width="100%"  version="1.1" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id='image' width="1" height="1" viewBox="0 0 100 100">
+          <image xlink:href='img.gif'  width="100" height="100" preserveAspectRatio="none"></image>
+        </pattern>
+
+
+        <text id="fo" font-size="10" font-family="Verdana">
+          <tspan x="0" dy="1.2em">
+            Hi there, my name is Nick and I am a 30 year old web developer from Melbourne.
+          </tspan>
+          <tspan x="0" dy="1.2em">
+            I like bicycles, strumming the guitar, and making tiny bits of the Internet.
+          </tspan>
+          <tspan x="0" dy="1.2em">
+            I have a <a xlink:href="http://www.github.com/heynick" target="_blank">Github</a>, a Codepen, a Twitter, a LinkedIn, a Last.fm, and a link to my cool band.
+          </tspan>
+          </text>
+
+
+          <path id="textPath" d="M-150,0 a1,1 1 0,0 300,2"/>
+          <text id="yeah" x="2" y="40%" fill="#000" font-size="20" font-family="'Lato', sans-serif">
+            <textPath startOffset="50%" xlink:href="#textPath" x="0" dy="1.2em">
+              Hi there, my name is Nick and I am a 30 year old web developer from Melbourne.
+            </textPath>
+          </text>
+
+      </defs>
+
+
+
+    </svg>
+
+  </div>
+
+
+
+  <script src="circles.js"></script>
+
+</body>
+</html>

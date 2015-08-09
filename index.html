@@ -7,6 +7,9 @@
 
 <style type="text/css">
 
+    @import url(http://fonts.googleapis.com/css?family=Poiret+One|Arvo|Fredoka+One|Kreon|Luckiest+Guy|Limelight|Elsie);
+
+
     html,
     body {
       height: 100%;
@@ -14,7 +17,6 @@
     }
 
     body {
-      margin: 0;
       overflow: hidden;
       margin: 0 auto;
       text-align: center;
@@ -22,7 +24,24 @@
       position: fixed;
       font-family: sans-serif;
       background-color: #efefef;
+      font-family: 'Fredoka One', cursive;
+      font-family: 'Kreon', serif;
+//      font-family: 'Elsie', cursive;
 
+    }
+
+    .title-wrapper {
+      width: 300px;
+      float: left;
+    }
+
+    h1 {
+      text-transform: uppercase;
+      color: #444;
+      font-size: 2.5em;
+    }
+
+    foreignObject {
     }
 
 
@@ -81,43 +100,36 @@
       transform: scale(10);// rotate(45deg);
     }
 
-    a.active polygon {
+    .active polygon {
       mix-blend-mode: inherit;
     }
     .open a {
       //opacity: 0;
       //visibility: hidden;
     }
-    .open a.active {
+    .open .active {
       opacity: 1;
       visibility: visible;
       cursor: auto;
     }
-    /*video {
-      mix-blend-mode: multiply;
-    }*/
     text {
       fill: #333;
-      text-transform: uppercase;
-      //visibility: hidden;
-      //opacity: 0;
       transition: all 200ms ease;
-      white-space: nowrap;
       text-anchor: middle;
-
-      opacity: 0;
       transition: all 200ms ease;
+      transition-delay: 0ms;
+
+    }
+
+    a text {
+      opacity: 0;
+      visibility: hidden;
+      text-transform: uppercase;
       paint-order: stroke;
       stroke: #fff;
       stroke-width: 2px;
       stroke-linecap: butt;
       stroke-linejoin: miter;
-
-    }
-    textPath {
-//      text-anchor: middle;
-  //    startOffset: 50%;
-
     }
 
     a:hover text,
@@ -125,7 +137,7 @@
       opacity: 1;
       visibility: visible;
       opacity: 1;
-      //transform: none;
+      transition-delay: 200ms;
     }
     text a {
       fill: orange;
@@ -134,6 +146,7 @@
     text a:hover {
       fill: purple;
     }
+
 
 
 
@@ -150,26 +163,30 @@
           <image xlink:href='img.gif'  width="100" height="100" preserveAspectRatio="none"></image>
         </pattern>
 
+        <g id="title">
 
-        <text id="fo" font-size="10" font-family="Verdana">
-          <tspan x="0" dy="1.2em">
-            Hi there, my name is Nick and I am a 30 year old web developer from Melbourne.
-          </tspan>
-          <tspan x="0" dy="1.2em">
-            I like bicycles, strumming the guitar, and making tiny bits of the Internet.
-          </tspan>
-          <tspan x="0" dy="1.2em">
-            I have a <a xlink:href="http://www.github.com/heynick" target="_blank">Github</a>, a Codepen, a Twitter, a LinkedIn, a Last.fm, and a link to my cool band.
-          </tspan>
-          </text>
+          <foreignObject x="-150px" y="-100px" width="100%" height="100%">
 
+            <div class="title-wrapper">
+              <h1>The Internettings of Nick McMillan</h1>
+<!--   <p>
+                Hi there, my name's Nick and I'm a 31 year old web developer from Melbourne.
+                I like bicycles, strumming the guitar, and making tiny bits of the Internet.
+                I have a <a href="http://www.github.com/heynick" target="_blank">Github</a>, a Codepen, a Twitter, a LinkedIn, a Last.fm, and a link to my cool band.
+  </p> -->
 
-          <path id="textPath" d="M-150,0 a1,1 1 0,0 300,2"/>
-          <text id="yeah" x="2" y="40%" fill="#000" font-size="20" font-family="'Lato', sans-serif">
-            <textPath startOffset="50%" xlink:href="#textPath" x="0" dy="1.2em">
-              Hi there, my name is Nick and I am a 30 year old web developer from Melbourne.
-            </textPath>
-          </text>
+            </div>
+          </foreignObject>
+
+          <!-- <text id="title" font-size="16">
+            <tspan x="0" dy="0">
+            </tspan>
+            <tspan x="0" dy="1.2em">
+            </tspan>
+            <tspan x="0" dy="1.2em">
+            </tspan>
+          </text> -->
+        </g>
 
       </defs>
 

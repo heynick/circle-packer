@@ -14,6 +14,16 @@ function debounce(func, wait, immediate) {
   };
 }
 
+// event delegation
+// similar to $.closest
+// so we can traverse up the tree for delegation
+// http://stackoverflow.com/questions/22100853/dom-pure-javascript-solution-to-jquery-closest-implementation
+function closest(el, fn) {
+    return el && (
+        fn(el) ? el : closest(el.parentNode, fn)
+    );
+}
+
 
 function random( min, max ){
 	return parseInt( Math.random() * (max - min) + min);
@@ -34,7 +44,7 @@ var svgEl = document.querySelector('svg');
 
 
 var maxRad = 60;
-var minRad = 10;
+var minRad = 5;
 
 var circleArr = [];
 
@@ -57,17 +67,19 @@ var dataModel =	[
 		href: '/item1',
 		fill: 'aquamarine',
 		r: 90,
-		text: 'hohokum in paper.js',
+		text: 'CSS Cube using accelerometer',
 		img: '/'
 	},
 	{
-		href: '/item2',
-		fill: '#ccc',
-		r: 30,
-		img: '/image'
+		href: '/item1',
+		fill: 'aquamarine',
+		r: 90,
+		text: 'hohokum in paper.js',
+		img: '/'
 	}
 ];
 
+//http://www.colourlovers.com/palette/396423/Praise_Certain_Frogs
 var ballColors = [
   '#F4FCE8', // dark blue
   '#C3FF68', // green
@@ -77,12 +89,14 @@ var ballColors = [
 ];
 
 var articleCount = dataModel.length;
-var spareCount = 40;
+var spareCount = 60;
 
 var innerWidth = window.innerWidth;
 var innerHeight = window.innerHeight;
 
 var circleCount = 0;
+var spreadSpeed = 0.06;
+
 
 function createCircle(type) {
 
@@ -112,25 +126,23 @@ function createCircle(type) {
 		circleObj.title = true;
 		circleObj.fill = '#ddd';
 		circleObj.r = 170;
-		circleObj.href = '/home.html';
+
+
+
 	}
 	if (type === 'article') {
 		articleCount++;
 
 	}
-
 	if (type === 'spareCount') {
 		spareCount++
 	}
 
 	circleCount++;
 
-
-
 	return circleObj;
+
 }
-
-
 
 var animating;
 
@@ -144,9 +156,6 @@ var m,
 	r,
 	currentCircle;
 
-function addTextLabel(el) {
-
-}
 
 function renderLoop(){
 
@@ -177,7 +186,8 @@ function renderLoop(){
 	    		}
 
 	    		// bottom edge && top edge
-	    		if (c.y < innerHeight - c.r && c.y > 0 + c.r) {
+	    		// +60 to keep some spacing at bottom for label
+	    		if (c.y + 60 < innerHeight - c.r && c.y > 0 + c.r) {
 		    		c.vy += Math.sin( t ) * f;
 	    		}
 
@@ -189,7 +199,7 @@ function renderLoop(){
 
 		// end circle packing
 
-
+		// CREATE NEW BALL
 		if (!currentCircle.added) {
 
 		    currentCircle.added = true;
@@ -203,79 +213,66 @@ function renderLoop(){
 				groupEl.id = 'circ-' + (i);
 
 
+			// ADD ANCHOR
 			if (currentCircle.href) {
-				var ballA = document.createElementNS('http://www.w3.org/2000/svg', 'a');
-					ballA.setAttribute('xlink:href', currentCircle.href);
-				ballA.addEventListener('click', function(e) {
-					svgEl.appendChild(e.target.parentNode.parentNode.parentNode);
-					e.target.parentNode.parentNode.parentNode.classList.add('open');
+				var ballAnchor = document.createElementNS('http://www.w3.org/2000/svg', 'a');
+					ballAnchor.setAttribute('xlink:href', currentCircle.href);
 
-					setTimeout(function() {
+				ballAnchor.addEventListener('click', function(e) {
+					e.preventDefault();
 
-						e.target.parentNode.parentNode.classList.add('active');
+					//console.dir(e.target.tagName);
 
-					}, 0)
+					closest(e.target, function(el) {
+						//console.log(el.tagName);
+
+						if (el.tagName === 'a') {
+							el.parentNode.parentNode.classList.add('open');
+							svgEl.appendChild(el.parentNode);
+
+							setTimeout(function() {
+
+								el.classList.add('active');
+
+							}, 0)
+
+						}
+
+					});
+
+
 				});
+
 			}
-
-
-			// create the anchor
-			if (!currentCircle.title && currentCircle.href) {
-
-
-
-		    } else {
-
-		    	var titleGroupWrapper = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-		    	var newText = document.querySelector('#fo');
-		    	titleGroupWrapper.setAttribute('x', currentCircle.x );
-		    	titleGroupWrapper.setAttribute('y', currentCircle.y );
-		    	titleGroupWrapper.id = 'circ-' + (i);
-
-		    }
-
-
-
-		} else {
-			// has already been added, so update an existing ball.
-			var groupEl = document.querySelector('#circ-' + i);
 
 			if (currentCircle.title) {
-				var titleGroupWrapper = document.querySelector('#circ-' + i);
+	    		var titleHTML = document.querySelector('#title');
+				groupEl.appendChild(titleHTML);
 			}
+
+
+
+	    // UPDATE EXISTING BALL
+		} else {
+			var groupEl = document.querySelector('#circ-' + i);
 		}
 
-		var spreadSpeed = 0.06;
 		currentCircle.vx *= spreadSpeed;
 		currentCircle.vy *= spreadSpeed;
 
 		var roundedY = Math.round((currentCircle.y+=currentCircle.vy) * 100) / 100;
 		var roundedX = Math.round((currentCircle.x+=currentCircle.vx) * 100) / 100;
 
-		if (!currentCircle.title) {
-			groupEl.style.webkitTransform = 'translateY(' + roundedY + 'px) translateX('+ roundedX +'px)';
-			groupEl.style.transform = 'translateY(' + roundedY + 'px) translateX('+ roundedX +'px)';
-
-		} else {
-
-			titleGroupWrapper.style.webkitTransform = 'translateY(' + roundedY + 'px) translateX('+ roundedX +'px)';
-			titleGroupWrapper.style.transform = 'translateY(' + roundedY + 'px) translateX('+ roundedX +'px)';
-		}
-
+		groupEl.style.webkitTransform = 'translateY(' + roundedY + 'px) translateX('+ roundedX +'px)';
+		groupEl.style.transform = 'translateY(' + roundedY + 'px) translateX('+ roundedX +'px)';
 
 
 		// only append if it doesn't already exist
 		if (!document.querySelector('#circ-' + i)) {
-			if (currentCircle.title) {
-				titleGroupWrapper.appendChild(newText);
-				titleGroupWrapper.appendChild(polygonEl);
 
 
-				//groupEl.appendChild(titleGroupWrapper);
-				svgEl.appendChild(titleGroupWrapper);
-			} else {
-
-				//var defs = document.createElementNS('http://www.w3.org/2000/svg', "defs");
+			// ADD TEXT LABEL
+			if (currentCircle.text) {
 				var path = document.createElementNS('http://www.w3.org/2000/svg', "path");
 				path.setAttribute("id", "textPath" + i);
 				path.setAttribute("d", getPathData(currentCircle.r));
@@ -283,40 +280,37 @@ function renderLoop(){
 				groupEl.appendChild(path);
 				//ball.appendChild(defs);
 
+				var textPath = document.createElementNS('http://www.w3.org/2000/svg', "textPath");
+					textPath.setAttribute("startOffset", "50%"); // cheeky bastard
+					textPath.setAttributeNS('http://www.w3.org/1999/xlink', "href", "#textPath" + i);
+					textPath.innerHTML = currentCircle.text;
+
+				var text = document.createElementNS('http://www.w3.org/2000/svg', "text");
+					text.appendChild(textPath);
+
+			}
+
+
+
+			if (ballAnchor) {
+				groupEl.appendChild(ballAnchor);
+				ballAnchor.appendChild(polygonEl);
+
 				if (currentCircle.text) {
 
-					var textPath = document.createElementNS('http://www.w3.org/2000/svg', "textPath");
-						textPath.setAttribute("startOffset", "50%"); // cheeky bastard
-						textPath.setAttributeNS('http://www.w3.org/1999/xlink', "href", "#textPath" + i);
-						textPath.innerHTML = currentCircle.text;
-
-					var text = document.createElementNS('http://www.w3.org/2000/svg', "text");
-						text.appendChild(textPath);
-
+					ballAnchor.appendChild(text);
 				}
 
+			} else {
 
+				groupEl.appendChild(polygonEl);
+				if (currentCircle.text) {
+					groupEl.appendChild(text);
 
-				if (ballA) {
-					groupEl.appendChild(ballA);
-					ballA.appendChild(polygonEl);
-
-					if (currentCircle.text) {
-
-						ballA.appendChild(text);
-					}
-
-				} else {
-
-					groupEl.appendChild(polygonEl);
-					if (currentCircle.text) {
-						groupEl.appendChild(text);
-
-					}
 				}
-
-		      	svgEl.appendChild(groupEl);
 			}
+
+	      	svgEl.appendChild(groupEl);
 		}
 
 
@@ -329,7 +323,6 @@ function renderLoop(){
     if (circleArr.length < spareCount) {
     	circleArr.push( createCircle('spare') );
     }
-
 
     animating = window.requestAnimationFrame(renderLoop);
 
@@ -357,7 +350,7 @@ setTimeout(function() {
 
 	//stopAnimationLoop();
 
-}, 2000);
+}, 20000);
 
 // punch in the title card
 setTimeout(function() {
@@ -365,10 +358,13 @@ setTimeout(function() {
 }, 1200);
 
 // maybe put this in a konami code
-/*document.addEventListener('mousemove', function(e) {
-	circleArr[30].x = e.x;
-	circleArr[30].y = e.y;
-});*/
+document.addEventListener('mousemove', function(e) {
+	if (e.shiftKey) {
+
+		circleArr[1].x = e.x;
+		circleArr[1].y = e.y;
+	}
+});
 
 
 function setLinePoints(iterations) {
@@ -443,6 +439,8 @@ var ballsBrowserResize = debounce(function() {
 
 	w = window.innerWidth;
 	h = window.innerHeight;
+
+	document.querySelectorAll('g').remove();
 
 
 }, 250);

@@ -9,7 +9,6 @@ var gulp = require('gulp'),
     sourcemaps = require('gulp-sourcemaps'),
     autoprefixer = require('gulp-autoprefixer'),
     sassdoc = require('sassdoc'),
-
     
     del = require('del'),
 
@@ -19,24 +18,40 @@ var gulp = require('gulp'),
     rename = require('gulp-rename'),
     uglify = require('gulp-uglify'),
     notify = require('gulp-notify'),
-    include = require('gulp-include');
+    include = require('gulp-include'),
+
+    imagemin = require('gulp-imagemin'),
+
+    livereload = require('gulp-livereload');
 
 
 // -----------------------------------------------------------------------------
 // Configuration
 // -----------------------------------------------------------------------------
 
-var paths = {
-    pub: './public/',
-    dev: './dev/'
+var basePaths = {
+    pub: 'public/',
+    dev: 'dev/'
 }
 
-var scssSrcFile = paths.dev + 'scss/source.scss';
-var scssSrcPath = paths.dev + 'scss/**/*.scss';
-var jsSrc = paths.dev + 'js/source.js';
 
-var publicCss = paths.pub + 'css';
-var publicJs = paths.pub + 'js';
+
+livereload({
+    start: true
+});
+
+
+var scssSrcFile = basePaths.dev + 'scss/source.scss';
+var scssSrcPath = basePaths.dev + 'scss/**/*.scss';
+
+var imgSrcPath = basePaths.dev + 'img/**/*';
+
+var jsSrc = basePaths.dev + 'js/source.js';
+var jsSrcPath = basePaths.dev + 'js/**/*.js';
+
+var publicCss = basePaths.pub + 'css';
+var publicJs = basePaths.pub + 'js';
+var publicImg = basePaths.pub + 'img';
 
 var sassOptions = { 
     outputStyle: 'expanded'
@@ -59,11 +74,12 @@ gulp.task('sass', function () {
     .pipe(autoprefixer(autoprefixerOptions))
     .pipe(rename('style.css')) // the destination filename
     .pipe(gulp.dest(publicCss))
+    .pipe(livereload())
     .pipe(notify({ message: 'style.css created'}));
 });
 
 
-gulp.task('scssAndMinify', function() {
+gulp.task('sassAndMinify', function() {
   return gulp.src(scssSrcFile)
     .pipe(sass(sassOptions).on('error', sass.logError))
     .pipe(autoprefixer(autoprefixerOptions))
@@ -84,6 +100,7 @@ gulp.task('js', function () {
             .on('error', console.log)
         .pipe(rename('scripts.js')) // the destination filename
         .pipe(gulp.dest(publicJs)) // the destination folder
+        .pipe(livereload())
         .pipe(notify({ message: 'scripts.js created'}));
 });
 
@@ -96,6 +113,30 @@ gulp.task('jsMinify', function () {
         .pipe(gulp.dest(publicJs)) // the destination folder
         .pipe(notify({ message: 'scripts.min.js created'}));
 });
+
+
+// -----------------------------------------------------------------------------
+// Images
+// -----------------------------------------------------------------------------
+
+gulp.task('copyImages', function() {
+    
+    // clear out old images first
+    del([
+        publicImg + '**/*',
+    ]);
+
+    return gulp.src(imgSrcPath)
+        .pipe(gulp.dest(publicImg));
+
+});
+
+gulp.task('copyImagesAndMinify', function() {
+  return gulp.src(imgSrcPath)
+    .pipe(imagemin())
+    .pipe(gulp.dest(publicImg));
+});
+
 
 // -----------------------------------------------------------------------------
 // Sass documentation generation
@@ -114,14 +155,28 @@ gulp.task('sassdoc', function () {
 // -----------------------------------------------------------------------------
 
 gulp.task('watch', function() {
-  return gulp
-    // Watch the scssSrcFile folder for change,
-    // and run `sass` task when something happens
-    .watch(scssSrcPath, ['sass'])
-    // When there is a change,
-    // log a message in the console
-    .on('change', function(event) {
-      console.log('File ' + event.path + ' was ' + event.type + ', running tasks...');
+
+    gulp.watch(scssSrcPath, ['sass']).on('change', function(e) {
+        console.log(e.path + ' was ' + e.type);
+    });
+
+    gulp.watch(jsSrcPath, ['js']).on('change', function(e) {
+        console.log(e.path + ' was ' + e.type);
+    });
+
+    gulp.watch(imgSrcPath, ['copyImages']).on('change', function(e) {
+        console.log(e.path + ' was ' + e.type);
+    });
+
+});
+
+
+gulp.task('serve', function(done) {
+    var express = require('express');
+    var app = express();
+    app.use(express.static(__dirname + '/'));
+    app.listen(4000, function () {
+        done();
     });
 });
 
@@ -142,11 +197,13 @@ gulp.task('prod', ['sassdoc'], function () {
 // -----------------------------------------------------------------------------
 // clean
 // -----------------------------------------------------------------------------
-gulp.task('clean', function (cb) {
+gulp.task('clean', function () {
   del([
     // here we use a globbing pattern to match everything inside the `mobile` folder
-    paths.pub + '**/*.css',
-    paths.pub + '**/*.js',
+    basePaths.pub + '**/*.css',
+    basePaths.pub + '**/*.js',
+    publicImg + '**/*',
+
     // we don't want to clean this file though so we negate the pattern
     '!dist/mobile/deploy.json'
   ]);
@@ -158,6 +215,6 @@ gulp.task('clean', function (cb) {
 // default
 // -----------------------------------------------------------------------------
 
-gulp.task('default', ['clean', 'sass', 'js', 'watch' /*, possible other tasks... */]);
+gulp.task('default', ['clean', 'sass', 'js', 'copyImages', 'serve', 'watch']);
 
-gulp.task('build', ['clean', 'scssAndMinify', 'jsMinify']);
+gulp.task('build', ['clean', 'sassAndMinify', 'jsMinify', 'copyImagesAndMinify' ]);

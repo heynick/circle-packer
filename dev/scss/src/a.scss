@@ -1,11 +1,11 @@
 @import url(http://fonts.googleapis.com/css?family=Poiret+One|Arvo|Fredoka+One|Kreon|Luckiest+Guy|Limelight|Elsie);
 
-
 html,
 body {
   height: 100%;
   min-height: 100%;
 }
+
 
 body {
   overflow: hidden;
@@ -15,7 +15,6 @@ body {
   position: fixed;
   font-family: sans-serif;
   background-color: #efefef;
-  font-family: 'Fredoka One', cursive;
   font-family: 'Kreon', serif;
 //      font-family: 'Elsie', cursive;
 
@@ -34,8 +33,6 @@ h1 {
 
 foreignObject {
 }
-
-
 
 .container {
   margin-left: -50%;
@@ -82,9 +79,9 @@ a {
 a:hover,
 a:focus {
   transform: scale(1.2);
-  polygon {
+  /* polygon {
     fill: purple;
-  }
+  } */
 }
 a.active {
   transition: all 550ms cubic-bezier(0.38,-0.27, 0.4, 1.2);

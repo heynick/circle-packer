@@ -10,6 +10,7 @@ window.onload = function() {
     app.utilities.init();
 
     app.balls.init();
+    app.dragging.init();
 
 
 

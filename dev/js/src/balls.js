@@ -1,6 +1,8 @@
 /*global window, document, app, navigator */
 /*jshint bitwise: false*/
-	var appendedBalls = [];
+
+
+app.circleArr = []; // store outside so can be accessed globally
 
 app.balls = (function () {
 	'use strict';
@@ -8,36 +10,34 @@ app.balls = (function () {
 	var svgEl = document.querySelector('svg'),
 		containerEl = document.getElementById('container');
 
-	var activeBall;
-
-	var groupEl;
+	var activeBall; // currently active article
 
 
-	var maxRad = 60;
 	var minRad = 5;
+	var maxRad = 60;
 
-	var circleArr = [];
+	var appendedBalls = []; // store a reference to all balls in here, so we don't need to query the dom
 
 	var dataModel =	[
 		{
 			href: '/item1',
 			fill: 'url(#image)',
 			r: 90,
-			text: 'Emerald hill zone',
+			text: 'Emerald Hill Zone',
 			img: '/'
 		},
 		{
 			href: '/item1',
 			fill: 'aquamarine',
 			r: 90,
-			text: 'The amount of fucks i give',
+			text: 'The amount of fucks I give',
 			img: '/'
 		},
 		{
 			href: '/item1',
 			fill: 'aquamarine',
 			r: 90,
-			text: 'CSS Cube using accelerometer',
+			text: 'CSS Cube using Accelerometer',
 			img: '/'
 		},
 		{
@@ -60,8 +60,8 @@ app.balls = (function () {
 
 
 	var articleCount = dataModel.length;
-	var spareCount = 60;
-	var pushSpread = 0.9; // how hard the balls push against each other
+	var spareCount = 40;
+	var pushSpread = 1; // how hard the balls push against each other
 
 	var innerWidth = window.innerWidth;
 	var innerHeight = window.innerHeight;
@@ -195,20 +195,25 @@ app.balls = (function () {
 
 	var init = function () {
 
+		var groupEl;
+
+
+
 		function renderLoop() {
 
-		    for (var i = 0; i < circleArr.length; i++) {
+		    for (var i = 0; i < app.circleArr.length; i++) {
 
-		    	// circle packing
+		    	currentCircle = app.circleArr[i];
+
+		    	// circle packing, based off:
 		    	// http://codepen.io/jun-lu/pen/rajrJx
-		    	currentCircle = circleArr[i];
-		    	for (var j = 0; j < circleArr.length; j++) {
+		    	for (var j = 0; j < app.circleArr.length; j++) {
 
 		    		if (i === j) {
 		    			continue; // skip this loop
 		    		}
 
-			    	c = circleArr[j];
+			    	c = app.circleArr[j];
 			    	d = (dx = c.x - currentCircle.x) * dx + (dy = c.y - currentCircle.y) * dy;
 			    	l = (r = currentCircle.r + c.r) * r * pushSpread;
 
@@ -218,15 +223,13 @@ app.balls = (function () {
 			    		t = Math.atan2(dy, dx);
 
 			    		// right edge && left edge
-			    		if (c.x < innerWidth - c.r && c.x > 0 + c.r) {
-			    			c.vx += Math.cos( t ) * f;
-			    		}
 
-			    		// bottom edge && top edge
-			    		// +60 to keep some spacing at bottom for label
-			    		if (c.y + 60 < innerHeight - c.r && c.y > 0 + c.r) {
-				    		c.vy += Math.sin( t ) * f;
-			    		}
+			    		var hozRestriction = c.x < innerWidth - c.r && c.x > 0 + c.r,
+			    			vertRestriction = c.y + 60 < innerHeight - c.r && c.y > 0 + c.r; // +60 to keep some spacing at bottom for label
+
+			    		// if the ball is over the edges divide its movement by 100 so it doesn't disappear out of viewport
+			    		c.vx += Math.cos( t ) * f / (hozRestriction ? 1 : 100);
+			    		c.vy += Math.sin( t ) * f / (vertRestriction ? 1 : 100);
 
 			    	}
 
@@ -245,7 +248,7 @@ app.balls = (function () {
 
 
 					groupEl = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-					groupEl.id = 'circ-' + (i);
+					groupEl.id = i;
 					appendedBalls.push(groupEl);
 
 
@@ -257,9 +260,9 @@ app.balls = (function () {
 						ballAnchor.addEventListener('click', function(e) {
 							e.preventDefault();
 
-							
+
 							app.utilities.closest(e.target, function(el) {
-							
+
 								if (el.tagName === 'a') {
 									//containerEl.classList.add('open');
 									svgEl.appendChild(el.parentNode);
@@ -303,7 +306,7 @@ app.balls = (function () {
 
 
 				// only append if it doesn't already exist
-				if (!document.querySelector('#circ-' + i)) {
+				if (!document.getElementById(i)) {
 
 
 					// ADD TEXT LABEL
@@ -352,11 +355,11 @@ app.balls = (function () {
 		    }
 
 		    // ensure that the circles don't exceed the limit
-		    if (circleArr.length < articleCount) {
-		    	circleArr.push( createCircle('article') );
+		    if (app.circleArr.length < articleCount) {
+		    	app.circleArr.push( createCircle('article') );
 		    }
-		    if (circleArr.length < spareCount) {
-		    	circleArr.push( createCircle('spare') );
+		    if (app.circleArr.length < spareCount) {
+		    	app.circleArr.push( createCircle('spare') );
 		    }
 
 		    animating = window.requestAnimationFrame(renderLoop);
@@ -389,39 +392,9 @@ app.balls = (function () {
 
 		// punch in the title card
 		setTimeout(function() {
-			circleArr.push( createCircle('title') );
+			app.circleArr.push( createCircle('title') );
 		}, 1200);
 
-		// maybe put this in a konami code
-		document.addEventListener('mousemove', function(e) {
-			if (e.shiftKey) {
-
-				circleArr[1].x = e.x;
-				circleArr[1].y = e.y;
-			}
-		});
-
-
-		var ballsBrowserResize = app.utilities.debounce(function() {
-
-			innerWidth = window.innerWidth;
-			innerHeight = window.innerHeight;
-
-			var gEls = document.querySelectorAll('g');
-
-			for (var i = 0; i < gEls.length; i++) {
-				currentCircle.added = false;
-				gEls[i].remove();
-			}
-
-			appendedBalls = [];
-
-
-
-
-		}, 250);
-
-		window.addEventListener('resize', ballsBrowserResize);
 
 
 		document.onkeydown = function(e) {

@@ -9,7 +9,7 @@ var gulp = require('gulp'),
     sourcemaps = require('gulp-sourcemaps'),
     autoprefixer = require('gulp-autoprefixer'),
     sassdoc = require('sassdoc'),
-    
+
     del = require('del'),
 
     concatCss = require('gulp-concat-css'),
@@ -24,22 +24,22 @@ var gulp = require('gulp'),
 
     livereload = require('gulp-livereload');
 
-
-// -----------------------------------------------------------------------------
-// Configuration
-// -----------------------------------------------------------------------------
-
-var basePaths = {
-    pub: 'public/',
-    dev: 'dev/'
-}
-
+var express = require('express');
 
 
 livereload({
     start: true
 });
 
+// -----------------------------------------------------------------------------
+// Paths
+// -----------------------------------------------------------------------------
+
+
+var basePaths = {
+    pub: 'public/',
+    dev: 'dev/'
+}
 
 var scssSrcFile = basePaths.dev + 'scss/source.scss';
 var scssSrcPath = basePaths.dev + 'scss/**/*.scss';
@@ -52,12 +52,15 @@ var jsSrcPath = basePaths.dev + 'js/**/*.js';
 var publicCss = basePaths.pub + 'css';
 var publicJs = basePaths.pub + 'js';
 var publicImg = basePaths.pub + 'img';
+// -----------------------------------------------------------------------------
+// Configuration
+// -----------------------------------------------------------------------------
 
-var sassOptions = { 
+var sassOptions = {
     outputStyle: 'expanded'
 };
-var autoprefixerOptions = { 
-    browsers: ['last 2 versions', '> 5%', 'Firefox ESR'] 
+var autoprefixerOptions = {
+    browsers: ['last 2 versions', '> 5%', 'Firefox ESR']
 };
 var sassdocOptions = { dest: './public/sassdoc' };
 
@@ -120,7 +123,7 @@ gulp.task('jsMinify', function () {
 // -----------------------------------------------------------------------------
 
 gulp.task('copyImages', function() {
-    
+
     // clear out old images first
     del([
         publicImg + '**/*',
@@ -172,7 +175,7 @@ gulp.task('watch', function() {
 
 
 gulp.task('serve', function(done) {
-    var express = require('express');
+
     var app = express();
     app.use(express.static(__dirname + '/'));
     app.listen(4000, function () {

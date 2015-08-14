@@ -1,12 +1,12 @@
 /*global window, document, app, navigator */
 /*jshint bitwise: false*/
 
-app.dragging = (function () {
+app.resize = (function () {
 	'use strict';
 
 	var ballsBrowserResize = app.utilities.debounce(function() {
 
-		innerWidth = window.innerWidth;
+		/*innerWidth = window.innerWidth;
 		innerHeight = window.innerHeight;
 
 		var gEls = document.querySelectorAll('g');
@@ -14,7 +14,7 @@ app.dragging = (function () {
 		for (var i = 0; i < gEls.length; i++) {
 			//currentCircle.added = false;
 			//gEls[i].remove();
-		}
+		}*/
 
 		//appendedBalls = [];
 

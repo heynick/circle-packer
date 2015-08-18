@@ -79,7 +79,7 @@ a {
     transform: scale(10);// rotate(45deg);
     cursor: auto;
   }
-  
+
 }
 
 
@@ -119,4 +119,12 @@ a:focus text {
   visibility: visible;
   opacity: 1;
   transition-delay: 300ms;
+}
+
+g {
+  cursor: -webkit-grab;
+}
+
+.held {
+  cursor: -webkit-grabbing;
 }

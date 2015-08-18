@@ -13,13 +13,6 @@ window.onload = function() {
     app.dragging.init();
 
 
-
-
-/*    app.balls.init();
-    app.articles.init();
-    app.articles.filter();
-    app.ui.init();
-*/
     // initiate FastClick
     //FastClick.attach(document.body);
 

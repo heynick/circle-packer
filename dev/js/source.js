@@ -1,3 +1,4 @@
+//= include src/prototypes.js
 //= include src/namespace.js
 //= include src/utilities.js
 //= include src/balls.js

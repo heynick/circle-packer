@@ -1,32 +1,89 @@
 /*global window, document, app, navigator */
 /*jshint bitwise: false*/
 
+
 app.dragging = (function () {
 	'use strict';
 
+	var easeIn = function(t, b, c, d) {
+        return -c *(t/=d)*(t-2) + b;
+    };
+
+    var velocity;
+    var direction;
+
+	// http://stackoverflow.com/a/19794374
+    function makeVelocityCalculator(e_init, e) {
+        var x = e_init.clientX,
+    		y = e_init.clientY,
+			new_x,
+			new_y,
+			new_t,
+			x_dist,
+			y_dist,
+			interval,
+			velocity,
+			t;
+
+        if (e === false) {
+        	return;
+        }
+
+        t = e.time;
+		new_x = e.clientX;
+		new_y = e.clientY;
+		new_t = Date.now();
+		x_dist = new_x - x;
+            y_dist = new_y - y;
+            interval = new_t - t;
+
+        direction = Math.floor((Math.atan2(new_y - y, new_x - x) * 180 / Math.PI) - 90);
+
+        if (direction >= 360){
+            direction -= 360;
+        }
+
+        //console.log(direction)
+        // update values:
+        x = new_x;
+        y = new_y;
+
+
+        velocity = Math.sqrt(x_dist*x_dist+y_dist*y_dist)/interval;
+
+
+    }
+
+
+
+
 	var init = function () {
+		tapClick();
 		mouse();
 		touch();
 	};
 
+	var currentPos = [];
+
+	var tapClick = function() {
+
+
+	};
 
 	var mouse = function() {
+
 		var mouseBallHeld = false;
-		document.addEventListener('mousemove', function(e) {
-
-
-			if (mouseBallHeld) {
-				app.circleArr[mouseBallHeld].x = e.x;
-				app.circleArr[mouseBallHeld].y = e.y;
-			}
-
-		});
+		var previousEvent = false;
 
 		document.addEventListener('mousedown', function(e) {
+
+			currentPos=[e.pageX, e.pageY];
 
 			app.utilities.closest(e.target, function(el) {
 
 				if (el.tagName === 'g') {
+
+					el.classList.add('held');
 
 					mouseBallHeld = el.id;
 
@@ -35,18 +92,62 @@ app.dragging = (function () {
 			});
 		});
 
+		document.addEventListener('mousemove', function(e) {
+
+			if (mouseBallHeld) {
+
+				/*e.time = Date.now();
+				makeVelocityCalculator( e, previousEvent);
+				previousEvent = e;*/
+
+				app.circleArr[mouseBallHeld].x = e.x;
+				app.circleArr[mouseBallHeld].y = e.y;
+			}
+
+		});
+
 		document.addEventListener('mouseup', function(e) {
 
-			mouseBallHeld = false;
+			if (mouseBallHeld) {
+				// gotta do it this way because user could mouseup on a different element
+				// which would wreck the closest loop
+				document.getElementById(mouseBallHeld).classList.remove('held');
+
+				app.utilities.closest(e.target, function(el) {
+
+					// check whether mouseup occured on an anchor, and whether it clicked
+					if (el.tagName === 'a' && [e.pageX, e.pageY].equals(currentPos)) {
+
+						app.svgEl.appendChild(el.parentNode);
+						app.activeBall = el;
+
+						setTimeout(function() {
+
+							el.classList.add('active');
+
+						}, 0)
+
+					} else if (el.tagName === 'g') {
+
+						app.circleArr[mouseBallHeld].x = e.x;
+						app.circleArr[mouseBallHeld].y = e.y;
+
+					}
+
+				});
+
+				mouseBallHeld = false;
+
+			}
+
 
 		});
 
 	};
 
 	var touch = function() {
+
 		var touchBallsHeld = [];
-
-
 
 		document.addEventListener('touchmove', function(e) {
 
@@ -54,6 +155,7 @@ app.dragging = (function () {
 
 
 			if (touchBallsHeld.length) {
+
 
 				for (var i = 0; i < e.touches.length; i++) {
 
@@ -78,6 +180,8 @@ app.dragging = (function () {
 
 				if (el.tagName === 'g') {
 
+					el.classList.add('held');
+
 
 					touchBallsHeld.push(el.id);
 					console.log(touchBallsHeld);
@@ -95,6 +199,8 @@ app.dragging = (function () {
 			app.utilities.closest(e.changedTouches[0].target, function(el) {
 
 				if (el.tagName === 'g') {
+
+					el.classList.remove('held');
 
 					// remove the corresponding ball from the touchBallsHeld array
 					var indexToRemove = touchBallsHeld.indexOf(el.id);

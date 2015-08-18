@@ -3,14 +3,14 @@
 
 
 app.circleArr = []; // store outside so can be accessed globally
+app.svgEl = document.querySelector('svg');
+app.activeBall; // currently active article
 
 app.balls = (function () {
 	'use strict';
 
-	var svgEl = document.querySelector('svg'),
-		containerEl = document.getElementById('container');
+	var containerEl = document.getElementById('container');
 
-	var activeBall; // currently active article
 
 
 	var minRad = 5;
@@ -60,7 +60,7 @@ app.balls = (function () {
 
 
 	var articleCount = dataModel.length;
-	var spareCount = 40;
+	var spareCount = 21;
 	var pushSpread = 1; // how hard the balls push against each other
 
 	var innerWidth = window.innerWidth;
@@ -224,12 +224,12 @@ app.balls = (function () {
 
 			    		// right edge && left edge
 
-			    		var hozRestriction = c.x < innerWidth - c.r && c.x > 0 + c.r,
-			    			vertRestriction = c.y + 60 < innerHeight - c.r && c.y > 0 + c.r; // +60 to keep some spacing at bottom for label
+			    		var hozBoundary = c.x + 20 < innerWidth - c.r && c.x > 20 + c.r, // 20 get away from edges in case text goes over boundary
+			    			verBoundary = c.y + 60 < innerHeight - c.r && c.y > 0 + c.r; // +60 to keep some spacing at bottom for label
 
-			    		// if the ball is over the edges divide its movement by 100 so it doesn't disappear out of viewport
-			    		c.vx += Math.cos( t ) * f / (hozRestriction ? 1 : 100);
-			    		c.vy += Math.sin( t ) * f / (vertRestriction ? 1 : 100);
+			    		// if the ball is over the boundary divide its movement by 100 so it doesn't disappear out of viewport
+			    		c.vx += Math.cos( t ) * f / (hozBoundary ? 1 : 100);
+			    		c.vy += Math.sin( t ) * f / (verBoundary ? 1 : 100);
 
 			    	}
 
@@ -257,32 +257,9 @@ app.balls = (function () {
 						var ballAnchor = document.createElementNS('http://www.w3.org/2000/svg', 'a');
 							ballAnchor.setAttribute('xlink:href', currentCircle.href);
 
-						ballAnchor.addEventListener('click', function(e) {
-							e.preventDefault();
-
-
-							app.utilities.closest(e.target, function(el) {
-
-								if (el.tagName === 'a') {
-									//containerEl.classList.add('open');
-									svgEl.appendChild(el.parentNode);
-									activeBall = el;
-
-									setTimeout(function() {
-
-										el.classList.add('active');
-
-									}, 0)
-
-								}
-
-							});
-
-
-						});
-
 					}
 
+					// ADD TITLE
 					if (currentCircle.title) {
 			    		var titleHTML = document.querySelector('#title');
 						groupEl.appendChild(titleHTML);
@@ -348,7 +325,7 @@ app.balls = (function () {
 						}
 					}
 
-			      	svgEl.appendChild(groupEl);
+			      	app.svgEl.appendChild(groupEl);
 				}
 
 
@@ -402,7 +379,7 @@ app.balls = (function () {
 		    if (e.keyCode == 27) {
 
 		        setTimeout(function() {
-		        	activeBall.classList.remove('active');
+		        	app.activeBall.classList.remove('active');
 		        }, 0)
 		    }
 		};

@@ -281,6 +281,14 @@ app.balls = (function () {
 				groupEl.style.webkitTransform = 'translateY(' + roundedY + 'px) translateX('+ roundedX +'px)';
 				groupEl.style.transform = 'translateY(' + roundedY + 'px) translateX('+ roundedX +'px)';
 
+				//http://stackoverflow.com/a/28776528
+
+				if ('ie') { // sort this out later
+					var transVal = getComputedStyle(groupEl).getPropertyValue('transform');
+					groupEl.setAttribute('transform', transVal);
+
+				}
+
 
 				// only append if it doesn't already exist
 				if (!document.getElementById(i)) {
@@ -365,7 +373,7 @@ app.balls = (function () {
 
 			//stopAnimationLoop();
 
-		}, 5000);
+		}, 1000);
 
 		// punch in the title card
 		setTimeout(function() {

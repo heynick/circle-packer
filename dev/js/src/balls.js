@@ -1,6 +1,11 @@
 /*global window, document, app, navigator */
 /*jshint bitwise: false*/
 
+/*function isIE() {
+  var userAgent = navigator.userAgent;
+  return userAgent.indexOf("MSIE ") > -1 || userAgent.indexOf("Trident/") > -1;
+}*/
+
 
 app.circleArr = []; // store outside so can be accessed globally
 app.svgEl = document.querySelector('svg');
@@ -244,7 +249,7 @@ app.balls = (function () {
 
 					var polygonEl = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
 						polygonEl.setAttribute('fill', currentCircle.fill);
-						polygonEl.setAttribute('points', getPolyPoints(currentCircle.r*0.80, currentCircle.r));
+						polygonEl.setAttribute('points', getPolyPoints(currentCircle.r*0.8, currentCircle.r));
 
 
 					groupEl = document.createElementNS('http://www.w3.org/2000/svg', 'g');
@@ -278,16 +283,15 @@ app.balls = (function () {
 				var roundedY = Math.round((currentCircle.y+=currentCircle.vy) * 100) / 100;
 				var roundedX = Math.round((currentCircle.x+=currentCircle.vx) * 100) / 100;
 
-				groupEl.style.webkitTransform = 'translateY(' + roundedY + 'px) translateX('+ roundedX +'px)';
-				groupEl.style.transform = 'translateY(' + roundedY + 'px) translateX('+ roundedX +'px)';
+				//groupEl.style.webkitTransform = 'translateY(' + roundedY + 'px) translateX('+ roundedX +'px)';
+				//groupEl.style.transform = 'translateY(' + roundedY + 'px) translateX('+ roundedX +'px)';
+				groupEl.setAttribute('transform', 'translate(' + roundedX + ', '+ roundedY+')');
 
 				//http://stackoverflow.com/a/28776528
+				//if (isIE()) { // sort this out later
+					//var transVal = getComputedStyle(groupEl).getPropertyValue('transform');
 
-				if ('ie') { // sort this out later
-					var transVal = getComputedStyle(groupEl).getPropertyValue('transform');
-					groupEl.setAttribute('transform', transVal);
-
-				}
+				//}
 
 
 				// only append if it doesn't already exist
@@ -382,15 +386,7 @@ app.balls = (function () {
 
 
 
-		document.onkeydown = function(e) {
-		    e = e || window.event;
-		    if (e.keyCode == 27) {
 
-		        setTimeout(function() {
-		        	app.activeBall.classList.remove('active');
-		        }, 0)
-		    }
-		};
 
 
 

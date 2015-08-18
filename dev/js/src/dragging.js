@@ -1,7 +1,6 @@
 /*global window, document, app, navigator */
 /*jshint bitwise: false*/
 
-
 app.dragging = (function () {
 	'use strict';
 
@@ -58,17 +57,29 @@ app.dragging = (function () {
 
 
 	var init = function () {
-		tapClick();
+
 		mouse();
 		touch();
-	};
-
-	var currentPos = [];
-
-	var tapClick = function() {
-
+		keys();
 
 	};
+
+
+	var keys = function() {
+
+		document.onkeydown = function(e) {
+		    e = e || window.event;
+		    if (e.keyCode == 27) {
+
+		        setTimeout(function() {
+		        	app.activeBall.classList.remove('active');
+		        }, 0)
+		    }
+		};
+
+	};
+
+	var cursorPos = [];
 
 	var mouse = function() {
 
@@ -77,13 +88,13 @@ app.dragging = (function () {
 
 		document.addEventListener('mousedown', function(e) {
 
-			currentPos=[e.pageX, e.pageY];
+			cursorPos = [e.pageX, e.pageY];
 
 			app.utilities.closest(e.target, function(el) {
 
 				if (el.tagName === 'g') {
 
-					el.classList.add('held');
+					el.setAttribute('class', 'held');
 
 					mouseBallHeld = el.id;
 
@@ -100,8 +111,8 @@ app.dragging = (function () {
 				makeVelocityCalculator( e, previousEvent);
 				previousEvent = e;*/
 
-				app.circleArr[mouseBallHeld].x = e.x;
-				app.circleArr[mouseBallHeld].y = e.y;
+				app.circleArr[mouseBallHeld].x = e.pageX;
+				app.circleArr[mouseBallHeld].y = e.pageY;
 			}
 
 		});
@@ -111,26 +122,26 @@ app.dragging = (function () {
 			if (mouseBallHeld) {
 				// gotta do it this way because user could mouseup on a different element
 				// which would wreck the closest loop
-				document.getElementById(mouseBallHeld).classList.remove('held');
+				document.getElementById(mouseBallHeld).setAttribute('class', '');
 
 				app.utilities.closest(e.target, function(el) {
 
 					// check whether mouseup occured on an anchor, and whether it clicked
-					if (el.tagName === 'a' && [e.pageX, e.pageY].equals(currentPos)) {
+					if (el.tagName === 'a' && [e.pageX, e.pageY].equals(cursorPos)) {
 
 						app.svgEl.appendChild(el.parentNode);
 						app.activeBall = el;
 
 						setTimeout(function() {
 
-							el.classList.add('active');
+							el.setAttribute('class', 'active');
 
 						}, 0)
 
 					} else if (el.tagName === 'g') {
 
-						app.circleArr[mouseBallHeld].x = e.x;
-						app.circleArr[mouseBallHeld].y = e.y;
+						app.circleArr[mouseBallHeld].x = e.pageX;
+						app.circleArr[mouseBallHeld].y = e.pageY;
 
 					}
 
@@ -180,7 +191,7 @@ app.dragging = (function () {
 
 				if (el.tagName === 'g') {
 
-					el.classList.add('held');
+					el.setAttribute('class', 'held');
 
 
 					touchBallsHeld.push(el.id);
@@ -200,7 +211,7 @@ app.dragging = (function () {
 
 				if (el.tagName === 'g') {
 
-					el.classList.remove('held');
+					el.setAttribute('class', '');
 
 					// remove the corresponding ball from the touchBallsHeld array
 					var indexToRemove = touchBallsHeld.indexOf(el.id);
@@ -222,9 +233,6 @@ app.dragging = (function () {
 
 	return {
 		init: init
-
-
-
 	};
 
 })();

@@ -4,24 +4,20 @@
 app.resize = (function () {
 	'use strict';
 
+
 	var ballsBrowserResize = app.utilities.debounce(function() {
 
-		/*innerWidth = window.innerWidth;
-		innerHeight = window.innerHeight;
+		// reset ball position just like on init
+		app.circleArr.forEach(function(el) {
 
-		var gEls = document.querySelectorAll('g');
+			el.x = (window.innerWidth/2) + Math.random();
+			el.y = (window.innerHeight/2) + Math.random();
 
-		for (var i = 0; i < gEls.length; i++) {
-			//currentCircle.added = false;
-			//gEls[i].remove();
-		}*/
-
-		//appendedBalls = [];
+		});
 
 
 
-
-	}, 250);
+	}, 500);
 
 	var init = function () {
 

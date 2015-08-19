@@ -8,7 +8,7 @@ function isIE() {
 
 
 app.circleArr = []; // store outside so can be accessed globally
-app.svgEl = app.globals.doc.querySelector('svg');
+app.svgEl = app.globals.doc.getElementById('svg-el');
 app.activeBall; // currently active article
 app.animating;
 
@@ -67,23 +67,12 @@ app.balls = (function () {
 	var spareCount = 21;
 	var pushSpread = 1; // how hard the balls push against each other
 
-	var innerWidth = window.innerWidth;
-	var innerHeight = window.innerHeight;
 
 	var circleCount = 0;
 	var spreadSpeed = 0.06;
 
 
-	var m,
-		c,
-		dx,
-		dy,
-		d,
-		f,
-		t,
-		l,
-		r,
-		currentCircle;
+
 
 
 	var createCircle = function(type) {
@@ -102,8 +91,8 @@ app.balls = (function () {
 				fill: fill,
 				text: text,
 				id: circleCount,
-				x: innerWidth/2 + Math.random(),
-				y: innerHeight/2 + Math.random(),
+				x: window.innerWidth/2 + Math.random(),
+				y: window.innerHeight/2 + Math.random(),
 				vx: 0,
 				vy: 0,
 				r: r
@@ -198,6 +187,17 @@ app.balls = (function () {
 
 	var init = function () {
 
+		var m,
+			c,
+			dx,
+			dy,
+			d,
+			f,
+			t,
+			l,
+			r,
+			currentCircle;
+
 		var groupEl;
 
 		function renderLoop() {
@@ -224,8 +224,8 @@ app.balls = (function () {
 			    		t = Math.atan2(dy, dx);
 
 			    		// set right edge && left edge boundaries
-			    		var hozBoundary = c.x + 20 < innerWidth - c.r && c.x > 20 + c.r, // 20 get away from edges in case text goes over boundary
-			    			verBoundary = c.y + 60 < innerHeight - c.r && c.y > 0 + c.r; // +60 to keep some spacing at bottom for label
+			    		var hozBoundary = c.x + 20 < window.innerWidth - c.r && c.x > 20 + c.r, // 20 get away from edges in case text goes over boundary
+			    			verBoundary = c.y + 60 < window.innerHeight - c.r && c.y > 0 + c.r; // +60 to keep some spacing at bottom for label
 
 			    		// if the ball is over the boundary divide its movement by 100 so it doesn't disappear out of viewport
 			    		c.vx += Math.cos( t ) * f / (hozBoundary ? 1 : 100);
@@ -393,7 +393,8 @@ app.balls = (function () {
 
 	return {
 		init: init,
-		createCircle: createCircle
+		createCircle: createCircle,
+		renderLoop: init.renderLoop
 	};
 
 })();

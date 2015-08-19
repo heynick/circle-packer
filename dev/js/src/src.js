@@ -1,5 +1,3 @@
-
-
 window.onload = function() {
     'use strict';
 
@@ -10,7 +8,8 @@ window.onload = function() {
     app.utilities.init();
 
     app.balls.init();
-    app.dragging.init();
+    app.interaction.init();
+    app.resize.init();
 
 
     // initiate FastClick

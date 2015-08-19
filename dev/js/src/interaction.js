@@ -1,7 +1,7 @@
 /*global window, app.globals.doc, app, navigator */
 /*jshint bitwise: false*/
 
-app.dragging = (function () {
+app.interaction = (function () {
 	'use strict';
 
 	var easeIn = function(t, b, c, d) {

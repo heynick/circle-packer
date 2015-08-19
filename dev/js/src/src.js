@@ -3,7 +3,7 @@
 window.onload = function() {
     'use strict';
 
-    document.documentElement.classList.remove('no-js');
+    app.globals.doc.documentElement.classList.remove('no-js');
 
     // initialise modules
 

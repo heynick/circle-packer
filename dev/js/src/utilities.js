@@ -1,10 +1,12 @@
-/*global window, document, app, navigator */
+/*global window, app, navigator */
 /*jshint bitwise: false*/
 
 app.utilities = (function () {
 	'use strict';
 
 	var init = function () {
+
+
 
 
 	};
@@ -43,9 +45,9 @@ app.utilities = (function () {
 
 
 	// http://bl.ocks.org/jebeck/196406a3486985d2b92e
+	// used for creating the arced text paths
 	var getPathData = function(r) {
-		// adjust the radius a little so our text's baseline isn't sitting directly on the circle
-		r = Math.floor(r * 1.15);
+		r = Math.floor(r * 1.15); // adjust the radius a little so our text's baseline isn't sitting directly on the circle
 		var startX = r/2 - r;
 		return 'M' + startX*2 + ',' + "1" + ' ' +
 		  'a' + r + ',' + r + ' 0 0 0 ' + 2*r + ',0';
@@ -57,7 +59,7 @@ app.utilities = (function () {
 		closest: closest,
 		random: random,
 		getPathData: getPathData
-		
+
 
 	};
 

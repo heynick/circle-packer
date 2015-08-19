@@ -1,22 +1,21 @@
-/*global window, document, app, navigator */
+/*global window, app, navigator */
 /*jshint bitwise: false*/
 
-/*function isIE() {
+function isIE() {
   var userAgent = navigator.userAgent;
   return userAgent.indexOf("MSIE ") > -1 || userAgent.indexOf("Trident/") > -1;
-}*/
+}
 
 
 app.circleArr = []; // store outside so can be accessed globally
-app.svgEl = document.querySelector('svg');
+app.svgEl = app.globals.doc.querySelector('svg');
 app.activeBall; // currently active article
+app.animating;
 
 app.balls = (function () {
 	'use strict';
 
-	var containerEl = document.getElementById('container');
-
-
+	var containerEl = app.globals.doc.getElementById('container');
 
 	var minRad = 5;
 	var maxRad = 60;
@@ -74,7 +73,6 @@ app.balls = (function () {
 	var circleCount = 0;
 	var spreadSpeed = 0.06;
 
-	var animating;
 
 	var m,
 		c,
@@ -202,8 +200,6 @@ app.balls = (function () {
 
 		var groupEl;
 
-
-
 		function renderLoop() {
 
 		    for (var i = 0; i < app.circleArr.length; i++) {
@@ -227,8 +223,7 @@ app.balls = (function () {
 			    		f = (1-d/l) * r;
 			    		t = Math.atan2(dy, dx);
 
-			    		// right edge && left edge
-
+			    		// set right edge && left edge boundaries
 			    		var hozBoundary = c.x + 20 < innerWidth - c.r && c.x > 20 + c.r, // 20 get away from edges in case text goes over boundary
 			    			verBoundary = c.y + 60 < innerHeight - c.r && c.y > 0 + c.r; // +60 to keep some spacing at bottom for label
 
@@ -247,26 +242,26 @@ app.balls = (function () {
 
 				    currentCircle.added = true;
 
-					var polygonEl = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+					var polygonEl = app.globals.doc.createElementNS('http://www.w3.org/2000/svg', 'polygon');
 						polygonEl.setAttribute('fill', currentCircle.fill);
 						polygonEl.setAttribute('points', getPolyPoints(currentCircle.r*0.8, currentCircle.r));
 
 
-					groupEl = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+					groupEl = app.globals.doc.createElementNS('http://www.w3.org/2000/svg', 'g');
 					groupEl.id = i;
 					appendedBalls.push(groupEl);
 
 
 					// ADD ANCHOR
 					if (currentCircle.href) {
-						var ballAnchor = document.createElementNS('http://www.w3.org/2000/svg', 'a');
+						var ballAnchor = app.globals.doc.createElementNS('http://www.w3.org/2000/svg', 'a');
 							ballAnchor.setAttribute('xlink:href', currentCircle.href);
 
 					}
 
 					// ADD TITLE
 					if (currentCircle.title) {
-			    		var titleHTML = document.querySelector('#title');
+			    		var titleHTML = app.globals.doc.querySelector('#title');
 						groupEl.appendChild(titleHTML);
 					}
 
@@ -280,53 +275,54 @@ app.balls = (function () {
 				currentCircle.vx *= spreadSpeed;
 				currentCircle.vy *= spreadSpeed;
 
-				var roundedY = Math.round((currentCircle.y+=currentCircle.vy) * 100) / 100;
-				var roundedX = Math.round((currentCircle.x+=currentCircle.vx) * 100) / 100;
+				var roundedY = Math.round((currentCircle.y+=currentCircle.vy) * 100) / 100,
+					roundedX = Math.round((currentCircle.x+=currentCircle.vx) * 100) / 100;
 
-				//groupEl.style.webkitTransform = 'translateY(' + roundedY + 'px) translateX('+ roundedX +'px)';
-				//groupEl.style.transform = 'translateY(' + roundedY + 'px) translateX('+ roundedX +'px)';
-				groupEl.setAttribute('transform', 'translate(' + roundedX + ', '+ roundedY+')');
 
 				//http://stackoverflow.com/a/28776528
-				//if (isIE()) { // sort this out later
-					//var transVal = getComputedStyle(groupEl).getPropertyValue('transform');
+				if (isIE()) {
+					groupEl.setAttribute('transform', 'translate(' + roundedX + ', '+ roundedY+')');
 
-				//}
+				} else {
+					//groupEl.style.webkitTransform = 'translate3d(' + roundedX + 'px, '+roundedY+'px, 0)';
+					groupEl.style.transform = 'translate3d(' + roundedX + 'px, '+roundedY+'px, 0)';
+				}
 
 
 				// only append if it doesn't already exist
-				if (!document.getElementById(i)) {
+				if (!app.globals.doc.getElementById(i)) {
 
 
 					// ADD TEXT LABEL
 					if (currentCircle.text) {
-						var path = document.createElementNS('http://www.w3.org/2000/svg', "path");
+						var path = app.globals.doc.createElementNS('http://www.w3.org/2000/svg', "path");
 						path.setAttribute("id", "textPath" + i);
 						path.setAttribute("d", app.utilities.getPathData(currentCircle.r));
 
 						groupEl.appendChild(path);
-						//ball.appendChild(defs);
 
-						var textPath = document.createElementNS('http://www.w3.org/2000/svg', "textPath");
+						var textPath = app.globals.doc.createElementNS('http://www.w3.org/2000/svg', "textPath");
 							textPath.setAttribute("startOffset", "50%"); // cheeky bastard
 							textPath.setAttributeNS('http://www.w3.org/1999/xlink', "href", "#textPath" + i);
 							textPath.innerHTML = currentCircle.text;
 
-						var text = document.createElementNS('http://www.w3.org/2000/svg', "text");
+						var text = app.globals.doc.createElementNS('http://www.w3.org/2000/svg', "text");
 							text.appendChild(textPath);
+
+							ballAnchor.appendChild(text);
 
 					}
 
 
 
-					if (ballAnchor) {
+					if (currentCircle.href) {
 						groupEl.appendChild(ballAnchor);
 						ballAnchor.appendChild(polygonEl);
 
-						if (currentCircle.text) {
+						/*if (currentCircle.text) {
 
-							ballAnchor.appendChild(text);
-						}
+
+						}*/
 
 					} else if (polygonEl){
 
@@ -344,6 +340,7 @@ app.balls = (function () {
 		    }
 
 		    // ensure that the circles don't exceed the limit
+		    // this needs work for better randomisation
 		    if (app.circleArr.length < articleCount) {
 		    	app.circleArr.push( createCircle('article') );
 		    }
@@ -351,22 +348,22 @@ app.balls = (function () {
 		    	app.circleArr.push( createCircle('spare') );
 		    }
 
-		    animating = window.requestAnimationFrame(renderLoop);
+		    app.animating = window.requestAnimationFrame(renderLoop);
 
 		}
 
 
 		function startAnimationLoop() {
-		    if (!animating) {
+		    if (!app.animating) {
 		       renderLoop();
 		    }
 		}
 
 
 		function stopAnimationLoop() {
-		    if (animating) {
-		       window.cancelAnimationFrame(animating);
-		       animating = undefined;
+		    if (app.animating) {
+		       window.cancelAnimationFrame(app.animating);
+		       app.animating = undefined;
 		    }
 		}
 

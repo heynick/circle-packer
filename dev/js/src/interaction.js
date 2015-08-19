@@ -1,4 +1,4 @@
-/*global window, document, app, navigator */
+/*global window, app.globals.doc, app, navigator */
 /*jshint bitwise: false*/
 
 app.dragging = (function () {
@@ -67,7 +67,7 @@ app.dragging = (function () {
 
 	var keys = function() {
 
-		document.onkeydown = function(e) {
+		app.globals.doc.onkeydown = function(e) {
 		    e = e || window.event;
 		    if (e.keyCode == 27) {
 
@@ -86,7 +86,7 @@ app.dragging = (function () {
 		var mouseBallHeld = false;
 		var previousEvent = false;
 
-		document.addEventListener('mousedown', function(e) {
+		app.globals.doc.addEventListener('mousedown', function(e) {
 
 			cursorPos = [e.pageX, e.pageY];
 
@@ -103,26 +103,40 @@ app.dragging = (function () {
 			});
 		});
 
-		document.addEventListener('mousemove', function(e) {
+
+		app.globals.doc.addEventListener('mousemove', function(e) {
 
 			if (mouseBallHeld) {
+
+
+				app.utilities.closest(e.target, function(el) {
+					if (el.tagName === 'g') {
+
+
+						var rect = el.getBoundingClientRect();
+
+						app.circleArr[mouseBallHeld].x = e.pageX;
+						app.circleArr[mouseBallHeld].y = e.pageY;
+
+					}
+
+				});
 
 				/*e.time = Date.now();
 				makeVelocityCalculator( e, previousEvent);
 				previousEvent = e;*/
 
-				app.circleArr[mouseBallHeld].x = e.pageX;
-				app.circleArr[mouseBallHeld].y = e.pageY;
+
 			}
 
 		});
 
-		document.addEventListener('mouseup', function(e) {
+		app.globals.doc.addEventListener('mouseup', function(e) {
 
 			if (mouseBallHeld) {
 				// gotta do it this way because user could mouseup on a different element
 				// which would wreck the closest loop
-				document.getElementById(mouseBallHeld).setAttribute('class', '');
+				app.globals.doc.getElementById(mouseBallHeld).setAttribute('class', '');
 
 				app.utilities.closest(e.target, function(el) {
 
@@ -132,7 +146,11 @@ app.dragging = (function () {
 						app.svgEl.appendChild(el.parentNode);
 						app.activeBall = el;
 
+						//window.cancelAnimationFrame(app.animating);
+
 						setTimeout(function() {
+
+							//console.log('click');
 
 							el.setAttribute('class', 'active');
 
@@ -140,8 +158,8 @@ app.dragging = (function () {
 
 					} else if (el.tagName === 'g') {
 
-						app.circleArr[mouseBallHeld].x = e.pageX;
-						app.circleArr[mouseBallHeld].y = e.pageY;
+						/*app.circleArr[mouseBallHeld].x = e.pageX;
+						app.circleArr[mouseBallHeld].y = e.pageY;*/
 
 					}
 
@@ -160,7 +178,7 @@ app.dragging = (function () {
 
 		var touchBallsHeld = [];
 
-		document.addEventListener('touchmove', function(e) {
+		app.globals.doc.addEventListener('touchmove', function(e) {
 
 			e.preventDefault();
 
@@ -185,7 +203,7 @@ app.dragging = (function () {
 
 
 
-		document.addEventListener('touchstart', function(e) {
+		app.globals.doc.addEventListener('touchstart', function(e) {
 
 			app.utilities.closest(e.target, function(el) {
 
@@ -204,7 +222,7 @@ app.dragging = (function () {
 
 
 
-		document.addEventListener('touchend', function(e) {
+		app.globals.doc.addEventListener('touchend', function(e) {
 
 			// get the 'g' element of the finger which was removed
 			app.utilities.closest(e.changedTouches[0].target, function(el) {

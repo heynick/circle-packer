@@ -1,17 +1,17 @@
 /*global window, app, navigator */
 /*jshint bitwise: false*/
 
-
 app.balls = (function () {
 	'use strict';
 
 	var containerEl = app.globals.doc.getElementById('container');
 
 	// OPTIONS
-	var minRad = 5,
-		maxRad = 60,
-		spareCount = 21,
-		pushSpread = 1, // how hard the balls push against each other
+	var minBallSize = 5,
+		maxBallSize = 60,
+		ballRoughness = 0.8, // 1 === perfect circle
+		spareCount = 20,
+		spreadPush = 1.1, // how hard the balls push against each other
 		spreadSpeed = 0.06;
 
 	var appendedBalls = []; // store a reference to all balls in here, so we don't need to query the dom
@@ -26,21 +26,21 @@ app.balls = (function () {
 		},
 		{
 			href: '/item1',
-			fill: 'aquamarine',
+			fill: '#4E9689',
 			r: 90,
 			text: 'The amount of fucks I give',
 			img: '/'
 		},
 		{
 			href: '/item1',
-			fill: 'aquamarine',
+			fill: '#4E9689',
 			r: 90,
 			text: 'CSS Cube using Accelerometer',
 			img: '/'
 		},
 		{
 			href: '/item1',
-			fill: 'aquamarine',
+			fill: '#4E9689',
 			r: 90,
 			text: 'hohokum in paper.js',
 			img: '/'
@@ -56,6 +56,8 @@ app.balls = (function () {
 	  '#7ED0D6'
 	];
 
+	var innerWidthHalf = window.innerWidth / 2,
+		innerHeightHalf = window.innerHeight / 2;
 
 	var articleCount = dataModel.length;
 
@@ -69,25 +71,26 @@ app.balls = (function () {
 		var href = checkDataModel ? thisCircle.href : null,
 			img = checkDataModel ? thisCircle.img : '/',
 			text = checkDataModel ? thisCircle.text : null,
-			r = checkDataModel ? thisCircle.r : app.utilities.random(minRad, maxRad),
+			r = checkDataModel ? thisCircle.r : app.utilities.random(minBallSize, maxBallSize),
 			fill = checkDataModel ? thisCircle.fill : ballColors[Math.floor(Math.random() * ballColors.length)];
 
 
 		var circleObj = {
+			isTitleBall: false,
 			href: href,
 			img: img,
 			fill: fill,
 			text: text,
 			id: createCircleCounter,
-			x: window.innerWidth/2 + Math.random(),
-			y: window.innerHeight/2 + Math.random(),
+			x: innerWidthHalf + Math.random(),
+			y: innerHeightHalf + Math.random(),
 			vx: 0,
 			vy: 0,
 			r: r
 		};
 
 		if (type === 'title') {
-			circleObj.title = true;
+			circleObj.isTitleBall = true;
 			circleObj.fill = '#ddd';
 			circleObj.r = 170;
 		}
@@ -104,73 +107,6 @@ app.balls = (function () {
 
 	}
 
-	var setLinePoints = function(iterations) {
-		var point;
-		var pointList = {};
-		pointList.first = {x:0, y:1};
-
-		var lastPoint = {x:1, y:1};
-		var nextPoint;
-		var dx, newX, newY;
-
-		pointList.first.next = lastPoint;
-
-		for (var i = 0; i < iterations; i++) {
-			point = pointList.first;
-
-			while (point.next != null) {
-				nextPoint = point.next;
-
-				dx = nextPoint.x - point.x;
-				newX = 0.5 * (point.x + nextPoint.x);
-				newY = 0.5 * (point.y + nextPoint.y);
-				newY += dx*(Math.random()*2 -1);
-
-				var newPoint = {x:newX, y:newY};
-
-
-				//put between points
-				newPoint.next = nextPoint;
-				point.next = newPoint;
-
-				point = nextPoint;
-			}
-		}
-
-
-		return pointList;
-	}
-
-
-	var getPolyPoints = function(minRad, maxRad) {
-		var point;
-		var rad;
-		var twoPi = 2*Math.PI;
-		var x0,y0;
-		var phase = 0;
-
-		//generate the random function that will be used to vary the radius, 9 iterations of subdivision
-		var pointList = setLinePoints(6);
-
-		var coordString = '';
-
-		point = pointList.first;
-
-		while (point.next) {
-			point = point.next;
-			phase = twoPi*point.x;
-			rad = minRad + point.y*(maxRad - minRad);
-			x0 = rad*Math.cos(phase);
-			y0 = rad*Math.sin(phase);
-
-			coordString = coordString + (Math.round(x0 * 100) / 100 + ',' + Math.round(y0 * 100) / 100 + ' ');
-		}
-
-		return coordString;
-
-	}
-
-
 
 	var init = function () {
 
@@ -185,7 +121,7 @@ app.balls = (function () {
 			r,
 			currentCircle;
 
-		var groupEl;
+
 
 		function renderLoop() {
 
@@ -203,7 +139,7 @@ app.balls = (function () {
 
 			    	c = app.globals.circleArr[j];
 			    	d = (dx = c.x - currentCircle.x) * dx + (dy = c.y - currentCircle.y) * dy;
-			    	l = (r = currentCircle.r + c.r) * r * pushSpread;
+			    	l = (r = currentCircle.r + c.r) * r * spreadPush;
 
 			    	if (d < l) {
 
@@ -229,29 +165,49 @@ app.balls = (function () {
 
 				    currentCircle.added = true;
 
-					var polygonEl = app.globals.doc.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-						polygonEl.setAttribute('fill', currentCircle.fill);
-						polygonEl.setAttribute('points', getPolyPoints(currentCircle.r*0.8, currentCircle.r));
+					var groupEl = app.globals.doc.createElementNS('http://www.w3.org/2000/svg', 'g'),
+						polygonEl = app.globals.doc.createElementNS('http://www.w3.org/2000/svg', 'polygon');
 
-
-					groupEl = app.globals.doc.createElementNS('http://www.w3.org/2000/svg', 'g');
 					groupEl.id = i;
-					appendedBalls.push(groupEl);
-
-
-					// ADD ANCHOR
-					if (currentCircle.href) {
-						var ballAnchor = app.globals.doc.createElementNS('http://www.w3.org/2000/svg', 'a');
-							ballAnchor.setAttribute('xlink:href', currentCircle.href);
-
-					}
+					polygonEl.setAttribute('fill', currentCircle.fill);
+					polygonEl.setAttribute('points', app.polypoints.getPolyPoints(currentCircle.r * ballRoughness, currentCircle.r));
 
 					// ADD TITLE
-					if (currentCircle.title) {
-			    		var titleHTML = app.globals.doc.querySelector('#title');
+					if (currentCircle.isTitleBall) {
+						var titleHTML = app.globals.doc.querySelector('#title');
 						groupEl.appendChild(titleHTML);
 					}
 
+					// ADD ANCHOR AND TEXT
+					if (currentCircle.href) {
+						var ballAnchor = app.globals.doc.createElementNS('http://www.w3.org/2000/svg', 'a'),
+							path = app.globals.doc.createElementNS('http://www.w3.org/2000/svg', "path"),
+							textPath = app.globals.doc.createElementNS('http://www.w3.org/2000/svg', "textPath");
+
+						path.setAttribute("id", "textPath" + i);
+						path.setAttribute("d", app.utilities.getPathData(currentCircle.r));
+
+						textPath.setAttribute("startOffset", "50%"); // cheeky bastard
+						textPath.setAttributeNS('http://www.w3.org/1999/xlink', "href", "#textPath" + i);
+						textPath.innerHTML = currentCircle.text;
+
+						groupEl.appendChild(path);
+
+						var text = app.globals.doc.createElementNS('http://www.w3.org/2000/svg', "text");
+							text.appendChild(textPath);
+
+						ballAnchor.setAttribute('xlink:href', currentCircle.href);
+						ballAnchor.appendChild(polygonEl);
+						ballAnchor.appendChild(text);
+
+						groupEl.appendChild(ballAnchor);
+
+					} else {
+						groupEl.appendChild(polygonEl);
+					}
+
+					appendedBalls.push(groupEl);
+					app.globals.svgEl.appendChild(groupEl);
 
 
 			    // UPDATE EXISTING BALL
@@ -265,7 +221,6 @@ app.balls = (function () {
 				var roundedY = Math.round((currentCircle.y+=currentCircle.vy) * 100) / 100,
 					roundedX = Math.round((currentCircle.x+=currentCircle.vx) * 100) / 100;
 
-
 				//http://stackoverflow.com/a/28776528
 				if (app.utilities.isIE()) {
 					groupEl.setAttribute('transform', 'translate(' + roundedX + ', '+ roundedY+')');
@@ -277,54 +232,25 @@ app.balls = (function () {
 
 
 				// only append if it doesn't already exist
-				if (!app.globals.doc.getElementById(i)) {
+				/*if (!app.globals.doc.getElementById(i)) {
 
 
 					// ADD TEXT LABEL
-					if (currentCircle.text) {
-						var path = app.globals.doc.createElementNS('http://www.w3.org/2000/svg', "path");
-						path.setAttribute("id", "textPath" + i);
-						path.setAttribute("d", app.utilities.getPathData(currentCircle.r));
 
-						groupEl.appendChild(path);
 
-						var textPath = app.globals.doc.createElementNS('http://www.w3.org/2000/svg', "textPath");
-							textPath.setAttribute("startOffset", "50%"); // cheeky bastard
-							textPath.setAttributeNS('http://www.w3.org/1999/xlink', "href", "#textPath" + i);
-							textPath.innerHTML = currentCircle.text;
-
-						var text = app.globals.doc.createElementNS('http://www.w3.org/2000/svg', "text");
-							text.appendChild(textPath);
-
-						groupEl.appendChild(ballAnchor);
-						ballAnchor.appendChild(polygonEl);
-
-						ballAnchor.appendChild(text);
-
-					}
+					//if (currentCircle.href) {
 
 
 
-					if (currentCircle.href) {
 
 
-					} else if (polygonEl) {
-
-						groupEl.appendChild(polygonEl);
-						if (currentCircle.text) {
-							groupEl.appendChild(text);
-
-						}
-					}
-
-			      	app.globals.svgEl.appendChild(groupEl);
-				}
-
+				}*/
 
 		    }
 
+
 		    // ensure that the circles don't exceed the limit
-		    // this needs work for better randomisation
+		    // could use work for better randomisation
 		    if (app.globals.circleArr.length < articleCount) {
 		    	app.globals.circleArr.push( createCircle('article') );
 		    }

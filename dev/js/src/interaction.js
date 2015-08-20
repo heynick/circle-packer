@@ -146,7 +146,7 @@ app.interaction = (function () {
 						app.globals.svgEl.appendChild(el.parentNode);
 						app.globals.activeBall = el;
 
-						//window.cancelAnimationFrame(app.animating);
+						//window.cancelAnimationFrame(app.globals.animating);
 
 						setTimeout(function() {
 

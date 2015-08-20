@@ -72,7 +72,7 @@ app.interaction = (function () {
 		    if (e.keyCode == 27) {
 
 		        setTimeout(function() {
-		        	app.activeBall.classList.remove('active');
+		        	app.globals.activeBall.classList.remove('active');
 		        }, 0)
 		    }
 		};
@@ -115,8 +115,8 @@ app.interaction = (function () {
 
 						var rect = el.getBoundingClientRect();
 
-						app.circleArr[mouseBallHeld].x = e.pageX;
-						app.circleArr[mouseBallHeld].y = e.pageY;
+						app.globals.circleArr[mouseBallHeld].x = e.pageX;
+						app.globals.circleArr[mouseBallHeld].y = e.pageY;
 
 					}
 
@@ -143,8 +143,8 @@ app.interaction = (function () {
 					// check whether mouseup occured on an anchor, and whether it clicked
 					if (el.tagName === 'a' && [e.pageX, e.pageY].equals(cursorPos)) {
 
-						app.svgEl.appendChild(el.parentNode);
-						app.activeBall = el;
+						app.globals.svgEl.appendChild(el.parentNode);
+						app.globals.activeBall = el;
 
 						//window.cancelAnimationFrame(app.animating);
 
@@ -156,12 +156,12 @@ app.interaction = (function () {
 
 						}, 0)
 
-					} else if (el.tagName === 'g') {
+					}/* else if (el.tagName === 'g') {
 
-						/*app.circleArr[mouseBallHeld].x = e.pageX;
-						app.circleArr[mouseBallHeld].y = e.pageY;*/
+						app.globals.circleArr[mouseBallHeld].x = e.pageX;
+						app.globals.circleArr[mouseBallHeld].y = e.pageY;
 
-					}
+					}*/
 
 				});
 
@@ -189,8 +189,8 @@ app.interaction = (function () {
 				for (var i = 0; i < e.touches.length; i++) {
 
 					//console.log(e.touches.length);
-					app.circleArr[touchBallsHeld[i]].x = e.touches[i].pageX;
-					app.circleArr[touchBallsHeld[i]].y = e.touches[i].pageY;
+					app.globals.circleArr[touchBallsHeld[i]].x = e.touches[i].pageX;
+					app.globals.circleArr[touchBallsHeld[i]].y = e.touches[i].pageY;
 					//console.log(touchBallsHeld);
 				}
 

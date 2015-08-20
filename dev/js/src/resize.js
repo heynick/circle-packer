@@ -7,11 +7,16 @@ app.resize = (function () {
 
 	var ballsBrowserResize = app.utilities.debounce(function() {
 
-		// reset ball position just like on init
-		app.circleArr.forEach(function(el) {
+		var w = window.innerWidth,
+			h = window.innerHeight;
 
-			el.x = (window.innerWidth/2) + Math.random();
-			el.y = (window.innerHeight/2) + Math.random();
+		// need to remove balls if small, add if large
+
+		// reset ball position just like on init
+		app.globals.circleArr.forEach(function(el) {
+
+			el.x = (w/2) + Math.random();
+			el.y = (h/2) + Math.random();
 
 		});
 

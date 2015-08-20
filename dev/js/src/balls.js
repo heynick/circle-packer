@@ -1,24 +1,18 @@
 /*global window, app, navigator */
 /*jshint bitwise: false*/
 
-function isIE() {
-  var userAgent = navigator.userAgent;
-  return userAgent.indexOf("MSIE ") > -1 || userAgent.indexOf("Trident/") > -1;
-}
-
-
-app.circleArr = []; // store outside so can be accessed globally
-app.svgEl = app.globals.doc.getElementById('svg-el');
-app.activeBall; // currently active article
-app.animating;
 
 app.balls = (function () {
 	'use strict';
 
 	var containerEl = app.globals.doc.getElementById('container');
 
-	var minRad = 5;
-	var maxRad = 60;
+	// OPTIONS
+	var minRad = 5,
+		maxRad = 60,
+		spareCount = 21,
+		pushSpread = 1, // how hard the balls push against each other
+		spreadSpeed = 0.06;
 
 	var appendedBalls = []; // store a reference to all balls in here, so we don't need to query the dom
 
@@ -64,39 +58,32 @@ app.balls = (function () {
 
 
 	var articleCount = dataModel.length;
-	var spareCount = 21;
-	var pushSpread = 1; // how hard the balls push against each other
 
-
-	var circleCount = 0;
-	var spreadSpeed = 0.06;
-
-
-
-
-
+	var createCircleCounter = 0;
 	var createCircle = function(type) {
 
-		var href = dataModel[circleCount] ? dataModel[circleCount].href : null,
-			img = dataModel[circleCount] ? dataModel[circleCount].img : '/',
-			text = dataModel[circleCount] ? dataModel[circleCount].text : null,
-			r = dataModel[circleCount] ? dataModel[circleCount].r : app.utilities.random(minRad, maxRad),
-			fill = dataModel[circleCount] ? dataModel[circleCount].fill : ballColors[Math.floor(Math.random() * ballColors.length)];
+		// need to check that datamodel contains certain properties before we can assign to them
+		var thisCircle = dataModel[createCircleCounter],
+			checkDataModel = thisCircle ? true : false;
+
+		var href = checkDataModel ? thisCircle.href : null,
+			img = checkDataModel ? thisCircle.img : '/',
+			text = checkDataModel ? thisCircle.text : null,
+			r = checkDataModel ? thisCircle.r : app.utilities.random(minRad, maxRad),
+			fill = checkDataModel ? thisCircle.fill : ballColors[Math.floor(Math.random() * ballColors.length)];
 
 
 		var circleObj = {
-
-				href: href,
-				img: img,
-				fill: fill,
-				text: text,
-				id: circleCount,
-				x: window.innerWidth/2 + Math.random(),
-				y: window.innerHeight/2 + Math.random(),
-				vx: 0,
-				vy: 0,
-				r: r
-
+			href: href,
+			img: img,
+			fill: fill,
+			text: text,
+			id: createCircleCounter,
+			x: window.innerWidth/2 + Math.random(),
+			y: window.innerHeight/2 + Math.random(),
+			vx: 0,
+			vy: 0,
+			r: r
 		};
 
 		if (type === 'title') {
@@ -111,7 +98,7 @@ app.balls = (function () {
 			spareCount++
 		}
 
-		circleCount++;
+		createCircleCounter++;
 
 		return circleObj;
 
@@ -202,19 +189,19 @@ app.balls = (function () {
 
 		function renderLoop() {
 
-		    for (var i = 0; i < app.circleArr.length; i++) {
+		    for (var i = 0; i < app.globals.circleArr.length; i++) {
 
-		    	currentCircle = app.circleArr[i];
+		    	currentCircle = app.globals.circleArr[i];
 
 		    	// circle packing, based off:
 		    	// http://codepen.io/jun-lu/pen/rajrJx
-		    	for (var j = 0; j < app.circleArr.length; j++) {
+		    	for (var j = 0; j < app.globals.circleArr.length; j++) {
 
 		    		if (i === j) {
 		    			continue; // skip this loop
 		    		}
 
-			    	c = app.circleArr[j];
+			    	c = app.globals.circleArr[j];
 			    	d = (dx = c.x - currentCircle.x) * dx + (dy = c.y - currentCircle.y) * dy;
 			    	l = (r = currentCircle.r + c.r) * r * pushSpread;
 
@@ -280,7 +267,7 @@ app.balls = (function () {
 
 
 				//http://stackoverflow.com/a/28776528
-				if (isIE()) {
+				if (app.utilities.isIE()) {
 					groupEl.setAttribute('transform', 'translate(' + roundedX + ', '+ roundedY+')');
 
 				} else {
@@ -309,22 +296,19 @@ app.balls = (function () {
 						var text = app.globals.doc.createElementNS('http://www.w3.org/2000/svg', "text");
 							text.appendChild(textPath);
 
-							ballAnchor.appendChild(text);
+						groupEl.appendChild(ballAnchor);
+						ballAnchor.appendChild(polygonEl);
+
+						ballAnchor.appendChild(text);
 
 					}
 
 
 
 					if (currentCircle.href) {
-						groupEl.appendChild(ballAnchor);
-						ballAnchor.appendChild(polygonEl);
-
-						/*if (currentCircle.text) {
 
 
-						}*/
-
-					} else if (polygonEl){
+					} else if (polygonEl) {
 
 						groupEl.appendChild(polygonEl);
 						if (currentCircle.text) {
@@ -333,7 +317,7 @@ app.balls = (function () {
 						}
 					}
 
-			      	app.svgEl.appendChild(groupEl);
+			      	app.globals.svgEl.appendChild(groupEl);
 				}
 
 
@@ -341,29 +325,29 @@ app.balls = (function () {
 
 		    // ensure that the circles don't exceed the limit
 		    // this needs work for better randomisation
-		    if (app.circleArr.length < articleCount) {
-		    	app.circleArr.push( createCircle('article') );
+		    if (app.globals.circleArr.length < articleCount) {
+		    	app.globals.circleArr.push( createCircle('article') );
 		    }
-		    if (app.circleArr.length < spareCount) {
-		    	app.circleArr.push( createCircle('spare') );
+		    if (app.globals.circleArr.length < spareCount) {
+		    	app.globals.circleArr.push( createCircle('spare') );
 		    }
 
-		    app.animating = window.requestAnimationFrame(renderLoop);
+		    app.globals.animating = window.requestAnimationFrame(renderLoop);
 
 		}
 
 
 		function startAnimationLoop() {
-		    if (!app.animating) {
+		    if (!app.globals.animating) {
 		       renderLoop();
 		    }
 		}
 
 
 		function stopAnimationLoop() {
-		    if (app.animating) {
-		       window.cancelAnimationFrame(app.animating);
-		       app.animating = undefined;
+		    if (app.globals.animating) {
+		       window.cancelAnimationFrame(app.globals.animating);
+		       app.globals.animating = undefined;
 		    }
 		}
 
@@ -378,17 +362,11 @@ app.balls = (function () {
 
 		// punch in the title card
 		setTimeout(function() {
-			app.circleArr.push( createCircle('title') );
+			app.globals.circleArr.push( createCircle('title') );
 		}, 1200);
 
 
-
-
-
-
-
 	};
-
 
 
 	return {

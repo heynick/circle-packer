@@ -3,14 +3,18 @@
 
 app.utilities = (function () {
 	'use strict';
-
+/*
 	var init = function () {
 
 
 
 
-	};
+	};*/
 
+	var isIE = function() {
+	  var userAgent = navigator.userAgent;
+	  return userAgent.indexOf("MSIE ") > -1 || userAgent.indexOf("Trident/") > -1;
+	};
 
 
 	// http://davidwalsh.name/javascript-debounce-function
@@ -54,11 +58,12 @@ app.utilities = (function () {
 	}
 
 	return {
-		init: init,
+		//init: init,
 		debounce: debounce,
 		closest: closest,
 		random: random,
-		getPathData: getPathData
+		getPathData: getPathData,
+		isIE: isIE
 
 
 	};

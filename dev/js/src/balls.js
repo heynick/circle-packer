@@ -1,6 +1,9 @@
 /*global window, app, navigator */
 /*jshint bitwise: false*/
 
+
+
+
 app.balls = (function () {
 	'use strict';
 
@@ -172,12 +175,6 @@ app.balls = (function () {
 					polygonEl.setAttribute('fill', currentCircle.fill);
 					polygonEl.setAttribute('points', app.polypoints.getPolyPoints(currentCircle.r * ballRoughness, currentCircle.r));
 
-					// ADD TITLE
-					if (currentCircle.isTitleBall) {
-						var titleHTML = app.globals.doc.querySelector('#title');
-						groupEl.appendChild(titleHTML);
-					}
-
 					// ADD ANCHOR AND TEXT
 					if (currentCircle.href) {
 						var ballAnchor = app.globals.doc.createElementNS('http://www.w3.org/2000/svg', 'a'),
@@ -206,6 +203,12 @@ app.balls = (function () {
 						groupEl.appendChild(polygonEl);
 					}
 
+					// ADD TITLE
+					if (currentCircle.isTitleBall) {
+						var titleHTML = app.globals.doc.querySelector('#title');
+						groupEl.appendChild(titleHTML);
+					}
+
 					appendedBalls.push(groupEl);
 					app.globals.svgEl.appendChild(groupEl);
 
@@ -223,31 +226,14 @@ app.balls = (function () {
 
 				//http://stackoverflow.com/a/28776528
 				if (app.utilities.isIE()) {
-					groupEl.setAttribute('transform', 'translate(' + roundedX + ', '+ roundedY+')');
+					groupEl.setAttribute('transform', 'translate(' + roundedX + ', '+ roundedY + ')');
 
 				} else {
-					//groupEl.style.webkitTransform = 'translate3d(' + roundedX + 'px, '+roundedY+'px, 0)';
-					groupEl.style.transform = 'translate3d(' + roundedX + 'px, '+roundedY+'px, 0)';
+					groupEl.style.webkitTransform = 'translate3d(' + roundedX + 'px, '+roundedY+'px, 0)';
+					groupEl.style.transform = 'translate3d(' + roundedX + 'px, ' + roundedY + 'px, 0)';
 				}
 
-
-				// only append if it doesn't already exist
-				/*if (!app.globals.doc.getElementById(i)) {
-
-
-					// ADD TEXT LABEL
-
-
-					//if (currentCircle.href) {
-
-
-
-
-
-				}*/
-
 		    }
-
 
 		    // ensure that the circles don't exceed the limit
 		    // could use work for better randomisation
@@ -257,6 +243,9 @@ app.balls = (function () {
 		    if (app.globals.circleArr.length < spareCount) {
 		    	app.globals.circleArr.push( createCircle('spare') );
 		    }
+
+
+		    app.interaction.updateInertia();
 
 		    app.globals.animating = window.requestAnimationFrame(renderLoop);
 

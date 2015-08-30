@@ -1,58 +1,112 @@
 /*global window, app.globals.doc, app, navigator */
 /*jshint bitwise: false*/
 
+
+// http://codepen.io/desandro/pen/QbPKEq?editors=001
+
 app.interaction = (function () {
 	'use strict';
 
-	var easeIn = function(t, b, c, d) {
-        return -c *(t/=d)*(t-2) + b;
-    };
 
-    var velocity;
-    var direction;
+	var cursorPos = [];
 
-	// http://stackoverflow.com/a/19794374
-    function makeVelocityCalculator(e_init, e) {
-        var x = e_init.clientX,
-    		y = e_init.clientY,
-			new_x,
-			new_y,
-			new_t,
-			x_dist,
-			y_dist,
-			interval,
-			velocity,
-			t;
+	// particle properties
+	var positionX = 0;
+	var velocityX = 0;
 
-        if (e === false) {
-        	return;
-        }
+	var positionY = 0;
+	var velocityY = 0;
 
-        t = e.time;
-		new_x = e.clientX;
-		new_y = e.clientY;
-		new_t = Date.now();
-		x_dist = new_x - x;
-            y_dist = new_y - y;
-            interval = new_t - t;
+	var friction = 0.85;
+	var isDragging = false;
 
-        direction = Math.floor((Math.atan2(new_y - y, new_x - x) * 180 / Math.PI) - 90);
+	var mouseBallHeld = '';
 
-        if (direction >= 360){
-            direction -= 360;
-        }
+	var mousedownX;
+	var mousedownY;
 
-        //console.log(direction)
-        // update values:
-        x = new_x;
-        y = new_y;
+	var rightBound = window.innerWidth;
+	var bottomBound = window.innerHeight;
 
 
-        velocity = Math.sqrt(x_dist*x_dist+y_dist*y_dist)/interval;
+	function applyForce( forceX, forceY ) {
+		if (forceX) {
+			velocityX += forceX;
+		}
+		if (forceY) {
+			velocityY += forceY;
+		}
+	}
 
 
-    }
+	function applyBoundForce() {
+		if ( isDragging || positionX < rightBound && positionY < bottomBound) {
+			return;
+		}
 
+		// bouncing past bound
+		var distanceX = rightBound - positionX;
+		var distanceY = bottomBound - positionY;
+		var forceX = distanceX * 0.1;
+		var forceY = distanceY * 0.1;
+		// calculate resting position with this force
+		var restX = positionX + ( velocityX + forceX ) / ( 1 - friction );
+		var restY = positionY + ( velocityY + forceY ) / ( 1 - friction );
+
+	  // if in bounds, apply force to align at bounds
+		if ( restX > rightBound) {
+			applyForce( forceX, 0 );
+		}
+
+		if (restY > bottomBound) {
+			applyForce( 0, forceY );
+		}
+
+	}
+
+	function applyDragForce() {
+		if ( !isDragging ) {
+			return;
+		}
+
+		var dragVelocityX = app.globals.circleArr[mouseBallHeld].dragPositionX - positionX;
+		var dragVelocityY = app.globals.circleArr[mouseBallHeld].dragPositionY - positionY;
+		var dragForceX = dragVelocityX - velocityX;
+		var dragForceY = dragVelocityY - velocityY;
+		applyForce( dragForceX, dragForceY );
+	}
+
+
+	function setDragPosition( e, currentBall ) {
+		var moveX = e.pageX - mousedownX;
+		var moveY = e.pageY - mousedownY;
+		app.globals.circleArr[currentBall].dragPositionX = app.globals.circleArr[currentBall].dragStartPositionX + moveX;
+		app.globals.circleArr[currentBall].dragPositionY = app.globals.circleArr[currentBall].dragStartPositionY + moveY;
+		e.preventDefault();
+	}
+
+	var updateInertia = function() {
+		applyBoundForce();
+
+		applyDragForce();
+
+		velocityX *= friction;
+		velocityY *= friction;
+
+		positionX += velocityX;
+		positionY += velocityY;
+
+		if (mouseBallHeld) {
+			//console.log(mouseBallHeld)
+
+			app.globals.circleArr[mouseBallHeld].dragPositionX = positionX;
+			app.globals.circleArr[mouseBallHeld].dragPositionY = positionY;
+			app.globals.circleArr[mouseBallHeld].x = positionX;
+			app.globals.circleArr[mouseBallHeld].y = positionY;
+
+		}
+
+	};
 
 
 
@@ -79,16 +133,14 @@ app.interaction = (function () {
 
 	};
 
-	var cursorPos = [];
+
 
 	var mouse = function() {
-
-		var mouseBallHeld = false;
-		var previousEvent = false;
 
 		app.globals.doc.addEventListener('mousedown', function(e) {
 
 			cursorPos = [e.pageX, e.pageY];
+
 
 			app.utilities.closest(e.target, function(el) {
 
@@ -97,35 +149,52 @@ app.interaction = (function () {
 					el.setAttribute('class', 'held');
 
 					mouseBallHeld = el.id;
+					isDragging = true;
+					mousedownX = e.pageX;
+					mousedownY = e.pageY;
+
+
+					app.globals.circleArr[mouseBallHeld].dragStartPositionX = e.pageX;
+					app.globals.circleArr[mouseBallHeld].dragStartPositionY = e.pageY;
+					console.log(app.globals.circleArr[mouseBallHeld])
+					setDragPosition( e, mouseBallHeld );
+
 
 				}
 
 			});
+
+
 		});
 
 
 		app.globals.doc.addEventListener('mousemove', function(e) {
 
-			if (mouseBallHeld) {
+
+			if (isDragging) {
+				//app.globals.circleArr[mouseBallHeld].x = e.pageX;
+				//app.globals.circleArr[mouseBallHeld].y = e.pageY;
 
 
-				app.utilities.closest(e.target, function(el) {
+
+				setDragPosition(e, mouseBallHeld);
+
+				// this is really inefficient for mousemove
+				/*app.utilities.closest(e.target, function(el) {
+
 					if (el.tagName === 'g') {
 
 
-						var rect = el.getBoundingClientRect();
 
-						app.globals.circleArr[mouseBallHeld].x = e.pageX;
-						app.globals.circleArr[mouseBallHeld].y = e.pageY;
+
+						//var rect = el.getBoundingClientRect();
+
+
+
 
 					}
 
-				});
-
-				/*e.time = Date.now();
-				makeVelocityCalculator( e, previousEvent);
-				previousEvent = e;*/
-
+				});*/
 
 			}
 
@@ -133,7 +202,7 @@ app.interaction = (function () {
 
 		app.globals.doc.addEventListener('mouseup', function(e) {
 
-			if (mouseBallHeld) {
+			if (isDragging) {
 				// gotta do it this way because user could mouseup on a different element
 				// which would wreck the closest loop
 				app.globals.doc.getElementById(mouseBallHeld).setAttribute('class', '');
@@ -165,7 +234,10 @@ app.interaction = (function () {
 
 				});
 
-				mouseBallHeld = false;
+				isDragging = false;
+				//app.globals.doc.removeEventListener( 'mousemove' );
+				//app.globals.doc.removeEventListener( 'mouseup' );
+
 
 			}
 
@@ -250,7 +322,8 @@ app.interaction = (function () {
 
 
 	return {
-		init: init
+		init: init,
+		updateInertia: updateInertia
 	};
 
 })();

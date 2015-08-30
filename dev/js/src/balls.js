@@ -237,11 +237,11 @@ app.balls = (function () {
 
 		    // ensure that the circles don't exceed the limit
 		    // could use work for better randomisation
-		    if (app.globals.circleArr.length < articleCount) {
-		    	app.globals.circleArr.push( createCircle('article') );
-		    }
 		    if (app.globals.circleArr.length < spareCount) {
 		    	app.globals.circleArr.push( createCircle('spare') );
+		    }
+		    if (app.globals.circleArr.length < articleCount) {
+		    	app.globals.circleArr.push( createCircle('article') );
 		    }
 
 

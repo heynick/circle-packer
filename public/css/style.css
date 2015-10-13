@@ -2,14 +2,6 @@
    Imports
    ========================================================================== */
 @import url(http://fonts.googleapis.com/css?family=Poiret+One|Arvo|Fredoka+One|Kreon|Luckiest+Guy|Limelight|Elsie);
-b {
-  color: #222;
-}
-
-c {
-  color: #333;
-}
-
 html,
 body {
   height: 100%;
@@ -23,7 +15,7 @@ body {
   width: 100%;
   position: fixed;
   font-family: sans-serif;
-  background-color: #efefef;
+  background-color: #333;
   font-family: 'Kreon', serif;
 }
 
@@ -32,9 +24,20 @@ body {
 }
 
 h1 {
-  text-transform: uppercase;
-  color: #444;
-  font-size: 2.5em;
+  text-transform: lowercase;
+  color: #eee;
+  -webkit-transform: translateY(40%);
+          transform: translateY(40%);
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  pointer-events: none;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.75);
+  font-size: 3em;
+  z-index: 1;
 }
 
 .container {
@@ -48,8 +51,9 @@ svg {
   width: 100vw;
 }
 
-polygon {
-  mix-blend-mode: multiply;
+svg.blur {
+  -webkit-filter: blur(20px);
+          filter: blur(20px);
 }
 
 path {
@@ -83,8 +87,8 @@ a.active {
   cursor: auto;
 }
 
-.active polygon {
-  mix-blend-mode: inherit;
+a.active polygon {
+  fill: #4E9689;
 }
 
 /* .open g {
@@ -93,23 +97,12 @@ a.active {
     opacity: 1;
   }
 } */
-text {
-  fill: #333;
-  -webkit-transition: all 200ms ease;
-          transition: all 200ms ease;
-  text-anchor: middle;
-  -webkit-transition: all 200ms ease;
-          transition: all 200ms ease;
-  -webkit-transition-delay: 0ms;
-          transition-delay: 0ms;
-}
-
 a text {
   opacity: 0;
   visibility: hidden;
   text-transform: uppercase;
   paint-order: stroke;
-  stroke: #fff;
+  stroke: #444;
   stroke-width: 2px;
   stroke-linecap: butt;
   stroke-linejoin: miter;
@@ -122,4 +115,24 @@ a:focus text {
   opacity: 1;
   -webkit-transition-delay: 300ms;
           transition-delay: 300ms;
+}
+
+g {
+  cursor: -webkit-grab;
+}
+
+g.held {
+  cursor: -webkit-grabbing;
+}
+
+text {
+  fill: #fff;
+  -webkit-transition: all 200ms ease;
+          transition: all 200ms ease;
+  text-anchor: middle;
+  -webkit-transition: all 200ms ease;
+          transition: all 200ms ease;
+  -webkit-transition-delay: 0ms;
+          transition-delay: 0ms;
+  mix-blend-mode: inherit;
 }

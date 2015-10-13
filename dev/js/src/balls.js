@@ -1,6 +1,12 @@
 /*global window, app, navigator */
 /*jshint bitwise: false*/
+var h1 = document.querySelector('h1');
+var ballRoughness = 1; // 1 === perfect circle
 
+function yo() {
+	h1.innerHTML = 'CREATIVITY IS JUST CONNECTING THINGS';
+	document.getElementById('svg-el').classList.add('blur');
+}
 
 
 
@@ -10,43 +16,43 @@ app.balls = (function () {
 	var containerEl = app.globals.doc.getElementById('container');
 
 	// OPTIONS
-	var minBallSize = 5,
-		maxBallSize = 60,
-		ballRoughness = 0.8, // 1 === perfect circle
-		spareCount = 20,
-		spreadPush = 1.1, // how hard the balls push against each other
-		spreadSpeed = 0.06;
+	var minBallSize = 30,
+		maxBallSize = 75,
+
+		spareCount = 5,
+		spreadPush = 1.05, // how hard the balls push against each other
+		spreadSpeed = 0.075;
 
 	var appendedBalls = []; // store a reference to all balls in here, so we don't need to query the dom
 
 	var dataModel =	[
 		{
 			href: '/item1',
-			fill: 'url(#image)',
+			fill: 'url(#img1)',
 			r: 90,
 			text: 'Emerald Hill Zone',
-			img: '/'
+			img: '/public/img/1.jpg'
 		},
 		{
 			href: '/item1',
-			fill: '#4E9689',
+			fill: 'url(#img2)',
 			r: 90,
 			text: 'The amount of fucks I give',
-			img: '/'
+			img: '1'
 		},
 		{
 			href: '/item1',
-			fill: '#4E9689',
+			fill: 'url(#img3)',
 			r: 90,
 			text: 'CSS Cube using Accelerometer',
-			img: '/'
+			img: ''
 		},
 		{
 			href: '/item1',
-			fill: '#4E9689',
+			fill: 'url(#img4)',
 			r: 90,
 			text: 'hohokum in paper.js',
-			img: '/'
+			img: ''
 		}
 	];
 
@@ -65,14 +71,20 @@ app.balls = (function () {
 	var articleCount = dataModel.length;
 
 	var createCircleCounter = 0;
+
 	var createCircle = function(type) {
+
+		h1.innerHTML = '';
+		document.getElementById('svg-el').classList.remove('blur');
+
+
 
 		// need to check that datamodel contains certain properties before we can assign to them
 		var thisCircle = dataModel[createCircleCounter],
-			checkDataModel = thisCircle ? true : false;
+			checkDataModel = type !== 'spare' ? true : false;
 
 		var href = checkDataModel ? thisCircle.href : null,
-			img = checkDataModel ? thisCircle.img : '/',
+			img = checkDataModel ? thisCircle.img : null,
 			text = checkDataModel ? thisCircle.text : null,
 			r = checkDataModel ? thisCircle.r : app.utilities.random(minBallSize, maxBallSize),
 			fill = checkDataModel ? thisCircle.fill : ballColors[Math.floor(Math.random() * ballColors.length)];
@@ -89,8 +101,20 @@ app.balls = (function () {
 			y: innerHeightHalf + Math.random(),
 			vx: 0,
 			vy: 0,
+			positionX: 0,
+			positionY: 0,
+			dragVelocityX: 0,
+			dragVelocityY: 0,
+			dragForceY: 0,
+			dragForceX: 0,
+			velocityX: 0,
+			velocityY: 0,
+
+			dragStartPositionX: 0,
+			dragStartPositionY: 0,
 			r: r
 		};
+
 
 		if (type === 'title') {
 			circleObj.isTitleBall = true;
@@ -100,7 +124,7 @@ app.balls = (function () {
 		if (type === 'article') {
 			articleCount++;
 		}
-		if (type === 'spareCount') {
+		if (type === 'spare') {
 			spareCount++
 		}
 
@@ -209,6 +233,20 @@ app.balls = (function () {
 						groupEl.appendChild(titleHTML);
 					}
 
+					/*if (currentCircle.img) {
+
+						console.log(currentCircle.img);
+						var foreignObj = app.globals.doc.createElementNS('http://www.w3.org/2000/svg',"foreignObject");
+						var img = app.globals.doc.createElement('img');
+
+						img.src = currentCircle.img;
+
+						foreignObj.appendChild(img);
+						groupEl.appendChild(foreignObj);
+
+
+					}*/
+
 					appendedBalls.push(groupEl);
 					app.globals.svgEl.appendChild(groupEl);
 
@@ -237,11 +275,10 @@ app.balls = (function () {
 
 		    // ensure that the circles don't exceed the limit
 		    // could use work for better randomisation
-		    if (app.globals.circleArr.length < spareCount) {
-		    	app.globals.circleArr.push( createCircle('spare') );
-		    }
-		    if (app.globals.circleArr.length < articleCount) {
-		    	app.globals.circleArr.push( createCircle('article') );
+		    if (app.globals.circleArr.length <= spareCount) {
+		    	//app.globals.circleArr.push( createCircle('spare') );
+		    } else if (app.globals.circleArr.length <= articleCount) {
+		    	//app.globals.circleArr.push( createCircle('article') );
 		    }
 
 
@@ -276,9 +313,9 @@ app.balls = (function () {
 		}, 1000);
 
 		// punch in the title card
-		setTimeout(function() {
+		/*setTimeout(function() {
 			app.globals.circleArr.push( createCircle('title') );
-		}, 1200);
+		}, 1200);*/
 
 
 	};
@@ -291,3 +328,5 @@ app.balls = (function () {
 	};
 
 })();
+
+

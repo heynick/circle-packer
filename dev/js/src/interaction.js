@@ -95,16 +95,20 @@ app.interaction = (function () {
 
 
 	function setDragPosition( e, currentBall ) {
+
+		//console.log(mousedownX)
+
 		var moveX = e.pageX - mousedownX;
 		var moveY = e.pageY - mousedownY;
-		app.globals.circleArr[mouseBallHeld].x = app.globals.circleArr[mouseBallHeld].dragStartPositionX + moveX;
-		app.globals.circleArr[mouseBallHeld].y = app.globals.circleArr[mouseBallHeld].dragStartPositionY + moveY;
-	//	e.preventDefault();
+		app.globals.circleArr[currentBall].x = app.globals.circleArr[currentBall].dragStartPositionX + moveX;
+		app.globals.circleArr[currentBall].y = app.globals.circleArr[currentBall].dragStartPositionY + moveY;
+
+		//e.preventDefault();
 	}
 
 	var updateInertia = function() {
-		applyBoundForce();
 
+		applyBoundForce();
 		applyDragForce();
 
 		velocityX *= friction;
@@ -114,11 +118,9 @@ app.interaction = (function () {
 		positionY += velocityY;
 
 		if (mouseBallHeld) {
-			//console.log(mouseBallHeld)
 
 			app.globals.circleArr[mouseBallHeld].x = positionX;
 			app.globals.circleArr[mouseBallHeld].y = positionY;
-			console.log(velocityX)
 
 		}
 
@@ -188,6 +190,7 @@ app.interaction = (function () {
 
 			if (isDragging) {
 				setDragPosition(e, mouseBallHeld);
+				//console.log(mouseBallHeld)
 			}
 
 		});
@@ -242,6 +245,31 @@ app.interaction = (function () {
 
 		var touchBallsHeld = [];
 
+		app.globals.doc.addEventListener('touchstart', function(e) {
+
+			app.utilities.closest(e.target, function(el) {
+
+				if (el.tagName === 'g') {
+
+					el.setAttribute('class', 'held');
+
+
+					touchBallsHeld.push(el.id);
+
+					mouseBallHeld = el.id;
+					isDragging = true;
+					mousedownX = e.pageX;
+					mousedownY = e.pageY;
+
+
+					app.globals.circleArr[mouseBallHeld].dragStartPositionX = mousedownX;
+					app.globals.circleArr[mouseBallHeld].dragStartPositionY = mousedownY;
+
+				}
+
+			});
+		});
+
 		app.globals.doc.addEventListener('touchmove', function(e) {
 
 			e.preventDefault();
@@ -252,10 +280,13 @@ app.interaction = (function () {
 
 				for (var i = 0; i < e.touches.length; i++) {
 
-					//console.log(e.touches.length);
+
 					app.globals.circleArr[touchBallsHeld[i]].x = e.touches[i].pageX;
 					app.globals.circleArr[touchBallsHeld[i]].y = e.touches[i].pageY;
-					//console.log(touchBallsHeld);
+
+
+					//setDragPosition(e.touches[i], touchBallsHeld[i]);
+
 				}
 
 			}
@@ -267,22 +298,7 @@ app.interaction = (function () {
 
 
 
-		app.globals.doc.addEventListener('touchstart', function(e) {
 
-			app.utilities.closest(e.target, function(el) {
-
-				if (el.tagName === 'g') {
-
-					el.setAttribute('class', 'held');
-
-
-					touchBallsHeld.push(el.id);
-					console.log(touchBallsHeld);
-
-				}
-
-			});
-		});
 
 
 
@@ -319,4 +335,3 @@ app.interaction = (function () {
 	};
 
 })();
-

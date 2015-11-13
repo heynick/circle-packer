@@ -11,8 +11,6 @@ app.interaction = (function () {
 	var cursorPos = [],
 
 		// particle properties
-
-
 		velocityX = 0,
 		velocityY = 0,
 
@@ -27,9 +25,22 @@ app.interaction = (function () {
 		leftBound = 0,
 		topBound = 0;
 
+	var	positionX = null;
+	var	positionY = null;
+	var dragPositionX = positionX;
+	var dragPositionY = positionY;
 
+	var dragStartPositionX;
+	var dragStartPositionY;
 
-
+	function applyForce( forceX, forceY ) {
+			velocityX += forceX;
+		if (forceX) {
+		}
+			velocityY += forceY;
+		if (forceY) {
+		}
+	}
 
 	function applyBoundForce() {
 		if ( isDragging || positionX < app.globals.w && positionX > leftBound && positionY < app.globals.h && positionY > topBound) {
@@ -83,14 +94,11 @@ app.interaction = (function () {
 		var dragForceX = dragVelocityX - velocityX;
 		var dragForceY = dragVelocityY - velocityY;
 
-		velocityX += dragForceX;
-		velocityY += dragForceY;
+		applyForce( dragForceX, dragForceY );
 	}
 
 
 	function setDragPosition( e, currentBall ) {
-
-		console.log('yeah');
 
 		var moveX = e.pageX - mousedownX;
 		var moveY = e.pageY - mousedownY;
@@ -148,13 +156,7 @@ app.interaction = (function () {
 
 	};
 
-	var	positionX = null;
-	var	positionY = null;
-	var dragPositionX = positionX;
-	var dragPositionY = positionY;
 
-	var dragStartPositionX;
-	var dragStartPositionY;
 
 
 	var mouse = function() {

@@ -38,10 +38,7 @@ app.interaction = (function () {
 
 		mouseBallHeld = '',
 
-
-		leftBound = 0,
-		topBound = 0;
-
+		viewportPadding = 100;
 
 
 	function applyForce( forceX, forceY ) {
@@ -64,10 +61,10 @@ app.interaction = (function () {
 		}
 
 		var distance = {
-			x: app.globals.w - position.x,
-			y: app.globals.h - position.y,
-			Ytop: topBound - position.y,
-			Xleft: leftBound - position.x
+			x: (app.globals.w - viewportPadding) - position.x,
+			y: (app.globals.h - viewportPadding) - position.y,
+			Ytop: viewportPadding - position.y,
+			Xleft: viewportPadding - position.x
 		},
 
 		force = {
@@ -86,8 +83,8 @@ app.interaction = (function () {
 
 
 		// top edge
-		if (position.y <= topBound) {
-			if ( rest.yneg <= topBound) {
+		if (position.y <= viewportPadding) {
+			if ( rest.yneg <= viewportPadding) {
 				// pushing past
 				applyForce( null, force.ytop );
 			} else {
@@ -98,8 +95,8 @@ app.interaction = (function () {
 		}
 
 		// right edge
-		if (position.x > app.globals.w) {
-			if ( rest.x < app.globals.w) {
+		if (position.x > app.globals.w - viewportPadding) {
+			if ( rest.x < app.globals.w - viewportPadding) {
 				applyForce( force.x, null );
 			} else {
 				force.x = distance.x * 0.1 - velocity.x;
@@ -108,8 +105,8 @@ app.interaction = (function () {
 		}
 
 		// bottom edge
-		if (position.y > app.globals.h ) {
-			if ( rest.y < app.globals.h) {
+		if (position.y > app.globals.h - viewportPadding) {
+			if ( rest.y < app.globals.h - viewportPadding) {
 				applyForce( null, force.y );
 			} else {
 				force.y = distance.y * 0.1 - velocity.y;
@@ -118,8 +115,8 @@ app.interaction = (function () {
 		}
 
 		// left edge
-		if (position.x <= leftBound) {
-			if ( rest.xneg <= leftBound) {
+		if (position.x <= viewportPadding) {
+			if ( rest.xneg <= viewportPadding) {
 				applyForce( force.xleft, null );
 			} else {
 				force.xleft = distance.Xleft * 0.1 - velocity.x;
@@ -127,8 +124,8 @@ app.interaction = (function () {
 			}
 		}
 
-
 	}
+
 
 	function applyDragForce() {
 

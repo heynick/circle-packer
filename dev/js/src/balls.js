@@ -4,6 +4,8 @@
 app.balls = (function () {
 	'use strict';
 
+	var titleContent = app.globals.doc.getElementById('title-wrapper');
+
 	// OPTIONS
 	var ballRoughness = 0.88, // 1 === perfect circle
 		minBallSize = 30,
@@ -102,8 +104,8 @@ app.balls = (function () {
 
 		if (type === 'title') {
 			circleObj.isTitleBall = true;
-			circleObj.fill = '#ddd';
-			circleObj.r = 170;
+			circleObj.fill = '#eee';
+			circleObj.r = 150;
 		}
 
 		return circleObj;
@@ -214,11 +216,12 @@ app.balls = (function () {
 						groupEl.appendChild(polygonEl);
 					}
 
-					// ADD TITLE
-					if (currentCircle.isTitleBall) {
-						var titleHTML = app.globals.doc.querySelector('#title');
-						groupEl.appendChild(titleHTML);
-					}
+					// // ADD TITLE
+					// if (currentCircle.isTitleBall) {
+					// 	//var titleHTML = app.globals.doc.querySelector('#title');
+					// 	//groupEl.appendChild(titleHTML);
+					// 	console.log('tit');
+					// }
 
 					/*if (currentCircle.img) {
 
@@ -258,6 +261,14 @@ app.balls = (function () {
 					groupEl.style.transform = 'translate3d(' + roundedX + 'px, ' + roundedY + 'px, 0)';
 				}
 
+				// title ball needs its own movement sync'd
+				if (currentCircle.isTitleBall) {
+					//console.log(currentCircle.r);
+					let rad = currentCircle.r;
+					titleContent.style.transform = 'translate3d(' + (roundedX - rad) + 'px, ' + (roundedY - rad * 0.3) + 'px, 0)';
+
+				}
+
 			}
 
 
@@ -288,7 +299,7 @@ app.balls = (function () {
 
 		setTimeout(function() {
 
-			//stopAnimationLoop();
+		//	stopAnimationLoop();
 
 		}, 1000);
 

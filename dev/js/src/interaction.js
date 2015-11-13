@@ -53,6 +53,10 @@ app.interaction = (function () {
 		}
 	}
 
+	function calcRestPos(pos, vel, force) {
+		return pos.x + ( vel.x + force.x ) / ( 1 - friction );
+	}
+
 
 	function applyBoundForce() {
 		if (isDragging) {
@@ -73,16 +77,17 @@ app.interaction = (function () {
 			ytop: distance.Ytop * 0.1
 		},
 
-		// calculate resting position with this force
-		restX = position.x + ( velocity.x + force.x ) / ( 1 - friction ),
-		restY = position.y + ( velocity.y + force.y ) / ( 1 - friction ),
+		rest = {
+			x: calcRestPos(position.x, velocity.x, force.x),
+			y: calcRestPos(position.y, velocity.y, force.y),
+			xneg: calcRestPos(position.x, velocity.x, force.xleft),
+			yneg: calcRestPos(position.y, velocity.y, force.ytop)
+		};
 
-		restYneg = position.y + ( velocity.y + force.ytop ) / ( 1 - friction ),
-		restXneg = position.x + ( velocity.x + force.xleft ) / ( 1 - friction );
 
 		// top edge
 		if (position.y <= topBound) {
-			if ( restYneg <= topBound) {
+			if ( rest.yneg <= topBound) {
 				// pushing past
 				applyForce( null, force.ytop );
 			} else {
@@ -94,7 +99,7 @@ app.interaction = (function () {
 
 		// right edge
 		if (position.x > app.globals.w) {
-			if ( restX < app.globals.w) {
+			if ( rest.x < app.globals.w) {
 				applyForce( force.x, null );
 			} else {
 				force.x = distance.x * 0.1 - velocity.x;
@@ -104,7 +109,7 @@ app.interaction = (function () {
 
 		// bottom edge
 		if (position.y > app.globals.h ) {
-			if ( restY < app.globals.h) {
+			if ( rest.y < app.globals.h) {
 				applyForce( null, force.y );
 			} else {
 				force.y = distance.y * 0.1 - velocity.y;
@@ -114,7 +119,7 @@ app.interaction = (function () {
 
 		// left edge
 		if (position.x <= leftBound) {
-			if ( restXneg <= leftBound) {
+			if ( rest.xneg <= leftBound) {
 				applyForce( force.xleft, null );
 			} else {
 				force.xleft = distance.Xleft * 0.1 - velocity.x;
@@ -131,21 +136,30 @@ app.interaction = (function () {
 			return;
 		}
 
-		var dragVelocityX = app.globals.circleArr[mouseBallHeld].x - position.x;
-		var dragVelocityY = app.globals.circleArr[mouseBallHeld].y - position.y;
-		var dragForceX = dragVelocityX - velocity.x;
-		var dragForceY = dragVelocityY - velocity.y;
+		var dragVel = {
+			x: app.globals.circleArr[mouseBallHeld].x - position.x,
+			y: app.globals.circleArr[mouseBallHeld].y - position.y
+		},
 
-		applyForce(dragForceX, dragForceY);
+		dragForce = {
+			x: dragVel.x - velocity.x,
+			y: dragVel.y - velocity.y
+		};
+
+		applyForce(dragForce.x, dragForce.y);
+
 	}
 
 
 	function setDragPosition( e, currentBall ) {
 
-		var moveX = e.pageX - mousedown.x;
-		var moveY = e.pageY - mousedown.y;
-		dragPos.x = dragStartPos.x + moveX;
-		dragPos.y = dragStartPos.y + moveY;
+		var move = {
+			x: e.pageX - mousedown.x,
+			y: e.pageY - mousedown.y
+		};
+
+		dragPos.x = dragStartPos.x + move.x;
+		dragPos.y = dragStartPos.y + move.y;
 
 		app.globals.circleArr[currentBall].x = dragPos.x;
 		app.globals.circleArr[currentBall].y = dragPos.y;
@@ -173,8 +187,6 @@ app.interaction = (function () {
 		}
 
 	};
-
-
 
 
 

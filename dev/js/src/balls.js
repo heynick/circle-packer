@@ -1,14 +1,5 @@
 /*global window, app, navigator */
 /*jshint bitwise: false*/
-var h1 = document.querySelector('h1');
-var ballRoughness = 1; // 1 === perfect circle
-
-function yo() {
-	h1.innerHTML = 'CREATIVITY IS JUST CONNECTING THINGS';
-	document.getElementById('svg-el').classList.add('blur');
-}
-
-
 
 app.balls = (function () {
 	'use strict';
@@ -16,7 +7,8 @@ app.balls = (function () {
 	var containerEl = app.globals.doc.getElementById('container');
 
 	// OPTIONS
-	var minBallSize = 30,
+	var ballRoughness = 0.88, // 1 === perfect circle
+		minBallSize = 30,
 		maxBallSize = 75,
 
 		spareCount = 5,
@@ -73,11 +65,6 @@ app.balls = (function () {
 	var createCircleCounter = 0;
 
 	var createCircle = function(type) {
-
-		h1.innerHTML = '';
-		document.getElementById('svg-el').classList.remove('blur');
-
-
 
 		// need to check that datamodel contains certain properties before we can assign to them
 		var thisCircle = dataModel[createCircleCounter],
@@ -137,6 +124,9 @@ app.balls = (function () {
 
 	var init = function () {
 
+
+
+
 		var m,
 			c,
 			dx,
@@ -148,6 +138,18 @@ app.balls = (function () {
 			r,
 			currentCircle;
 
+
+		// ensure that the circles don't exceed the limit
+		// could use work for better randomisation
+
+		for (var i = 0; i < 10; i++) {
+			app.globals.circleArr.push( createCircle('spare') );
+
+		}
+		// for (var i = 0; i < 2; i++) {
+		// 	app.globals.circleArr.push( createCircle('article') );
+		//
+		// }
 
 
 		function renderLoop() {
@@ -273,13 +275,6 @@ app.balls = (function () {
 
 		    }
 
-		    // ensure that the circles don't exceed the limit
-		    // could use work for better randomisation
-		    if (app.globals.circleArr.length <= spareCount) {
-		    	//app.globals.circleArr.push( createCircle('spare') );
-		    } else if (app.globals.circleArr.length <= articleCount) {
-		    	//app.globals.circleArr.push( createCircle('article') );
-		    }
 
 
 		    app.interaction.updateInertia();
@@ -328,5 +323,3 @@ app.balls = (function () {
 	};
 
 })();
-
-

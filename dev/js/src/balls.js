@@ -70,6 +70,7 @@ app.balls = (function () {
 		var thisCircle = dataModel[createCircleCounter],
 			checkDataModel = type !== 'spare' ? true : false;
 
+
 		var href = checkDataModel ? thisCircle.href : null,
 			img = checkDataModel ? thisCircle.img : null,
 			text = checkDataModel ? thisCircle.text : null,
@@ -142,8 +143,8 @@ app.balls = (function () {
 		// ensure that the circles don't exceed the limit
 		// could use work for better randomisation
 
-		for (var i = 0; i < 10; i++) {
-			app.globals.circleArr.push( createCircle('spare') );
+		for (var i = 0; i < 4; i++) {
+			app.globals.circleArr.push( createCircle('article') );
 
 		}
 		// for (var i = 0; i < 2; i++) {
@@ -192,7 +193,7 @@ app.balls = (function () {
 				// CREATE NEW BALL
 				if (!currentCircle.added) {
 
-				    currentCircle.added = true;
+					currentCircle.added = true;
 
 					var groupEl = app.globals.doc.createElementNS('http://www.w3.org/2000/svg', 'g'),
 						polygonEl = app.globals.doc.createElementNS('http://www.w3.org/2000/svg', 'polygon');

@@ -1,4 +1,4 @@
-/*global window, app.globals.doc, app, navigator */
+/*global window, app, navigator */
 /*jshint bitwise: false*/
 
 
@@ -8,6 +8,14 @@ app.interaction = (function () {
 	'use strict';
 
 
+	var	positionX = null;
+	var	positionY = null;
+	var dragPositionX = positionX;
+	var dragPositionY = positionY;
+
+	var dragStartPositionX;
+	var dragStartPositionY;
+
 	var cursorPos = [],
 
 		// particle properties
@@ -16,7 +24,7 @@ app.interaction = (function () {
 		velocityX = 0,
 		velocityY = 0,
 
-		friction = 0.85,
+		friction = 0.95,
 		isDragging = false,
 
 		mouseBallHeld = '',
@@ -29,22 +37,30 @@ app.interaction = (function () {
 
 
 
-
+	function applyForce( forceX, forceY ) {
+		if (forceX) {
+			velocityX += forceX;
+		}
+		if (forceY) {
+			velocityY += forceY;
+		}
+	}
 
 	function applyBoundForce() {
-		if ( isDragging || positionX < app.globals.w && positionX > leftBound && positionY < app.globals.h && positionY > topBound) {
+		if (isDragging) {
 			return;
 		}
 
 		// bouncing past bound
 		var distanceX = app.globals.w - positionX,
-			distanceY = app.globals.h - positionY,
+		  	distanceY = app.globals.h - positionY,
 
 			forceX = distanceX * 0.1,
 			forceY = distanceY * 0.1,
-
+			//
 			distanceYtop = topBound - positionY,
 			distanceXleft = leftBound - positionX,
+			//
 			forceXleft = distanceXleft * 0.1,
 			forceYtop = distanceYtop * 0.1,
 
@@ -55,20 +71,48 @@ app.interaction = (function () {
 			restYneg = positionY + ( velocityY + forceYtop ) / ( 1 - friction ),
 			restXneg = positionX + ( velocityX + forceXleft ) / ( 1 - friction );
 
-	  	// if in bounds, apply force to align at bounds
-		if ( restX > app.globals.w) {
-			// passes right
-			applyForce( forceX, 0 );
-		} else if (restXneg < leftBound) {
-			// passes left
-			applyForce( forceXleft, 0 );
-		} else if (restY > app.globals.h) {
-			// passes bottom
-			applyForce( 0, forceY );
-		} else if (restYneg < topBound) {
-			// passes top
-			applyForce( 0, forceYtop );
+		// top edge
+		if (positionY <= topBound) {
+			if ( restYneg <= topBound) {
+				// pushing past
+				applyForce( null, forceYtop );
+			} else {
+				// magical auto bounce back
+				forceYtop = distanceYtop * 0.1 - velocityY;
+				applyForce( null, forceYtop );
+			}
 		}
+
+		// right edge
+		if (positionX > app.globals.w) {
+			if ( restX < app.globals.w) {
+				applyForce( forceX, null );
+			} else {
+				forceX = distanceX * 0.1 - velocityX;
+				applyForce( forceX, null );
+			}
+		}
+
+		// bottom edge
+		if (positionY > app.globals.h ) {
+			if ( restY < app.globals.h) {
+				applyForce( null, forceY );
+			} else {
+				forceY = distanceY * 0.1 - velocityY;
+				applyForce( null, forceY );
+			}
+		}
+
+		// left edge
+		if (positionX <= leftBound) {
+			if ( restXneg <= leftBound) {
+				applyForce( forceXleft, null );
+			} else {
+				forceXleft = distanceXleft * 0.1 - velocityX;
+				applyForce( forceXleft, null );
+			}
+		}
+
 
 	}
 
@@ -83,14 +127,11 @@ app.interaction = (function () {
 		var dragForceX = dragVelocityX - velocityX;
 		var dragForceY = dragVelocityY - velocityY;
 
-		velocityX += dragForceX;
-		velocityY += dragForceY;
+		applyForce(dragForceX, dragForceY);
 	}
 
 
 	function setDragPosition( e, currentBall ) {
-
-		console.log('yeah');
 
 		var moveX = e.pageX - mousedownX;
 		var moveY = e.pageY - mousedownY;
@@ -99,6 +140,7 @@ app.interaction = (function () {
 
 		app.globals.circleArr[currentBall].x = dragPositionX;
 		app.globals.circleArr[currentBall].y = dragPositionY;
+
 	  e.preventDefault();
 
 	}
@@ -148,13 +190,6 @@ app.interaction = (function () {
 
 	};
 
-	var	positionX = null;
-	var	positionY = null;
-	var dragPositionX = positionX;
-	var dragPositionY = positionY;
-
-	var dragStartPositionX;
-	var dragStartPositionY;
 
 
 	var mouse = function() {
@@ -220,18 +255,13 @@ app.interaction = (function () {
 
 						setTimeout(function() {
 
-							//console.log('click');
+							// this is a click
 
 							el.setAttribute('class', 'active');
 
-						}, 0)
+						}, 0);
 
-					}/* else if (el.tagName === 'g') {
-
-						app.globals.circleArr[mouseBallHeld].x = e.pageX;
-						app.globals.circleArr[mouseBallHeld].y = e.pageY;
-
-					}*/
+					}
 
 				});
 

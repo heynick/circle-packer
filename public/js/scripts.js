@@ -185,15 +185,6 @@ app.polypoints = (function () {
 
 })();/*global window, app, navigator */
 /*jshint bitwise: false*/
-var h1 = document.querySelector('h1');
-var ballRoughness = 1; // 1 === perfect circle
-
-function yo() {
-	h1.innerHTML = 'CREATIVITY IS JUST CONNECTING THINGS';
-	document.getElementById('svg-el').classList.add('blur');
-}
-
-
 
 app.balls = (function () {
 	'use strict';
@@ -201,7 +192,8 @@ app.balls = (function () {
 	var containerEl = app.globals.doc.getElementById('container');
 
 	// OPTIONS
-	var minBallSize = 30,
+	var ballRoughness = 0.88, // 1 === perfect circle
+		minBallSize = 30,
 		maxBallSize = 75,
 
 		spareCount = 5,
@@ -258,11 +250,6 @@ app.balls = (function () {
 	var createCircleCounter = 0;
 
 	var createCircle = function(type) {
-
-		h1.innerHTML = '';
-		document.getElementById('svg-el').classList.remove('blur');
-
-
 
 		// need to check that datamodel contains certain properties before we can assign to them
 		var thisCircle = dataModel[createCircleCounter],
@@ -322,6 +309,9 @@ app.balls = (function () {
 
 	var init = function () {
 
+
+
+
 		var m,
 			c,
 			dx,
@@ -333,6 +323,18 @@ app.balls = (function () {
 			r,
 			currentCircle;
 
+
+		// ensure that the circles don't exceed the limit
+		// could use work for better randomisation
+
+		for (var i = 0; i < 10; i++) {
+			app.globals.circleArr.push( createCircle('spare') );
+
+		}
+		// for (var i = 0; i < 2; i++) {
+		// 	app.globals.circleArr.push( createCircle('article') );
+		//
+		// }
 
 
 		function renderLoop() {
@@ -458,13 +460,6 @@ app.balls = (function () {
 
 		    }
 
-		    // ensure that the circles don't exceed the limit
-		    // could use work for better randomisation
-		    if (app.globals.circleArr.length <= spareCount) {
-		    	//app.globals.circleArr.push( createCircle('spare') );
-		    } else if (app.globals.circleArr.length <= articleCount) {
-		    	//app.globals.circleArr.push( createCircle('article') );
-		    }
 
 
 		    app.interaction.updateInertia();
@@ -513,8 +508,6 @@ app.balls = (function () {
 	};
 
 })();
-
-
 /*global window, app.globals.doc, app, navigator */
 /*jshint bitwise: false*/
 
@@ -528,9 +521,6 @@ app.interaction = (function () {
 	var cursorPos = [],
 
 		// particle properties
-		positionX = 0,
-		positionY = 0,
-
 		velocityX = 0,
 		velocityY = 0,
 
@@ -545,16 +535,22 @@ app.interaction = (function () {
 		leftBound = 0,
 		topBound = 0;
 
+	var	positionX = null;
+	var	positionY = null;
+	var dragPositionX = positionX;
+	var dragPositionY = positionY;
+
+	var dragStartPositionX = null;
+	var dragStartPositionY = null;
 
 	function applyForce( forceX, forceY ) {
-		if (forceX) {
 			velocityX += forceX;
+		if (forceX) {
 		}
-		if (forceY) {
 			velocityY += forceY;
+		if (forceY) {
 		}
 	}
-
 
 	function applyBoundForce() {
 		if ( isDragging || positionX < app.globals.w && positionX > leftBound && positionY < app.globals.h && positionY > topBound) {
@@ -598,6 +594,7 @@ app.interaction = (function () {
 	}
 
 	function applyDragForce() {
+
 		if ( !isDragging ) {
 			return;
 		}
@@ -613,14 +610,17 @@ app.interaction = (function () {
 
 	function setDragPosition( e, currentBall ) {
 
-		//console.log(mousedownX)
+		console.log(e);
 
 		var moveX = e.pageX - mousedownX;
 		var moveY = e.pageY - mousedownY;
-		app.globals.circleArr[currentBall].x = app.globals.circleArr[currentBall].dragStartPositionX + moveX;
-		app.globals.circleArr[currentBall].y = app.globals.circleArr[currentBall].dragStartPositionY + moveY;
+	  dragPositionX = dragStartPositionX + moveX;
+	  dragPositionY = dragStartPositionY + moveY;
 
-		//e.preventDefault();
+		app.globals.circleArr[currentBall].x = dragStartPositionX + moveX;
+		app.globals.circleArr[currentBall].y = dragStartPositionY + moveY;
+	  //e.preventDefault();
+
 	}
 
 	var updateInertia = function() {
@@ -670,12 +670,12 @@ app.interaction = (function () {
 
 
 
+
 	var mouse = function() {
 
 		app.globals.doc.addEventListener('mousedown', function(e) {
 
 			cursorPos = [e.pageX, e.pageY];
-
 
 			app.utilities.closest(e.target, function(el) {
 
@@ -685,20 +685,19 @@ app.interaction = (function () {
 
 					mouseBallHeld = el.id;
 					isDragging = true;
+
+					positionX = app.globals.circleArr[mouseBallHeld].x;
+					positionY = app.globals.circleArr[mouseBallHeld].y;
 					mousedownX = e.pageX;
 					mousedownY = e.pageY;
+					dragStartPositionX = positionX;
+					dragStartPositionY = positionY;
 
-
-					app.globals.circleArr[mouseBallHeld].dragStartPositionX = mousedownX;
-					app.globals.circleArr[mouseBallHeld].dragStartPositionY = mousedownY;
-
-					//setDragPosition( e, mouseBallHeld );
-
+					setDragPosition( e, mouseBallHeld );
 
 				}
 
 			});
-
 
 		});
 
@@ -706,8 +705,9 @@ app.interaction = (function () {
 		app.globals.doc.addEventListener('mousemove', function(e) {
 
 			if (isDragging) {
+
 				setDragPosition(e, mouseBallHeld);
-				//console.log(mouseBallHeld)
+
 			}
 
 		});
@@ -731,22 +731,18 @@ app.interaction = (function () {
 
 						setTimeout(function() {
 
-							//console.log('click');
-
+							// this is a click
 							el.setAttribute('class', 'active');
 
 						}, 0)
 
-					}/* else if (el.tagName === 'g') {
-
-						app.globals.circleArr[mouseBallHeld].x = e.pageX;
-						app.globals.circleArr[mouseBallHeld].y = e.pageY;
-
-					}*/
+					}
 
 				});
 
 				isDragging = false;
+
+
 				//app.globals.doc.removeEventListener( 'mousemove' );
 				//app.globals.doc.removeEventListener( 'mouseup' );
 
@@ -770,17 +766,44 @@ app.interaction = (function () {
 
 					el.setAttribute('class', 'held');
 
-
-					touchBallsHeld.push(el.id);
-
 					mouseBallHeld = el.id;
 					isDragging = true;
+
+					positionX = app.globals.circleArr[mouseBallHeld].x;
+					positionY = app.globals.circleArr[mouseBallHeld].y;
 					mousedownX = e.pageX;
 					mousedownY = e.pageY;
+					dragStartPositionX = positionX;
+					dragStartPositionY = positionY;
+
+					setDragPosition( e, mouseBallHeld );
+
+				}
+
+				if (el.tagName === 'g') {
 
 
-					app.globals.circleArr[mouseBallHeld].dragStartPositionX = mousedownX;
-					app.globals.circleArr[mouseBallHeld].dragStartPositionY = mousedownY;
+					//
+					// for (var i = 0; i < touchBallsHeld.length; i++) {
+					//
+					//
+					// 	var thisBall = touchBallsHeld[i];
+					// 	console.log(dragStartPositionX);
+					//
+					// 	positionX = app.globals.circleArr[thisBall].x;
+					// 	positionY = app.globals.circleArr[thisBall].y;
+					// 	mousedownX = e.pageX;
+					// 	mousedownY = e.pageY;
+					// 	dragStartPositionX = positionX;
+					// 	dragStartPositionY = positionY;
+					//
+					// 	setDragPosition( e.touches[i], thisBall );
+					//
+					// }
+
+
+					//app.globals.circleArr[mouseBallHeld].dragStartPositionX = e.pageX;
+					//app.globals.circleArr[mouseBallHeld].dragStartPositionY = e.pageY;
 
 				}
 
@@ -789,33 +812,22 @@ app.interaction = (function () {
 
 		app.globals.doc.addEventListener('touchmove', function(e) {
 
-			e.preventDefault();
+			if (isDragging) {
 
-
-			if (touchBallsHeld.length) {
 
 
 				for (var i = 0; i < e.touches.length; i++) {
+					//setDragPosition(e.touches[i], mouseBallHeld);
 
-
-					app.globals.circleArr[touchBallsHeld[i]].x = e.touches[i].pageX;
-					app.globals.circleArr[touchBallsHeld[i]].y = e.touches[i].pageY;
-
-
-					//setDragPosition(e.touches[i], touchBallsHeld[i]);
+					setDragPosition( e.touches[i], touchBallsHeld[i] );
 
 				}
 
 			}
 
+			e.preventDefault();
 
 		});
-
-
-
-
-
-
 
 
 
@@ -842,16 +854,13 @@ app.interaction = (function () {
 	};
 
 
-
-
-
-
 	return {
 		init: init,
 		updateInertia: updateInertia
 	};
 
-})();/*global window, document, app, navigator */
+})();
+/*global window, document, app, navigator */
 /*jshint bitwise: false*/
 
 app.resize = (function () {

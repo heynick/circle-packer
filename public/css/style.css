@@ -51,11 +51,6 @@ svg {
   width: 100vw;
 }
 
-svg.blur {
-  -webkit-filter: blur(20px);
-          filter: blur(20px);
-}
-
 path {
   fill: none;
 }
@@ -73,8 +68,7 @@ a {
   cursor: pointer;
 }
 
-a:hover,
-a:focus {
+a:hover, a:focus {
   -webkit-transform: scale(1.2);
           transform: scale(1.2);
 }
@@ -123,6 +117,7 @@ g {
 
 g.held {
   cursor: -webkit-grabbing;
+  fill: pink;
 }
 
 text {

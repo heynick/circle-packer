@@ -10,9 +10,9 @@ app.polypoints = (function () {
 	var setLinePoints = function(iterations) {
 		var point;
 		var pointList = {};
-		pointList.first = {x:0, y:1};
+		pointList.first = { x: 0, y: 1};
 
-		var lastPoint = {x:1, y:1};
+		var lastPoint = {x: 1, y: 1};
 		var nextPoint;
 		var dx, newX, newY;
 
@@ -27,9 +27,9 @@ app.polypoints = (function () {
 				dx = nextPoint.x - point.x;
 				newX = 0.5 * (point.x + nextPoint.x);
 				newY = 0.5 * (point.y + nextPoint.y);
-				newY += dx*(Math.random()*2 -1);
+				newY += dx * (Math.random() * 2 - 1);
 
-				var newPoint = {x:newX, y:newY};
+				var newPoint = {x: newX, y: newY};
 
 
 				//put between points
@@ -42,14 +42,14 @@ app.polypoints = (function () {
 
 		return pointList;
 
-	}
+	};
 
 
 	var getPolyPoints = function(minBallSize, maxBallSize) {
 		var point;
 		var rad;
-		var twoPi = 2*Math.PI;
-		var x0,y0;
+		var twoPi = 2 * Math.PI;
+		var x0, y0;
 		var phase = 0;
 
 		//generate the random function that will be used to vary the radius, 9 iterations of subdivision
@@ -61,17 +61,17 @@ app.polypoints = (function () {
 
 		while (point.next) {
 			point = point.next;
-			phase = twoPi*point.x;
-			rad = minBallSize + point.y*(maxBallSize - minBallSize);
-			x0 = rad*Math.cos(phase);
-			y0 = rad*Math.sin(phase);
+			phase = twoPi * point.x;
+			rad = minBallSize + point.y * (maxBallSize - minBallSize);
+			x0 = rad * Math.cos(phase);
+			y0 = rad * Math.sin(phase);
 
 			coordString = coordString + (Math.round(x0 * 100) / 100 + ',' + Math.round(y0 * 100) / 100 + ' ');
 		}
 
 		return coordString;
 
-	}
+	};
 
 	return {
 		setLinePoints: setLinePoints,

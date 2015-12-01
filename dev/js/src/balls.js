@@ -21,7 +21,7 @@ app.balls = (function () {
 			fill: 'url(#img1)',
 			r: 90,
 			text: 'Emerald Hill Zone',
-			img: '/public/img/1.jpg'
+			img: '/public/img/emerald.gif'
 		},
 		{
 			href: '/item1',

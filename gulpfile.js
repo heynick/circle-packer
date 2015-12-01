@@ -45,6 +45,7 @@ var scssSrcFile = basePaths.dev + 'scss/source.scss';
 var scssSrcPath = basePaths.dev + 'scss/**/*.scss';
 
 var imgSrcPath = basePaths.dev + 'img/**/*';
+var fontSrcPath = basePaths.dev + 'fonts/**/*';
 
 var jsSrc = basePaths.dev + 'js/source.js';
 var jsSrcPath = basePaths.dev + 'js/**/*.js';
@@ -52,6 +53,7 @@ var jsSrcPath = basePaths.dev + 'js/**/*.js';
 var publicCss = basePaths.pub + 'css';
 var publicJs = basePaths.pub + 'js';
 var publicImg = basePaths.pub + 'img';
+var publicFonts = basePaths.pub + 'fonts';
 // -----------------------------------------------------------------------------
 // Configuration
 // -----------------------------------------------------------------------------
@@ -131,6 +133,14 @@ gulp.task('copyImages', function() {
 
     return gulp.src(imgSrcPath)
         .pipe(gulp.dest(publicImg));
+
+});
+
+gulp.task('copyFonts', function() {
+
+
+    return gulp.src(fontSrcPath)
+        .pipe(gulp.dest(publicFonts));
 
 });
 
@@ -218,6 +228,6 @@ gulp.task('clean', function () {
 // default
 // -----------------------------------------------------------------------------
 
-gulp.task('default', ['clean', 'sass', 'js', 'copyImages', 'serve', 'watch']);
+gulp.task('default', ['clean', 'sass', 'js', 'copyImages', 'copyFonts', 'serve', 'watch']);
 
 gulp.task('build', ['clean', 'sassAndMinify', 'jsMinify', 'copyImagesAndMinify' ]);

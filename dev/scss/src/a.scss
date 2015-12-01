@@ -1,4 +1,4 @@
-@import url(http://fonts.googleapis.com/css?family=Poiret+One|Arvo|Fredoka+One|Kreon|Luckiest+Guy|Limelight|Elsie);
+@import url(http://fonts.googleapis.com/css?family=Fredoka+One|Kreon);
 
 
 html,
@@ -7,16 +7,14 @@ body {
   min-height: 100%;
 }
 
-
 body {
   overflow: hidden;
   margin: 0 auto;
   text-align: center;
   width: 100%;
   position: fixed;
-  font-family: sans-serif;
   background-color: #efefef;
-  font-family: 'Kreon', serif;
+  font-family: 'Kreon', sans-serif;
 
 }
 
@@ -27,39 +25,48 @@ p {
 
 
 h1 {
-//  text-transform: lowercase;
   color: #333;
-  font-size: 2em;
-
+  font-size: 3.25em;
+  line-height: 0.95;
+  letter-spacing: 0.8px;
+  font-family: 'Fredoka One', sans-serif;
+  span {
+    display: block;
+  }
 }
 
-foreignObject {
-}
-
-.container {
-  margin-left: -50%;
-  position: absolute;
-  left: 50%;
-}
 
 svg {
   height: 100vh;
   width: 100vw;
-
 }
-
-polygon {
-}
-
-
 
 path {
   fill: none;
 //  stroke: none;
 }
 
+
+g {
+  cursor: -webkit-grab;
+  mix-blend-mode: multiply;
+  transition: opacity 200ms linear;
+  will-change: opacity;
+  &:hover {
+    opacity: 0.8;
+  }
+  &::after {
+    content: 'hi';
+  }
+}
+
+.held {
+  cursor: -webkit-grabbing;
+}
+
+
 g > a {
-  transition: all 300ms cubic-bezier(0.38,-0.27, 0.4, 1.10);
+  transition: all 350ms cubic-bezier(0.51,-0.43, 0.26, 2.22);
   transform-origin: 50% 50%;
   transition-delay: 0ms;
   cursor: pointer;
@@ -72,12 +79,11 @@ g > a {
 
   &.active {
     transition: all 550ms cubic-bezier(0.38,-0.27, 0.4, 1.2);
-    transform: scale(5);// rotate(45deg);
+    transform: scale(8);// rotate(45deg);
     cursor: -webkit-grab;
 
     polygon {
       fill: #4E9689;
-
     }
   }
 
@@ -86,7 +92,6 @@ g > a {
 
 text {
   opacity: 0;
-  visibility: hidden;
   text-transform: uppercase;
   paint-order: stroke;
   stroke: #fff;
@@ -94,28 +99,17 @@ text {
   stroke-linecap: butt;
   stroke-linejoin: miter;
   fill: #333;
-  transition: all 200ms ease;
   text-anchor: middle;
-  transition: all 200ms ease;
+  transition: opacity 200ms ease;
   transition-delay: 0ms;
   mix-blend-mode: inherit;
+  will-change: opacity;
 
-}
+  a:hover &,
+  a:focus &,
+  .active & {
+      opacity: 1;
+      transition-delay: 180ms;
+  }
 
-a:hover text,
-a:focus text {
-  opacity: 1;
-  visibility: visible;
-  opacity: 1;
-  transition-delay: 500ms;
-}
-
-
-g {
-  cursor: -webkit-grab;
-  mix-blend-mode: multiply;
-
-}
-.held {
-  cursor: -webkit-grabbing;
 }

@@ -1,103 +1,24 @@
 <!doctype html>
-<!--[if IE 8]>         <html class="lt-ie10 lt-ie9" lang="en"> <![endif]-->
-<!--[if IE 9]>         <html class="lt-ie10" lang="en"> <![endif]-->
-<!--[if IE]>           <html class="ie" lang="en"> <![endif]-->
-<!--[if gt IE 8]><!-->
 <html lang="en" class="no-js">
-<!--<![endif]-->
 
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <link rel="shortcut icon" href="/img/favicon.ico"/>
-  <link rel="apple-touch-icon" sizes="57x57" href="/img/apple-icon-57x57.png">
-  <link rel="apple-touch-icon" sizes="60x60" href="/img/apple-icon-60x60.png">
-  <link rel="apple-touch-icon" sizes="72x72" href="/img/apple-icon-72x72.png">
-  <link rel="apple-touch-icon" sizes="76x76" href="/img/apple-icon-76x76.png">
-  <link rel="apple-touch-icon" sizes="114x114" href="/img/apple-icon-114x114.png">
-  <link rel="apple-touch-icon" sizes="120x120" href="/img/apple-icon-120x120.png">
-  <link rel="apple-touch-icon" sizes="144x144" href="/img/apple-icon-144x144.png">
-  <link rel="apple-touch-icon" sizes="152x152" href="/img/apple-icon-152x152.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-icon-180x180.png">
-  <link rel="icon" type="image/png" sizes="192x192"  href="/img/android-icon-192x192.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96x96.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
-  <link rel="manifest" href="/img/manifest.json">
-  <meta name="msapplication-TileColor" content="#ffffff">
-  <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
-  <meta name="theme-color" content="#ffffff">
 
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
   <title>ballpit</title>
 
-  <link rel="stylesheet" type="text/css" href="public/css/style.css">
-
+  <link rel="stylesheet" type="text/css" href="css/style.css">
 
 </head>
 <body>
 
-    <header class="title-wrapper" id="title-wrapper">
-      <div class="h1-wrap">
-       <h1>The Internettings of Nick McMillan</h1>
-     </div>
-       <section>
-          <p>Hi there, my name is Nick and I'm a web developer from Melbourne, Australia.</p>
-          <p>I like bicycles, strumming the guitar, and making tiny bits of the Internet. I have a <a href="https://github.com/heynick" target="_blank">Github</a>, a <a href="http://codepen.io/hey-nick/" target="_blank">Codepen</a>, a <a href="https://www.linkedin.com/in/nickmcmillan" target="_blank">LinkedIn</a>, a <a href="http://www.last.fm/user/namcm" target="_blank">Last.fm</a>, and <a href="http://www.listentogiraffes.com" target="_blank">a link to my cool band</a>.</p>
-       </section>
-    </header>
+  <svg id="svg-el" height="100%" width="100%"  version="1.1" xmlns="http://www.w3.org/2000/svg"></svg>
 
-
-
-  <svg id="svg-el" height="100%" width="100%"  version="1.1" xmlns="http://www.w3.org/2000/svg">
-    <defs id="svg-defs">
-      <pattern id='img1' width="1" height="1" viewBox="0 0 100 100">
-        <image xlink:href='/public/img/1.jpg'  width="100" height="100" preserveAspectRatio="none"></image>
-      </pattern>
-      <pattern id='img2' width="1" height="1" viewBox="0 0 100 100">
-        <image xlink:href='/public/img/2.jpg'  width="100" height="100" preserveAspectRatio="none"></image>
-      </pattern>
-      <pattern id='img3' width="1" height="1" viewBox="0 0 100 100">
-        <image xlink:href='/public/img/3.jpg'  width="100" height="100" preserveAspectRatio="none"></image>
-      </pattern>
-      <pattern id='img4' width="1" height="1" viewBox="0 0 100 100">
-        <image xlink:href='/public/img/4.jpg'  width="200" height="200" preserveAspectRatio="none"></image>
-      </pattern>
-
-      <!-- <filter id="dropshadow" height="130%">
-        <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
-        <feOffset dx="2" dy="2" result="offsetblur"/>
-        <feComponentTransfer>
-          <feFuncA type="linear" slope="0.2"/>
-        </feComponentTransfer>
-        <feMerge>
-          <feMergeNode/>
-          <feMergeNode in="SourceGraphic"/>
-        </feMerge>
-      </filter> -->
-
-
-<!--
-        <foreignObject x="-150px" y="-125px" width="300px" height="300px" id="title">
-
-          <body xmlns="http://www.w3.org/1999/xhtml">
-
-          </body>
-        </foreignObject> -->
-
-
-    </defs>
-
-
-
-  </svg>
-
-
-
-  <script src="public/js/scripts.js"></script>
+  <script src="dist/js/bundle.js"></script>
 
 </body>
 </html>

@@ -7,7 +7,8 @@
  * 2. Prevent iOS and IE text size adjust after device orientation change,
  *    without disabling user zoom.
  */
-@import url(http://fonts.googleapis.com/css?family=Fredoka+One|Kreon);
+/*@import url(http://fonts.googleapis.com/css?family=Fredoka+One|Kreon);*/
+
 html {
   font-family: sans-serif;
   /* 1 */
@@ -465,6 +466,7 @@ g::after {
 
 .held {
   cursor: -webkit-grabbing;
+  opacity: 0.5 !important;
 }
 
 g > a {

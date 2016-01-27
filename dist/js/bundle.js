@@ -29,7 +29,7 @@ SPREAD_PUSH = 0.6,
 MIN_SIZE = 70,
     MAX_SIZE = 205,
     SPREAD_SPEED = 0.075,
-    BALL_COUNT = 10;
+    BALL_COUNT = 5;
 
 var appendedBalls = []; // store a reference to all balls in here, so we don't need to query the dom
 
@@ -40,10 +40,10 @@ var ballColors = ['#F4FCE8', // dark blue
 '#4E9689', // metal blue
 '#7ED0D6'];
 
-var innerWidth = window.innerWidth,
-    innerHeight = window.innerHeight,
-    innerWidthHalf = innerWidth / 2,
-    innerHeightHalf = innerHeight / 2;
+var INNER_WIDTH = window.innerWidth,
+    INNER_HEIGHT = window.innerHeight,
+    INNER_WIDTH_HALF = INNER_WIDTH / 2,
+    INNER_HEIGHT_HALF = INNER_HEIGHT / 2;
 
 var createCircle = function createCircle() {
 	var r = arguments.length <= 0 || arguments[0] === undefined ? utilities.random(MIN_SIZE, MAX_SIZE) : arguments[0];
@@ -51,8 +51,8 @@ var createCircle = function createCircle() {
 
 	var circleObj = {
 		fill: fill,
-		x: innerWidthHalf + Math.random(),
-		y: innerHeightHalf + Math.random(),
+		x: INNER_WIDTH_HALF + Math.random(),
+		y: INNER_HEIGHT_HALF + Math.random(),
 		vx: 0,
 		vy: 0,
 		// positionX: 0,
@@ -98,13 +98,13 @@ var circlePack = function circlePack(i, currentBall) {
 
 		if (d < l) {
 
-			var f = (1 - d / l) * r;
-			var t = Math.atan2(dy, dx);
+			var f = (1 - d / l) * r,
+			    t = Math.atan2(dy, dx),
+			   
 
 			// set right edge && left edge boundaries
-			var hozBoundary = c.x + 20 < innerWidth - c.r && c.x > 20 + c.r,
-			    // 20 get away from edges in case text goes over boundary
-			verBoundary = c.y + 60 < innerHeight - c.r && c.y > 0 + c.r; // +60 to keep some spacing at bottom for label to hang
+			hozBoundary = c.x < INNER_WIDTH - c.r && c.x > c.r,
+			    verBoundary = c.y < INNER_HEIGHT - c.r && c.y > c.r;
 
 			// if the ball is over the boundary divide its movement by 100 so it doesn't disappear out of viewport
 			c.vx += Math.cos(t) * f / (hozBoundary ? 1 : 100);
@@ -114,8 +114,9 @@ var circlePack = function circlePack(i, currentBall) {
 };
 
 var manageBall = function manageBall(i, currentBall) {
-	// CREATE NEW BALL
+
 	if (!currentBall.added) {
+		// CREATE NEW BALL
 
 		currentBall.added = true;
 
@@ -143,12 +144,12 @@ var manageBall = function manageBall(i, currentBall) {
 	var roundedY = Math.round((currentBall.y += currentBall.vy) * 100) / 100,
 	    roundedX = Math.round((currentBall.x += currentBall.vx) * 100) / 100;
 
-	//http://stackoverflow.com/a/28776528
-	if (utilities.isIE()) {
-		gEl.setAttribute('transform', 'translate(' + roundedX + ', ' + roundedY + ')');
-	} else {
+	if (!globals.isIE) {
 		gEl.style.webkitTransform = 'translate3d(' + roundedX + 'px, ' + roundedY + 'px, 0)';
 		gEl.style.transform = 'translate3d(' + roundedX + 'px, ' + roundedY + 'px, 0)';
+	} else {
+		//http://stackoverflow.com/a/28776528
+		gEl.setAttribute('transform', 'translate(' + roundedX + ', ' + roundedY + ')');
 	}
 };
 
@@ -157,6 +158,7 @@ var renderLoop = function renderLoop() {
 	for (var i = 0; i < globals.ballArr.length; i++) {
 
 		var currentBall = globals.ballArr[i];
+
 		circlePack(i, currentBall);
 		manageBall(i, currentBall);
 	}
@@ -185,6 +187,7 @@ setTimeout(function () {
 
 }, 3000);
 
+// generate the balls!
 for (var i = 0; i < BALL_COUNT; i++) {
 	createCircle();
 }
@@ -195,12 +198,16 @@ startAnimationLoop();
 //module.exports['renderLoop'] = renderLoop;
 
 },{"./globals":3,"./interaction":4,"./polypoints":6,"./utilities":10}],3:[function(require,module,exports){
-'use strict';
+"use strict";
+
+var userAgent = navigator.userAgent;
+var isIE = userAgent.indexOf("MSIE ") > -1 || userAgent.indexOf("Trident/") > -1;
 
 var globals = {
     doc: document,
     animating: undefined,
     ballArr: [],
+    isIE: isIE,
     activeBall: undefined,
     w: window.innerWidth,
     h: window.innerHeight,
@@ -231,18 +238,23 @@ velocityX = 0,
     friction = 0.85,
     isDragging = false,
     mouseBallHeld = '',
-    mousedownX,
-    mousedownY,
-    leftBound = 0,
+
+//mousedownX,
+//mousedownY,
+
+leftBound = 0,
     topBound = 0;
 
-var positionX = null;
-var positionY = null;
-var dragPositionX = positionX;
-var dragPositionY = positionY;
+var touchBallsHeld = [];
 
-var dragStartPositionX;
-var dragStartPositionY;
+var heldBalls = [];
+
+var positionX = null,
+    positionY = null;
+//dragPositionX = positionX,
+//dragPositionY = positionY,
+//dragStartPositionX,
+//dragStartPositionY;
 
 function applyForce(forceX, forceY) {
 	velocityX += forceX;
@@ -302,15 +314,34 @@ function applyDragForce() {
 }
 
 function setDragPosition(e, currentBall) {
+	//e.preventDefault();
 
-	var moveX = e.pageX - mousedownX;
-	var moveY = e.pageY - mousedownY;
-	dragPositionX = dragStartPositionX + moveX;
-	dragPositionY = dragStartPositionY + moveY;
+	if (0) {
 
-	globals.ballArr[currentBall].x = dragPositionX;
-	globals.ballArr[currentBall].y = dragPositionY;
-	e.preventDefault();
+		for (var i = 0; i < e.touches.length; i++) {
+
+			console.log(currentBall.id);
+
+			var _moveX = e.touches[i].pageX - currentBall.mousedownX;
+			var _moveY = e.touches[i].pageY - currentBall.mousedownY;
+
+			currentBall.dragPositionX = currentBall.dragStartPositionX + _moveX;
+			currentBall.dragPositionY = currentBall.dragStartPositionY + _moveY;
+
+			globals.ballArr[currentBall.id].x = currentBall.dragPositionX;
+			globals.ballArr[currentBall.id].y = currentBall.dragPositionY;
+		}
+	} else {
+		console.log(e);
+		var moveX = e.pageX - currentBall.mousedownX;
+		var moveY = e.pageY - currentBall.mousedownY;
+
+		currentBall.dragPositionX = currentBall.dragStartPositionX + moveX;
+		currentBall.dragPositionY = currentBall.dragStartPositionY + moveY;
+
+		globals.ballArr[currentBall.id].x = currentBall.dragPositionX;
+		globals.ballArr[currentBall.id].y = currentBall.dragPositionY;
+	}
 }
 
 var updateInertia = function updateInertia() {
@@ -319,7 +350,6 @@ var updateInertia = function updateInertia() {
 	velocityY *= friction;
 
 	applyBoundForce();
-
 	applyDragForce();
 
 	positionX += velocityX;
@@ -330,19 +360,6 @@ var updateInertia = function updateInertia() {
 		globals.ballArr[mouseBallHeld].x = positionX;
 		globals.ballArr[mouseBallHeld].y = positionY;
 	}
-};
-
-var keys = function keys() {
-
-	globals.doc.onkeydown = function (e) {
-		e = e || window.event;
-		if (e.keyCode == 27) {
-
-			setTimeout(function () {
-				globals.activeBall.classList.remove('active');
-			}, 0);
-		}
-	};
 };
 
 var mouse = function mouse() {
@@ -360,15 +377,22 @@ var mouse = function mouse() {
 				mouseBallHeld = el.id;
 				isDragging = true;
 
-				positionX = globals.ballArr[mouseBallHeld].x;
-				positionY = globals.ballArr[mouseBallHeld].y;
+				var newID = parseInt(el.id, 10);
 
-				mousedownX = e.pageX;
-				mousedownY = e.pageY;
-				dragStartPositionX = positionX;
-				dragStartPositionY = positionY;
+				var _positionX = globals.ballArr[newID].x;
+				var _positionY = globals.ballArr[newID].y;
 
-				setDragPosition(e, mouseBallHeld);
+				var newBall = {
+					id: newID,
+					positionX: _positionX,
+					positionY: _positionY,
+					mousedownX: e.pageX,
+					mousedownY: e.pageY,
+					dragStartPositionX: _positionX,
+					dragStartPositionY: _positionY
+				};
+
+				heldBalls.push(newBall);
 			}
 		});
 	});
@@ -377,7 +401,11 @@ var mouse = function mouse() {
 
 		if (isDragging) {
 
-			setDragPosition(e, mouseBallHeld);
+			for (var i = 0; i < heldBalls.length; i++) {
+
+				//console.log('mouse', e)
+				setDragPosition(e, heldBalls[i]);
+			}
 		}
 	});
 
@@ -388,38 +416,21 @@ var mouse = function mouse() {
 			// which would wreck the closest loop
 			globals.doc.getElementById(mouseBallHeld).setAttribute('class', '');
 
-			utilities.closest(e.target, function (el) {
-
-				// check whether mouseup occured on an anchor, and whether it clicked
-				if (el.tagName === 'a' && [e.pageX, e.pageY].equals(cursorPos)) {
-
-					globals.svgEl.appendChild(el.parentNode);
-					globals.activeBall = el;
-
-					//window.cancelAnimationFrame(globals.animating);
-
-					setTimeout(function () {
-
-						//console.log('click');
-
-						el.setAttribute('class', 'active');
-					}, 0);
-				}
-			});
-
 			isDragging = false;
+			//isMousing = false;
 
-			globals.doc.removeEventListener('mousemove');
-			globals.doc.removeEventListener('mouseup');
+			heldBalls = [];
+
+			//globals.doc.removeEventListener( 'mousemove' );
+			//globals.doc.removeEventListener( 'mouseup' );
 		}
 	});
 };
 
 var touch = function touch() {
 
-	var touchBallsHeld = [];
-
 	globals.doc.addEventListener('touchstart', function (e) {
+		e.preventDefault();
 
 		utilities.closest(e.target, function (el) {
 
@@ -427,13 +438,33 @@ var touch = function touch() {
 
 				el.setAttribute('class', 'held');
 
-				touchBallsHeld.push(el.id);
-
 				mouseBallHeld = el.id;
 				isDragging = true;
 
-				globals.ballArr[mouseBallHeld].dragStartPositionX = e.pageX;
-				globals.ballArr[mouseBallHeld].dragStartPositionY = e.pageY;
+				var newID = parseInt(el.id, 10);
+
+				//console.log(e);
+
+				for (var i = 0; i < e.touches.length; i++) {
+
+					var _positionX2 = globals.ballArr[newID].x;
+					var _positionY2 = globals.ballArr[newID].y;
+
+					var newBall = {
+						id: newID,
+						positionX: _positionX2,
+						positionY: _positionY2,
+						mousedownX: e.touches[i].pageX,
+						mousedownY: e.touches[i].pageY,
+						dragStartPositionX: _positionX2,
+						dragStartPositionY: _positionY2
+					};
+
+					heldBalls.push(newBall);
+				}
+
+				//globals.ballArr[mouseBallHeld].dragStartPositionX = e.pageX;
+				//globals.ballArr[mouseBallHeld].dragStartPositionY = e.pageY;
 			}
 		});
 	});
@@ -442,19 +473,29 @@ var touch = function touch() {
 
 		e.preventDefault();
 
-		if (touchBallsHeld.length) {
+		if (isDragging) {
 
 			for (var i = 0; i < e.touches.length; i++) {
 
-				if (globals.ballArr[touchBallsHeld[i]] === undefined) return; // if you touchmove not on a ball
-
-				globals.ballArr[touchBallsHeld[i]].x = e.touches[i].pageX;
-				globals.ballArr[touchBallsHeld[i]].y = e.touches[i].pageY;
+				//if (globals.ballArr[heldBalls[i]] === undefined) return; // if you touchmove not on a ball
+				setDragPosition(e.touches[i], heldBalls[i]);
 			}
+
+			// for (var i = 0; i < e.touches.length; i++) {
+
+			// 	//console.log('touchmove', e.touches[i])
+			// 	setDragPosition(e.touches[i], touchBallsHeld[i]);
+
+			// 	//globals.ballArr[touchBallsHeld[i]].x = e.touches[i].pageX;
+			// 	//globals.ballArr[touchBallsHeld[i]].y = e.touches[i].pageY;
+
+			// }
 		}
 	});
 
 	globals.doc.addEventListener('touchend', function (e) {
+
+		isDragging = false;
 
 		// get the 'g' element of the finger which was removed
 		utilities.closest(e.changedTouches[0].target, function (el) {
@@ -463,11 +504,25 @@ var touch = function touch() {
 
 				el.setAttribute('class', '');
 
-				// remove the corresponding ball from the touchBallsHeld array
-				var indexToRemove = touchBallsHeld.indexOf(el.id);
-				if (indexToRemove > -1) {
-					touchBallsHeld.splice(indexToRemove, 1);
-				}
+				heldBalls = [];
+
+				// let newID = parseInt(el.id, 10);
+
+				// // remove the corresponding ball from the touchBallsHeld array
+
+				// for (let i = 0; i < touchBallsHeld.length; i++) {
+
+				// 	if ( touchBallsHeld[i].id === newID) {
+
+				// 		touchBallsHeld.splice(i, 1)
+				// 		console.log(touchBallsHeld)
+
+				// 		//touchBallsHeld.splice(i, 1);
+				// 		//console.log('rem', touchBallsHeld)
+
+				// 	}
+
+				// }
 			}
 		});
 	});
@@ -475,7 +530,6 @@ var touch = function touch() {
 
 mouse();
 touch();
-keys();
 
 module.exports['updateInertia'] = updateInertia;
 
@@ -494,65 +548,65 @@ var app = app || {};
 'use strict';
 
 var setLinePoints = function setLinePoints(iterations) {
-	var point;
-	var pointList = {};
-	pointList.first = { x: 0, y: 1 };
+		var point;
+		var pointList = {};
+		pointList.first = { x: 0, y: 1 };
 
-	var lastPoint = { x: 1, y: 1 };
-	var nextPoint;
-	var dx, newX, newY;
+		var lastPoint = { x: 1, y: 1 };
+		var nextPoint;
+		var dx, newX, newY;
 
-	pointList.first.next = lastPoint;
+		pointList.first.next = lastPoint;
 
-	for (var i = 0; i < iterations; i++) {
-		point = pointList.first;
+		for (var i = 0; i < iterations; i++) {
+				point = pointList.first;
 
-		while (point.next != null) {
-			nextPoint = point.next;
+				while (point.next != null) {
+						nextPoint = point.next;
 
-			dx = nextPoint.x - point.x;
-			newX = 0.5 * (point.x + nextPoint.x);
-			newY = 0.5 * (point.y + nextPoint.y);
-			newY += dx * (Math.random() * 2 - 1);
+						dx = nextPoint.x - point.x;
+						newX = 0.5 * (point.x + nextPoint.x);
+						newY = 0.5 * (point.y + nextPoint.y);
+						newY += dx * (Math.random() * 2 - 1);
 
-			var newPoint = { x: newX, y: newY };
+						var newPoint = { x: newX, y: newY };
 
-			//put between points
-			newPoint.next = nextPoint;
-			point.next = newPoint;
+						//put between points
+						newPoint.next = nextPoint;
+						point.next = newPoint;
 
-			point = nextPoint;
+						point = nextPoint;
+				}
 		}
-	}
 
-	return pointList;
+		return pointList;
 };
 
 var getPolyPoints = function getPolyPoints(minBallSize, maxBallSize) {
-	var point;
-	var rad;
-	var twoPi = 2 * Math.PI;
-	var x0, y0;
-	var phase = 0;
+		var point;
+		var rad;
+		var twoPi = 2 * Math.PI;
+		var x0, y0;
+		var phase = 0;
 
-	//generate the random function that will be used to vary the radius, 9 iterations of subdivision
-	var pointList = setLinePoints(6);
+		//generate the random function that will be used to vary the radius, 9 iterations of subdivision
+		var pointList = setLinePoints(6);
 
-	var coordString = '';
+		var coordString = '';
 
-	point = pointList.first;
+		point = pointList.first;
 
-	while (point.next) {
-		point = point.next;
-		phase = twoPi * point.x;
-		rad = minBallSize + point.y * (maxBallSize - minBallSize);
-		x0 = rad * Math.cos(phase);
-		y0 = rad * Math.sin(phase);
+		while (point.next) {
+				point = point.next;
+				phase = twoPi * point.x;
+				rad = minBallSize + point.y * (maxBallSize - minBallSize);
+				x0 = rad * Math.cos(phase);
+				y0 = rad * Math.sin(phase);
 
-		coordString = coordString + (Math.round(x0 * 100) / 100 + ',' + Math.round(y0 * 100) / 100 + ' ');
-	}
+				coordString = coordString + (Math.round(x0 * 100) / 100 + ',' + Math.round(y0 * 100) / 100 + ' ');
+		}
 
-	return coordString;
+		return coordString;
 };
 
 module.exports['setLinePoints'] = setLinePoints;
@@ -627,34 +681,23 @@ window.onload = function () {
 /*jshint bitwise: false*/
 
 'use strict';
-/*
-	var init = function () {
-
-
-
-
-	};*/
-
-var isIE = function isIE() {
-	var userAgent = navigator.userAgent;
-	return userAgent.indexOf("MSIE ") > -1 || userAgent.indexOf("Trident/") > -1;
-};
 
 // http://davidwalsh.name/javascript-debounce-function
+
 var debounce = function debounce(func, wait, immediate) {
-	var timeout;
-	return function () {
-		var context = this,
-		    args = arguments;
-		var later = function later() {
-			timeout = null;
-			if (!immediate) func.apply(context, args);
-		};
-		var callNow = immediate && !timeout;
-		clearTimeout(timeout);
-		timeout = setTimeout(later, wait);
-		if (callNow) func.apply(context, args);
-	};
+  var timeout;
+  return function () {
+    var context = this,
+        args = arguments;
+    var later = function later() {
+      timeout = null;
+      if (!immediate) func.apply(context, args);
+    };
+    var callNow = immediate && !timeout;
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+    if (callNow) func.apply(context, args);
+  };
 };
 
 // event delegation
@@ -662,25 +705,24 @@ var debounce = function debounce(func, wait, immediate) {
 // so we can traverse up the tree for delegation
 // http://stackoverflow.com/questions/22100853/dom-pure-javascript-solution-to-jquery-closest-implementation
 var closest = function closest(el, fn) {
-	return el && (fn(el) ? el : closest(el.parentNode, fn));
+  return el && (fn(el) ? el : closest(el.parentNode, fn));
 };
 
 var random = function random(min, max) {
-	return parseInt(Math.random() * (max - min) + min);
+  return parseInt(Math.random() * (max - min) + min);
 };
 
 // http://bl.ocks.org/jebeck/196406a3486985d2b92e
 // used for creating the arced text paths
 var getPathData = function getPathData(r) {
-	r = Math.floor(r * 1.15); // adjust the radius a little so our text's baseline isn't sitting directly on the circle
-	var startX = r / 2 - r;
-	return 'M' + startX * 2 + ',' + "1" + ' ' + 'a' + r + ',' + r + ' 0 0 0 ' + 2 * r + ',0';
+  r = Math.floor(r * 1.15); // adjust the radius a little so our text's baseline isn't sitting directly on the circle
+  var startX = r / 2 - r;
+  return 'M' + startX * 2 + ',' + "1" + ' ' + 'a' + r + ',' + r + ' 0 0 0 ' + 2 * r + ',0';
 };
 
 module.exports['debounce'] = debounce;
 module.exports['closest'] = closest;
 module.exports['random'] = random;
 module.exports['getPathData'] = getPathData;
-module.exports['isIE'] = isIE;
 
 },{}]},{},[1]);

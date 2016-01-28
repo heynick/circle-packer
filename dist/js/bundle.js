@@ -237,7 +237,7 @@ velocityX = 0,
     velocityY = 0,
     friction = 0.85,
     isDragging = false,
-    mouseBallHeld = '',
+    mouseBallHeld = {},
 
 //mousedownX,
 //mousedownY,
@@ -245,21 +245,12 @@ velocityX = 0,
 leftBound = 0,
     topBound = 0;
 
-var touchBallsHeld = [];
-
 var heldBalls = [];
 
-var positionX = null,
-    positionY = null;
-//dragPositionX = positionX,
-//dragPositionY = positionY,
-//dragStartPositionX,
-//dragStartPositionY;
-
-function applyForce(forceX, forceY) {
-	velocityX += forceX;
-	velocityY += forceY;
-}
+// // function applyForce( forceX, forceY ) {
+// 	velocityX += dragForceX;
+// 	velocityY += dragForceY;
+// // }
 
 function applyBoundForce() {
 	if (isDragging || positionX < globals.w && positionX > leftBound && positionY < globals.h && positionY > topBound) {
@@ -305,60 +296,47 @@ function applyDragForce() {
 		return;
 	}
 
-	var dragVelocityX = globals.ballArr[mouseBallHeld].x - positionX;
-	var dragVelocityY = globals.ballArr[mouseBallHeld].y - positionY;
-	var dragForceX = dragVelocityX - velocityX;
-	var dragForceY = dragVelocityY - velocityY;
+	//console.log(mouseBallHeld)
 
-	applyForce(dragForceX, dragForceY);
+	var dragVelocityX = globals.ballArr[mouseBallHeld.id].x - mouseBallHeld.positionX;
+	var dragVelocityY = globals.ballArr[mouseBallHeld.id].y - mouseBallHeld.positionY;
+	var dragForceX = dragVelocityX - mouseBallHeld.velocityX;
+	var dragForceY = dragVelocityY - mouseBallHeld.velocityY;
+
+	mouseBallHeld.velocityX += dragForceX;
+	mouseBallHeld.velocityY += dragForceY;
+
+	//applyForce( dragForceX, dragForceY );
 }
 
 function setDragPosition(e, currentBall) {
 	//e.preventDefault();
 
-	if (0) {
+	var moveX = e.pageX - currentBall.mousedownX;
+	var moveY = e.pageY - currentBall.mousedownY;
 
-		for (var i = 0; i < e.touches.length; i++) {
+	currentBall.dragPositionX = currentBall.dragStartPositionX + moveX;
+	currentBall.dragPositionY = currentBall.dragStartPositionY + moveY;
 
-			console.log(currentBall.id);
-
-			var _moveX = e.touches[i].pageX - currentBall.mousedownX;
-			var _moveY = e.touches[i].pageY - currentBall.mousedownY;
-
-			currentBall.dragPositionX = currentBall.dragStartPositionX + _moveX;
-			currentBall.dragPositionY = currentBall.dragStartPositionY + _moveY;
-
-			globals.ballArr[currentBall.id].x = currentBall.dragPositionX;
-			globals.ballArr[currentBall.id].y = currentBall.dragPositionY;
-		}
-	} else {
-		console.log(e);
-		var moveX = e.pageX - currentBall.mousedownX;
-		var moveY = e.pageY - currentBall.mousedownY;
-
-		currentBall.dragPositionX = currentBall.dragStartPositionX + moveX;
-		currentBall.dragPositionY = currentBall.dragStartPositionY + moveY;
-
-		globals.ballArr[currentBall.id].x = currentBall.dragPositionX;
-		globals.ballArr[currentBall.id].y = currentBall.dragPositionY;
-	}
+	globals.ballArr[currentBall.id].x = currentBall.dragPositionX;
+	globals.ballArr[currentBall.id].y = currentBall.dragPositionY;
 }
 
 var updateInertia = function updateInertia() {
 
-	velocityX *= friction;
-	velocityY *= friction;
+	mouseBallHeld.velocityX *= friction;
+	mouseBallHeld.velocityY *= friction;
 
-	applyBoundForce();
+	//applyBoundForce();
 	applyDragForce();
 
-	positionX += velocityX;
-	positionY += velocityY;
+	mouseBallHeld.positionX += mouseBallHeld.velocityX;
+	mouseBallHeld.positionY += mouseBallHeld.velocityY;
 
-	if (mouseBallHeld) {
+	if (globals.ballArr[mouseBallHeld.id]) {
 
-		globals.ballArr[mouseBallHeld].x = positionX;
-		globals.ballArr[mouseBallHeld].y = positionY;
+		globals.ballArr[mouseBallHeld.id].x = mouseBallHeld.positionX;
+		globals.ballArr[mouseBallHeld.id].y = mouseBallHeld.positionY;
 	}
 };
 
@@ -374,7 +352,6 @@ var mouse = function mouse() {
 
 				el.setAttribute('class', 'held');
 
-				mouseBallHeld = el.id;
 				isDragging = true;
 
 				var newID = parseInt(el.id, 10);
@@ -389,8 +366,13 @@ var mouse = function mouse() {
 					mousedownX: e.pageX,
 					mousedownY: e.pageY,
 					dragStartPositionX: _positionX,
-					dragStartPositionY: _positionY
+					dragStartPositionY: _positionY,
+					velocityX: 0,
+					velocityY: 0
+
 				};
+
+				mouseBallHeld = newBall;
 
 				heldBalls.push(newBall);
 			}
@@ -411,19 +393,25 @@ var mouse = function mouse() {
 
 	globals.doc.addEventListener('mouseup', function (e) {
 
-		if (isDragging) {
-			// gotta do it this way because user could mouseup on a different element
-			// which would wreck the closest loop
-			globals.doc.getElementById(mouseBallHeld).setAttribute('class', '');
+		utilities.closest(e.target, function (el) {
 
-			isDragging = false;
-			//isMousing = false;
+			if (el.tagName === 'g') {
+				(function () {
 
-			heldBalls = [];
+					isDragging = false;
+					el.setAttribute('class', '');
 
-			//globals.doc.removeEventListener( 'mousemove' );
-			//globals.doc.removeEventListener( 'mouseup' );
-		}
+					var newID = parseInt(el.id, 10);
+
+					// remove item from array which matches the id of item released
+					heldBalls = heldBalls.filter(function (obj) {
+						return obj.id !== newID;
+					});
+
+					mouseBallHeld === {};
+				})();
+			}
+		});
 	});
 };
 
@@ -438,33 +426,32 @@ var touch = function touch() {
 
 				el.setAttribute('class', 'held');
 
-				mouseBallHeld = el.id;
 				isDragging = true;
 
-				var newID = parseInt(el.id, 10);
+				var newBall = {};
 
-				//console.log(e);
+				var newID = parseInt(el.id, 10);
 
 				for (var i = 0; i < e.touches.length; i++) {
 
 					var _positionX2 = globals.ballArr[newID].x;
 					var _positionY2 = globals.ballArr[newID].y;
 
-					var newBall = {
+					newBall = {
 						id: newID,
 						positionX: _positionX2,
 						positionY: _positionY2,
 						mousedownX: e.touches[i].pageX,
 						mousedownY: e.touches[i].pageY,
 						dragStartPositionX: _positionX2,
-						dragStartPositionY: _positionY2
+						dragStartPositionY: _positionY2,
+						velocityX: 0,
+						velocityY: 0
 					};
-
-					heldBalls.push(newBall);
 				}
 
-				//globals.ballArr[mouseBallHeld].dragStartPositionX = e.pageX;
-				//globals.ballArr[mouseBallHeld].dragStartPositionY = e.pageY;
+				mouseBallHeld = newBall;
+				heldBalls.push(newBall);
 			}
 		});
 	});
@@ -477,8 +464,14 @@ var touch = function touch() {
 
 			for (var i = 0; i < e.touches.length; i++) {
 
-				//if (globals.ballArr[heldBalls[i]] === undefined) return; // if you touchmove not on a ball
-				setDragPosition(e.touches[i], heldBalls[i]);
+				if (globals.ballArr[heldBalls[i].id] === undefined) return; // if you touchmove not on a ball
+
+				//console.log(e.touches.length)
+
+				globals.ballArr[heldBalls[i].id].x = e.touches[i].pageX;
+				globals.ballArr[heldBalls[i].id].y = e.touches[i].pageY;
+
+				//setDragPosition(e.touches[i], heldBalls[i]);
 			}
 
 			// for (var i = 0; i < e.touches.length; i++) {
@@ -486,43 +479,32 @@ var touch = function touch() {
 			// 	//console.log('touchmove', e.touches[i])
 			// 	setDragPosition(e.touches[i], touchBallsHeld[i]);
 
-			// 	//globals.ballArr[touchBallsHeld[i]].x = e.touches[i].pageX;
-			// 	//globals.ballArr[touchBallsHeld[i]].y = e.touches[i].pageY;
-
 			// }
 		}
 	});
 
 	globals.doc.addEventListener('touchend', function (e) {
 
-		isDragging = false;
-
 		// get the 'g' element of the finger which was removed
 		utilities.closest(e.changedTouches[0].target, function (el) {
 
 			if (el.tagName === 'g') {
+				(function () {
 
-				el.setAttribute('class', '');
+					el.setAttribute('class', '');
 
-				heldBalls = [];
+					var newID = parseInt(el.id, 10);
 
-				// let newID = parseInt(el.id, 10);
+					// remove item from array which matches the id of item released
+					heldBalls = heldBalls.filter(function (obj) {
+						return obj.id !== newID;
+					});
 
-				// // remove the corresponding ball from the touchBallsHeld array
-
-				// for (let i = 0; i < touchBallsHeld.length; i++) {
-
-				// 	if ( touchBallsHeld[i].id === newID) {
-
-				// 		touchBallsHeld.splice(i, 1)
-				// 		console.log(touchBallsHeld)
-
-				// 		//touchBallsHeld.splice(i, 1);
-				// 		//console.log('rem', touchBallsHeld)
-
-				// 	}
-
-				// }
+					if (!heldBalls.length) {
+						mouseBallHeld === {};
+						isDragging = false;
+					}
+				})();
 			}
 		});
 	});

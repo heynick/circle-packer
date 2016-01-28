@@ -18,7 +18,7 @@ var cursorPos = [],
 	friction = 0.85,
 	isDragging = false,
 
-	mouseBallHeld = '',
+	mouseBallHeld = {},
 
 	//mousedownX,
 	//mousedownY,
@@ -27,25 +27,15 @@ var cursorPos = [],
 	topBound = 0;
 
 
-var touchBallsHeld = [];
-
-
 var heldBalls = [];
 
 
-var	positionX = null,
-	positionY = null;
-	//dragPositionX = positionX,
-	//dragPositionY = positionY,
-	//dragStartPositionX,
-	//dragStartPositionY;
 
 
-function applyForce( forceX, forceY ) {
-	velocityX += forceX;
-	velocityY += forceY;
-}
-
+// // function applyForce( forceX, forceY ) {
+// 	velocityX += dragForceX;
+// 	velocityY += dragForceY;
+// // }
 
 function applyBoundForce() {
 	if ( isDragging || positionX < globals.w && positionX > leftBound && positionY < globals.h && positionY > topBound) {
@@ -94,12 +84,18 @@ function applyDragForce() {
 		return;
 	}
 
-	let dragVelocityX = globals.ballArr[mouseBallHeld].x - positionX;
-	let dragVelocityY = globals.ballArr[mouseBallHeld].y - positionY;
-	let dragForceX = dragVelocityX - velocityX;
-	let dragForceY = dragVelocityY - velocityY;
+	//console.log(mouseBallHeld)
 
-	applyForce( dragForceX, dragForceY );
+	let dragVelocityX = globals.ballArr[mouseBallHeld.id].x - mouseBallHeld.positionX;
+	let dragVelocityY = globals.ballArr[mouseBallHeld.id].y - mouseBallHeld.positionY;
+	let dragForceX = dragVelocityX - mouseBallHeld.velocityX;
+	let dragForceY = dragVelocityY - mouseBallHeld.velocityY;
+
+
+	mouseBallHeld.velocityX += dragForceX;
+	mouseBallHeld.velocityY += dragForceY;
+
+	//applyForce( dragForceX, dragForceY );
 
 }
 
@@ -108,59 +104,34 @@ function setDragPosition( e, currentBall ) {
   	//e.preventDefault();
 
 
-  	if (0) {
+	var moveX = e.pageX - currentBall.mousedownX;
+	var moveY = e.pageY - currentBall.mousedownY;
 
-  		for (var i = 0; i < e.touches.length; i++) {
+  	currentBall.dragPositionX = currentBall.dragStartPositionX + moveX;
+  	currentBall.dragPositionY = currentBall.dragStartPositionY + moveY;
 
-  			console.log(currentBall.id)
-
-			let moveX = e.touches[i].pageX - currentBall.mousedownX;
-			let moveY = e.touches[i].pageY - currentBall.mousedownY;
-
-		  	currentBall.dragPositionX = currentBall.dragStartPositionX + moveX;
-		  	currentBall.dragPositionY = currentBall.dragStartPositionY + moveY;
-
-			globals.ballArr[currentBall.id].x = currentBall.dragPositionX;
-			globals.ballArr[currentBall.id].y = currentBall.dragPositionY;
-
-  		}
-
-
-
-  	} else {
-  		console.log(e);
-		var moveX = e.pageX - currentBall.mousedownX;
-		var moveY = e.pageY - currentBall.mousedownY;
-
-	  	currentBall.dragPositionX = currentBall.dragStartPositionX + moveX;
-	  	currentBall.dragPositionY = currentBall.dragStartPositionY + moveY;
-
-		globals.ballArr[currentBall.id].x = currentBall.dragPositionX;
-		globals.ballArr[currentBall.id].y = currentBall.dragPositionY;
-
-
-
-
-  	}
+	globals.ballArr[currentBall.id].x = currentBall.dragPositionX;
+	globals.ballArr[currentBall.id].y = currentBall.dragPositionY;
 
 
 }
 
 var updateInertia = function() {
 
-	velocityX *= friction;
-	velocityY *= friction;
+	mouseBallHeld.velocityX *= friction;
+	mouseBallHeld.velocityY *= friction;
 
-	applyBoundForce();
+	//applyBoundForce();
 	applyDragForce();
 
-	positionX += velocityX;
-	positionY += velocityY;
+	mouseBallHeld.positionX += mouseBallHeld.velocityX;
+	mouseBallHeld.positionY += mouseBallHeld.velocityY;
 
-	if (mouseBallHeld) {
+	if (globals.ballArr[mouseBallHeld.id]) {
 
-		globals.ballArr[mouseBallHeld].x = positionX;
-		globals.ballArr[mouseBallHeld].y = positionY;
+
+		globals.ballArr[mouseBallHeld.id].x = mouseBallHeld.positionX;
+		globals.ballArr[mouseBallHeld.id].y = mouseBallHeld.positionY;
 
 	}
 
@@ -180,7 +151,6 @@ var mouse = function() {
 
 				el.setAttribute('class', 'held');
 
-				mouseBallHeld = el.id;
 				isDragging = true;
 
 				let newID = parseInt(el.id, 10);
@@ -195,8 +165,13 @@ var mouse = function() {
 					mousedownX: e.pageX,
 					mousedownY: e.pageY,
 					dragStartPositionX: positionX,
-					dragStartPositionY: positionY
+					dragStartPositionY: positionY,
+					velocityX: 0,
+					velocityY: 0
+
 				}
+
+				mouseBallHeld = newBall;
 
 				heldBalls.push(newBall);
 
@@ -224,21 +199,28 @@ var mouse = function() {
 
 	globals.doc.addEventListener('mouseup', function(e) {
 
-		if (isDragging) {
-			// gotta do it this way because user could mouseup on a different element
-			// which would wreck the closest loop
-			globals.doc.getElementById(mouseBallHeld).setAttribute('class', '');
 
-			isDragging = false;
-			//isMousing = false;
+		utilities.closest(e.target, function(el) {
 
-			heldBalls = [];
+			if (el.tagName === 'g') {
 
-			//globals.doc.removeEventListener( 'mousemove' );
-			//globals.doc.removeEventListener( 'mouseup' );
+				isDragging = false;
+				el.setAttribute('class', '');
+
+				let newID = parseInt(el.id, 10);
+
+				// remove item from array which matches the id of item released
+				heldBalls = heldBalls.filter(function( obj ) {
+				    return obj.id !== newID;
+				});
+
+				mouseBallHeld === {};
 
 
-		}
+
+			}
+
+		});
 	});
 
 };
@@ -255,43 +237,38 @@ var touch = function() {
 
 			if (el.tagName === 'g') {
 
+
 				el.setAttribute('class', 'held');
 
-
-
-				mouseBallHeld = el.id;
 				isDragging = true;
+
+				let newBall = {}
+
 
 				let newID = parseInt(el.id, 10);
 
-				//console.log(e);
-
-
-				for (var i = 0; i < e.touches.length; i++) {
+				for (let i = 0; i < e.touches.length; i++) {
 
 					let positionX = globals.ballArr[newID].x;
 					let positionY = globals.ballArr[newID].y;
 
-					let newBall = {
+					newBall = {
 						id: newID,
 						positionX: positionX,
 						positionY: positionY,
 						mousedownX: e.touches[i].pageX,
 						mousedownY: e.touches[i].pageY,
 						dragStartPositionX: positionX,
-						dragStartPositionY: positionY
+						dragStartPositionY: positionY,
+						velocityX: 0,
+						velocityY: 0
 					}
-
-					heldBalls.push(newBall);
 
 				}
 
+				mouseBallHeld = newBall;
+				heldBalls.push(newBall);
 
-
-
-
-				//globals.ballArr[mouseBallHeld].dragStartPositionX = e.pageX;
-				//globals.ballArr[mouseBallHeld].dragStartPositionY = e.pageY;
 
 			}
 
@@ -304,11 +281,18 @@ var touch = function() {
 
 		if (isDragging) {
 
-			for (var i = 0; i < e.touches.length; i++) {
+			for (let i = 0; i < e.touches.length; i++) {
+
+				if (globals.ballArr[heldBalls[i].id] === undefined) return; // if you touchmove not on a ball
+
+				//console.log(e.touches.length)
+
+				globals.ballArr[heldBalls[i].id].x = e.touches[i].pageX;
+				globals.ballArr[heldBalls[i].id].y = e.touches[i].pageY;
 
 
-				//if (globals.ballArr[heldBalls[i]] === undefined) return; // if you touchmove not on a ball
-				setDragPosition(e.touches[i], heldBalls[i]);
+				//setDragPosition(e.touches[i], heldBalls[i]);
+
 
 			}
 
@@ -320,8 +304,7 @@ var touch = function() {
 			// 	//console.log('touchmove', e.touches[i])
 			// 	setDragPosition(e.touches[i], touchBallsHeld[i]);
 
-			// 	//globals.ballArr[touchBallsHeld[i]].x = e.touches[i].pageX;
-			// 	//globals.ballArr[touchBallsHeld[i]].y = e.touches[i].pageY;
+
 
 			// }
 
@@ -334,42 +317,27 @@ var touch = function() {
 
 	globals.doc.addEventListener('touchend', function(e) {
 
-		isDragging = false;
 
 		// get the 'g' element of the finger which was removed
 		utilities.closest(e.changedTouches[0].target, function(el) {
 
 			if (el.tagName === 'g') {
 
+
 				el.setAttribute('class', '');
 
-				heldBalls = [];
+				let newID = parseInt(el.id, 10);
 
-				// let newID = parseInt(el.id, 10);
-
-				// // remove the corresponding ball from the touchBallsHeld array
-
-
-				// for (let i = 0; i < touchBallsHeld.length; i++) {
+				// remove item from array which matches the id of item released
+				heldBalls = heldBalls.filter(function( obj ) {
+				    return obj.id !== newID;
+				});
 
 
-				// 	if ( touchBallsHeld[i].id === newID) {
-
-
-				// 		touchBallsHeld.splice(i, 1)
-				// 		console.log(touchBallsHeld)
-
-				// 		//touchBallsHeld.splice(i, 1);
-				// 		//console.log('rem', touchBallsHeld)
-
-
-				// 	}
-
-
-
-
-				// }
-
+				if (!heldBalls.length) {
+					mouseBallHeld === {};
+					isDragging = false;
+				}
 
 
 			}

@@ -69,18 +69,12 @@ function applyDragForce(i) {
 
 
 	let dragVelocityX = globals.ballArr[i].x - globals.ballArr[i].positionX;
-	let dragVelocityY = globals.ballArr[i].y - globals.ballArr[i].positionY;
-	
-	
+	let dragVelocityY = globals.ballArr[i].y - globals.ballArr[i].positionY;	
 	let dragForceX = dragVelocityX - globals.ballArr[i].velocityX;
 	let dragForceY = dragVelocityY - globals.ballArr[i].velocityY;
 
-	//console.log(dragForceX)
-
 	globals.ballArr[i].velocityX += dragForceX;
 	globals.ballArr[i].velocityY += dragForceY;
-
-	//console.log(globals.ballArr[store.heldBalls[0]])
 
 	//applyForce( dragForceX, dragForceY );
 	
@@ -102,20 +96,20 @@ const updateInertia = function() {
 
 	store.heldBalls.forEach(function(i) {
 
-		if (globals.ballArr[i] === undefined) {
-			return;
-		}
+		// if (globals.ballArr[i] === undefined) {
+		// 	return;
+		// }
 
 		globals.ballArr[i].velocityX *= options.friction;
 		globals.ballArr[i].velocityY *= options.friction;
+
+
 
 		//applyBoundForce();
 		applyDragForce(i);
 
 		globals.ballArr[i].positionX += globals.ballArr[i].velocityX;
 		globals.ballArr[i].positionY += globals.ballArr[i].velocityY;
-
-
 
 
 		if (Math.floor(Math.abs(globals.ballArr[i].velocityX)) === 0 && Math.floor(Math.abs(globals.ballArr[i].velocityY)) === 0) {

@@ -5,8 +5,7 @@
 let	isDragging = false;
 
 
-// WHAT THE FUCKKK??
-let	mouseBallHeld = {};
+//let	mouseBallHeld = {};
 var heldBalls = [];
 
 //var cursorPos = [];
@@ -14,7 +13,7 @@ var heldBalls = [];
 
 export {
 		isDragging,
-		mouseBallHeld,
+		//mouseBallHeld,
 		heldBalls
 		//cursorPos,
 

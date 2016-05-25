@@ -6,8 +6,8 @@ require('./src/polypoints')
 require('./src/balls')
 require('./src/interaction')
 
-import './src/interaction-mouse'
 import './src/interaction-touch'
+import './src/interaction-mouse'
 
 require('./src/resize')
 require('./src/src')

@@ -14,8 +14,8 @@ export default function setDragPosition( e, currentBall ) {
 	var moveX = e.pageX - currentBall.mousedownX;
 	var moveY = e.pageY - currentBall.mousedownY;
 
-  	currentBall.dragPositionX = currentBall.dragStartPositionX + moveX;
-  	currentBall.dragPositionY = currentBall.dragStartPositionY + moveY;
+	currentBall.dragPositionX = currentBall.dragStartPositionX + moveX;
+	currentBall.dragPositionY = currentBall.dragStartPositionY + moveY;
 
 	globals.ballArr[currentBall.id].x = currentBall.dragPositionX;
 	globals.ballArr[currentBall.id].y = currentBall.dragPositionY;

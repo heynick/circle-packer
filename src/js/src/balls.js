@@ -85,12 +85,12 @@ var circlePack = function(i, currentBall) {
 
 		if (d < l) {
 
-			let f = (1 - d / l) * r,
-				t = Math.atan2(dy, dx),
+			let f = (1 - d / l) * r;
+			let t = Math.atan2(dy, dx);
 
 			// set right edge && left edge boundaries
-				hozBoundary = c.x < INNER_WIDTH - c.r && c.x > c.r,
-				verBoundary = c.y < INNER_HEIGHT - c.r && c.y >c.r;
+			let hozBoundary = c.x < INNER_WIDTH - c.r && c.x > c.r;
+			let verBoundary = c.y < INNER_HEIGHT - c.r && c.y >c.r;
 
 			// if the ball is over the boundary divide its movement by 100 so it doesn't disappear out of viewport
 			c.vx += Math.cos( t ) * f / (hozBoundary ? 1 : 100);
@@ -190,4 +190,3 @@ for (let i = 0; i < BALL_COUNT; i++) {
 }
 
 startAnimationLoop();
-

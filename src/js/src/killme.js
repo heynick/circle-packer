@@ -12,10 +12,10 @@ import * as store from './store';
 import * as options from './options';
 
 
-// function applyForce( forceX, forceY ) {
+// function applyForce( forceX, forceY, i ) {
 
-// 	globals.ballArr[store.heldBalls[0]].velocityX += forceX;
-// 	globals.ballArr[store.heldBalls[0]].velocityY += forceY;
+// 	globals.ballArr[i].velocityX += forceX;
+// 	globals.ballArr[i].velocityY += forceY;
 // }
 
 
@@ -63,27 +63,22 @@ import * as options from './options';
 
 function applyDragForce(i) {
 
+
 	if ( !globals.ballArr[i].isDragging ) {
+		console.log('not dragging, should return?')
 		return;
 	}
 
-
 	let dragVelocityX = globals.ballArr[i].x - globals.ballArr[i].positionX;
 	let dragVelocityY = globals.ballArr[i].y - globals.ballArr[i].positionY;
-	
-	
 	let dragForceX = dragVelocityX - globals.ballArr[i].velocityX;
 	let dragForceY = dragVelocityY - globals.ballArr[i].velocityY;
 
-	//console.log(dragForceX)
-
-	globals.ballArr[i].velocityX += dragForceX;
-	globals.ballArr[i].velocityY += dragForceY;
-
-	//console.log(globals.ballArr[store.heldBalls[0]])
 
 	//applyForce( dragForceX, dragForceY );
-	
+	globals.ballArr[i].velocityX += dragForceX;
+	globals.ballArr[i].velocityY += dragForceY;
+	//applyForce()
 
 }
 
@@ -93,57 +88,89 @@ function applyDragForce(i) {
 // store.heldBalls is an array which should only contain ID, nothing else about the ball
 
 
-
 const updateInertia = function() {
 
+	// if (!store.heldBalls.length) {
+	// 	return;
+	// }
 
-	//console.log( Math.abs(globals.ballArr[store.heldBalls[0]].velocityX) )
-	//console.log( globals.ballArr[store.heldBalls[0]] === undefined )
 
 	store.heldBalls.forEach(function(i) {
 
-		if (globals.ballArr[i] === undefined) {
-			return;
-		}
+		// i is the ID of the ball
+
+		console.log(globals.ballArr[i])
+
+		applyDragForce(i);
 
 		globals.ballArr[i].velocityX *= options.friction;
 		globals.ballArr[i].velocityY *= options.friction;
-
-		//applyBoundForce();
-		applyDragForce(i);
 
 		globals.ballArr[i].positionX += globals.ballArr[i].velocityX;
 		globals.ballArr[i].positionY += globals.ballArr[i].velocityY;
 
 
-
-
-		if (Math.floor(Math.abs(globals.ballArr[i].velocityX)) === 0 && Math.floor(Math.abs(globals.ballArr[i].velocityY)) === 0) {
-
-			if (globals.ballArr[i].isDragging === false) {
-
-				console.log('no inertia, removing')
-
-				globals.ballArr[i].hasInertia = false
-				
-				let itemToRemove = store.heldBalls.indexOf(i)
-
-				if (itemToRemove !== -1) {
-					store.heldBalls.splice(itemToRemove, 1);
-				}
-
-			}
-
-		
-		} else {
-			// this is what actually moves the balls coordinates
+		// potential bugs here
 			globals.ballArr[i].x = globals.ballArr[i].positionX;
 			globals.ballArr[i].y = globals.ballArr[i].positionY;
+		if (globals.ballArr[i].isDragging) {
+		}
+
+		if (globals.ballArr[i].hasInertia === false) {
+			console.log('removing!')
+			let itemToRemove = store.heldBalls.indexOf(i)
+
+			if (itemToRemove != -1) {
+				store.heldBalls.splice(itemToRemove, 1);
+			}
+
+			//return;
+
 		}
 
 
 
+		if (Math.floor(Math.abs(globals.ballArr[i].velocityX)) === 0 && Math.floor(Math.abs(globals.ballArr[i].velocityY)) === 0) {
+
+
+			console.log('no inertia')
+
+			globals.ballArr[i].hasInertia = false
+			globals.ballArr[i].isDragging = false
+	
+		}
+
+		
 	})
+
+
+	// if (globals.ballArr[store.heldBalls[0]] === undefined) {
+	// 	return;
+	// }
+
+
+	
+	// // is infinitesimal
+	// if (Math.floor(Math.abs(globals.ballArr[store.heldBalls[0]].velocityX)) === 0 && Math.floor(Math.abs(globals.ballArr[store.heldBalls[0]].velocityY)) === 0) {
+
+	// 	// if (globals.ballArr[store.heldBalls[0]].isDragging = true) {
+	// 	// 	return;
+	// 	// }
+
+	// 	
+		
+
+
+		
+
+	// 	console.log('inertiaEnd', store.heldBalls) // [2]
+
+	// 	return;
+
+	// }
+
+	
+
 
 	
 

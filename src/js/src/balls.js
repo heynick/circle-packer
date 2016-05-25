@@ -12,7 +12,7 @@ var interaction = require('./interaction')
 const BALL_ROUGHNESS = 0.88, // 1 === perfect circle
 	SPREAD_PUSH = 0.6, // how hard the balls push against each other. 1 === neutral
 	MIN_SIZE = 70,
-	MAX_SIZE = 205,
+	MAX_SIZE = 75,
 	SPREAD_SPEED = 0.075,
 	BALL_COUNT = 5;
 
@@ -20,11 +20,12 @@ var appendedBalls = []; // store a reference to all balls in here, so we don't n
 
 //http://www.colourlovers.com/palette/396423/Praise_Certain_Frogs
 var ballColors = [
-	'#F4FCE8', // dark blue
-	'#C3FF68', // green
-	'#87D69B', // blue
-	'#4E9689', // metal blue
-	'#7ED0D6'
+	'#888'
+	// '#F4FCE8', // dark blue
+	// '#C3FF68', // green
+	// '#87D69B', // blue
+	// '#4E9689', // metal blue
+	// '#7ED0D6'
 ];
 
 const INNER_WIDTH = window.innerWidth,
@@ -32,25 +33,24 @@ const INNER_WIDTH = window.innerWidth,
 	INNER_WIDTH_HALF = INNER_WIDTH / 2,
 	INNER_HEIGHT_HALF = INNER_HEIGHT / 2;
 
-var createCircle = function(r = utilities.random(MIN_SIZE, MAX_SIZE), fill =  ballColors[Math.floor(Math.random() * ballColors.length)]) {
+var createCircle = function( i ) {
 
 	var circleObj = {
-		fill: fill,
+		id: i,
+		fill: ballColors[Math.floor(Math.random() * ballColors.length)],
 		x: INNER_WIDTH_HALF + Math.random(),
 		y: INNER_HEIGHT_HALF + Math.random(),
 		vx: 0,
 		vy: 0,
-		// positionX: 0,
-		// positionY: 0,
-		// dragVelocityX: 0,
-		// dragVelocityY: 0,
-		// dragForceY: 0,
-		// dragForceX: 0,
-		// velocityX: 0,
-		// velocityY: 0,
-		// dragStartPositionX: 0,
-		// dragStartPositionY: 0,
-		r: r
+		positionX: 0,
+		positionY: 0,
+		velocityX: 0,
+		velocityY: 0,
+		dragStartPositionX: 0,
+		dragStartPositionY: 0,
+		r: utilities.random(MIN_SIZE, MAX_SIZE),
+		isDragging: false,
+		hasInertia: false
 	};
 
 	globals.ballArr.push(circleObj);
@@ -97,7 +97,6 @@ var circlePack = function(i, currentBall) {
 			c.vy += Math.sin( t ) * f / (verBoundary ? 1 : 100);
 
 		}
-
 	}
 }
 
@@ -132,7 +131,7 @@ var manageBall = function(i, currentBall) {
 	currentBall.vy *= SPREAD_SPEED;
 
 	let roundedY = Math.round((currentBall.y += currentBall.vy) * 100) / 100,
-			roundedX = Math.round((currentBall.x += currentBall.vx) * 100) / 100;
+		roundedX = Math.round((currentBall.x += currentBall.vx) * 100) / 100;
 
 	if (!globals.isIE) {
 		gEl.style.webkitTransform = 'translate3d(' + roundedX + 'px, ' + roundedY + 'px, 0)';
@@ -187,11 +186,8 @@ setTimeout(function() {
 
 // generate the balls!
 for (let i = 0; i < BALL_COUNT; i++) {
-	 createCircle();
+	 createCircle(i);
 }
 
 startAnimationLoop();
 
-
-//module.exports['createCircle'] = createCircle;
-//module.exports['renderLoop'] = renderLoop;

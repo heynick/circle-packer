@@ -51,8 +51,7 @@ var createCircle = function( i ) {
 		dragStartPositionX: 0,
 		dragStartPositionY: 0,
 		r: utilities.random(MIN_SIZE, MAX_SIZE),
-		isDragging: false,
-		hasInertia: false
+		isDragging: false
 	};
 
 	globals.ballArr.push(circleObj);

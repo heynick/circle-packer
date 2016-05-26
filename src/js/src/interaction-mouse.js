@@ -49,7 +49,6 @@ globals.doc.addEventListener('mousedown', function(e) {
 
 globals.doc.addEventListener('mousemove', function(e) {
 
-
 	if (store.heldBalls.length) {
 		
 		for (var i = 0; i < store.heldBalls.length; i++) {
@@ -64,14 +63,13 @@ globals.doc.addEventListener('mouseup', function(e) {
 	utilities.closest(e.target, function(el) {
 
 		if (el.tagName === 'g') {
-
 			
 			el.setAttribute('class', '');
 
 			let newID = parseInt(el.id, 10);
 
 			globals.ballArr[newID].isDragging = false;
-			globals.ballArr[newID].hasInertia = true;
+			//globals.ballArr[newID].hasInertia = true;
 
 		}
 

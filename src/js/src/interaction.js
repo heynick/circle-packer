@@ -91,9 +91,6 @@ function applyDragForce(i) {
 const updateInertia = function() {
 
 
-	//console.log( Math.abs(globals.ballArr[store.heldBalls[0]].velocityX) )
-	//console.log( globals.ballArr[store.heldBalls[0]] === undefined )
-
 	store.heldBalls.forEach(function(i) {
 
 		globals.ballArr[i].velocityX *= options.friction;
@@ -107,13 +104,16 @@ const updateInertia = function() {
 		globals.ballArr[i].positionY += globals.ballArr[i].velocityY;
 
 
+		// is infinitesimal
 		if (Math.round(Math.abs(globals.ballArr[i].velocityX) * 100) / 100 === 0 && Math.round(Math.abs(globals.ballArr[i].velocityY) * 100) / 100 === 0) {
 
+			// only remove if youre not dragging it
 			if (globals.ballArr[i].isDragging === false) {
 
-				console.log('no inertia, removing')
+				//console.log('no inertia, removing')
 
-				globals.ballArr[i].hasInertia = false
+				globals.ballArr[i].hasInertia = false;
+
 				
 				let itemToRemove = store.heldBalls.indexOf(i)
 

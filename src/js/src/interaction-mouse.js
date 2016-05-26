@@ -15,7 +15,7 @@ globals.doc.addEventListener('mousedown', function(e) {
 
 			el.setAttribute('class', 'held');
 
-			store.isDragging = true;
+			
 
 			// get the ball id of the one just clicked
 			let newID = parseInt(el.id, 10);
@@ -52,13 +52,9 @@ globals.doc.addEventListener('mousemove', function(e) {
 
 	if (store.heldBalls.length) {
 		
-		// i'd assume you could have only one mouse pointer,
-		// so get just the first [0] and only ball within store.heldBalls
-		setDragPosition(e, globals.ballArr[store.heldBalls[0]]);
-		// otherwise it'd be a loop:
-		// for (var i = 0; i < store.heldBalls.length; i++) {
-		//	setDragPosition(e, store.heldBalls[i]);
-		// }
+		for (var i = 0; i < store.heldBalls.length; i++) {
+			setDragPosition(e, globals.ballArr[store.heldBalls[i]]);
+		}
 	}
 });
 
@@ -69,7 +65,7 @@ globals.doc.addEventListener('mouseup', function(e) {
 
 		if (el.tagName === 'g') {
 
-			store.isDragging = false;
+			
 			el.setAttribute('class', '');
 
 			let newID = parseInt(el.id, 10);

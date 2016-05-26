@@ -96,13 +96,8 @@ const updateInertia = function() {
 
 	store.heldBalls.forEach(function(i) {
 
-		// if (globals.ballArr[i] === undefined) {
-		// 	return;
-		// }
-
 		globals.ballArr[i].velocityX *= options.friction;
 		globals.ballArr[i].velocityY *= options.friction;
-
 
 
 		//applyBoundForce();
@@ -112,11 +107,11 @@ const updateInertia = function() {
 		globals.ballArr[i].positionY += globals.ballArr[i].velocityY;
 
 
-		if (Math.floor(Math.abs(globals.ballArr[i].velocityX)) === 0 && Math.floor(Math.abs(globals.ballArr[i].velocityY)) === 0) {
+		if (Math.round(Math.abs(globals.ballArr[i].velocityX) * 100) / 100 === 0 && Math.round(Math.abs(globals.ballArr[i].velocityY) * 100) / 100 === 0) {
 
 			if (globals.ballArr[i].isDragging === false) {
 
-				//console.log('no inertia, removing')
+				console.log('no inertia, removing')
 
 				globals.ballArr[i].hasInertia = false
 				

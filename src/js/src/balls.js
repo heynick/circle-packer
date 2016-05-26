@@ -46,6 +46,8 @@ var createCircle = function( i ) {
 		positionY: 0,
 		velocityX: 0,
 		velocityY: 0,
+		mousedownX: 0,
+		mousedownY: 0,
 		dragStartPositionX: 0,
 		dragStartPositionY: 0,
 		r: utilities.random(MIN_SIZE, MAX_SIZE),

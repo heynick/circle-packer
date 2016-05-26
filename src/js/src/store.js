@@ -2,10 +2,9 @@
 //let	velocityX = 0;
 //let	velocityY = 0;
 
+// will remove this
 let	isDragging = false;
 
-
-//let	mouseBallHeld = {};
 var heldBalls = [];
 
 //var cursorPos = [];
@@ -16,5 +15,4 @@ export {
 		//mouseBallHeld,
 		heldBalls
 		//cursorPos,
-
 	}

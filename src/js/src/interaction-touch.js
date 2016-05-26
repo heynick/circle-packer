@@ -8,145 +8,79 @@ globals.doc.addEventListener('touchstart', function(e) {
 	e.preventDefault();
 
 
-	utilities.closest(e.target, function(el) {
 
-		if (el.tagName === 'g') {
+	//for (let i = 0; i < e.touches.length; i++) {
 
-			for (let i = 0; i < e.touches.length; i++) {
+		utilities.closest(e.target, function(el) {
+
+			if (el.tagName === 'g') {
+
+
+				let newID = parseInt(el.id, 10);
+				console.log(newID)
+				let positionX = globals.ballArr[newID].x;
+				let positionY = globals.ballArr[newID].y;
+
+				globals.ballArr[newID].mousedownX = e.touches[0].pageX
+				globals.ballArr[newID].mousedownY = e.touches[0].pageY
+				globals.ballArr[newID].dragStartPositionX = positionX
+				globals.ballArr[newID].dragStartPositionY = positionY
+				globals.ballArr[newID].velocityX = 0
+				globals.ballArr[newID].velocityY = 0
+				globals.ballArr[newID].isDragging = true;
+				globals.ballArr[newID].hasInertia = false;
+
+
+
+				setDragPosition(e.touches[0], globals.ballArr[newID]);
+				store.heldBalls.push(newID);
 
 
 			}
-			
-			let newID = parseInt(el.id, 10);
-			let positionX = globals.ballArr[newID].x;
-			let positionY = globals.ballArr[newID].y;
 
-			globals.ballArr[newID].mousedownX = e.touches[0].pageX
-			globals.ballArr[newID].mousedownY = e.touches[0].pageY
-			globals.ballArr[newID].dragStartPositionX = positionX
-			globals.ballArr[newID].dragStartPositionY = positionY
-			globals.ballArr[newID].velocityX = 0
-			globals.ballArr[newID].velocityY = 0
-			globals.ballArr[newID].isDragging = true;
-			globals.ballArr[newID].hasInertia = false;
-
-
-			//setDragPosition(e.touches[0], globals.ballArr[newID]);
-			store.heldBalls.push(newID);
-
-
-		}
-
-	})
-
-
-
-	// loop the elements, not the fingers
-
-	//for (let i = 0; i < e.touches.length; i++) {
-		//console.log(e)
-
-		
+		})
 
 	//}
 
-//	return;
-
-
-
-	// utilities.closest(e.target, function(el) {
-
-	// 	if (el.tagName === 'g') {
-
-	// 		el.setAttribute('class', 'held');
-
-	// 		store.isDragging = true;
-
-			
-	// 		let newID = parseInt(el.id, 10);
-
-	// 		for (let i = 0; i < e.touches.length; i++) {
-				
-	// 			console.log(el)
-
-	// 			let positionX = globals.ballArr[newID].x;
-	// 			let positionY = globals.ballArr[newID].y;
-
-
-	// 			globals.ballArr[newID].positionX = positionX
-	// 			globals.ballArr[newID].positionY = positionY
-	// 			globals.ballArr[newID].mousedownX = e.touches[i].pageX
-	// 			globals.ballArr[newID].mousedownY = e.touches[i].pageY
-	// 			globals.ballArr[newID].dragStartPositionX = positionX
-	// 			globals.ballArr[newID].dragStartPositionY = positionY
-	// 			globals.ballArr[newID].velocityX = 0
-	// 			globals.ballArr[newID].velocityY = 0
-	// 			globals.ballArr[newID].isDragging = true;
-	// 			globals.ballArr[newID].hasInertia = false;
-
-
-	// 			store.heldBalls.push(newID);
-	// 			//setDragPosition(e, globals.ballArr[e.touches[i]]);
-
-	// 			//console.log(e.touches[i])
-
-
-	// 		}
-
-
-	// 	}
-
-	// });
 });
 
 globals.doc.addEventListener('touchmove', function(e) {
 
 	e.preventDefault();
 
+	store.heldBalls.forEach(function(i) {
+		console.log(i)
+		setDragPosition(e.touches[0], globals.ballArr[i]);
+
+		// for (let j = 0; j < e.touches.length; j++) {
+
+		// 	setDragPosition(e.touches[j], globals.ballArr[0]);
+
+		// 	//console.log(store.heldBalls)
+
+		// 	//setDragPosition(e.touches[i], store.heldBalls[i]);
+
+		// }
 	
-
-	// store.heldBalls.forEach(function(i) {
-		
-	// 	//setDragPosition(e.touches[0], globals.ballArr[store.heldBalls[0]]);
-
-	// })
-
-
-	//console.log(e.touches[0])
-
-	if (store.heldBalls.length) {
-
-		for (let i = 0; i < e.touches.length; i++) {
-
-			setDragPosition(e.touches[i], globals.ballArr[store.heldBalls[i]]);
-
-			//console.log(store.heldBalls)
-
-			//setDragPosition(e.touches[i], store.heldBalls[i]);
-
-		}
-	}
+	})
 
 
 
-
-
-
-	// if (store.isDragging) {
+	// if (store.heldBalls.length) {
 
 	// 	for (let i = 0; i < e.touches.length; i++) {
 
+	// 		setDragPosition(e.touches[i], globals.ballArr[store.heldBalls[i]]);
 
-	// 		globals.ballArr[store.heldBalls[i].id].x = e.touches[i].pageX;
-	// 		globals.ballArr[store.heldBalls[i].id].y = e.touches[i].pageY;
+	// 		//console.log(store.heldBalls)
+
+	// 		//setDragPosition(e.touches[i], store.heldBalls[i]);
 
 	// 	}
-
 	// }
 
 
 });
-
 
 
 globals.doc.addEventListener('touchend', function(e) {
@@ -157,7 +91,7 @@ globals.doc.addEventListener('touchend', function(e) {
 
 		if (el.tagName === 'g') {
 
-			store.isDragging = false;
+			
 			el.setAttribute('class', '');
 
 			let newID = parseInt(el.id, 10);
@@ -165,7 +99,6 @@ globals.doc.addEventListener('touchend', function(e) {
 			globals.ballArr[newID].isDragging = false;
 			globals.ballArr[newID].hasInertia = true;
 			
-
 		}
 
 	});

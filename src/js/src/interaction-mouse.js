@@ -38,7 +38,7 @@ globals.doc.addEventListener('mousedown', function(e) {
 
 			store.heldBalls.push(newID);
 
-			console.log(globals.ballArr[newID])
+			//console.log(globals.ballArr[newID])
 
 		}
 
@@ -51,7 +51,7 @@ globals.doc.addEventListener('mousemove', function(e) {
 
 
 	if (store.heldBalls.length) {
-		//console.log(store.heldBalls[0])
+		
 		// i'd assume you could have only one mouse pointer,
 		// so get just the first [0] and only ball within store.heldBalls
 		setDragPosition(e, globals.ballArr[store.heldBalls[0]]);

@@ -7,48 +7,44 @@ import * as store from './store';
 globals.doc.addEventListener('touchstart', function(e) {
 	e.preventDefault();
 
+	// loop the elements, not the fingers
 
-	utilities.closest(e.target, function(el) {
+	for (let i = 0; i < e.touches.length; i++) {
+		//console.log(e)
 
-		if (el.tagName === 'g') {
+		utilities.closest(e.touches[i].target, function(el) {
 
-			for (let i = 0; i < e.touches.length; i++) {
+			if (el.tagName === 'g') {
+
+				
+				let newID = parseInt(el.id, 10);
+				
+
+				let positionX = globals.ballArr[newID].x;
+				let positionY = globals.ballArr[newID].y;
+
+
+				//globals.ballArr[newID].positionX = positionX
+				//globals.ballArr[newID].positionY = positionY
+				globals.ballArr[newID].mousedownX = e.touches[i].pageX
+				globals.ballArr[newID].mousedownY = e.touches[i].pageY
+				globals.ballArr[newID].dragStartPositionX = positionX
+				globals.ballArr[newID].dragStartPositionY = positionY
+				globals.ballArr[newID].velocityX = 0
+				globals.ballArr[newID].velocityY = 0
+				globals.ballArr[newID].isDragging = true;
+				globals.ballArr[newID].hasInertia = false;
+
+
+				setDragPosition(e, globals.ballArr[newID]);
+				store.heldBalls.push(newID);
 
 
 			}
-			
-			let newID = parseInt(el.id, 10);
-			let positionX = globals.ballArr[newID].x;
-			let positionY = globals.ballArr[newID].y;
 
-			globals.ballArr[newID].mousedownX = e.touches[0].pageX
-			globals.ballArr[newID].mousedownY = e.touches[0].pageY
-			globals.ballArr[newID].dragStartPositionX = positionX
-			globals.ballArr[newID].dragStartPositionY = positionY
-			globals.ballArr[newID].velocityX = 0
-			globals.ballArr[newID].velocityY = 0
-			globals.ballArr[newID].isDragging = true;
-			globals.ballArr[newID].hasInertia = false;
+		})
 
-
-			//setDragPosition(e.touches[0], globals.ballArr[newID]);
-			store.heldBalls.push(newID);
-
-
-		}
-
-	})
-
-
-
-	// loop the elements, not the fingers
-
-	//for (let i = 0; i < e.touches.length; i++) {
-		//console.log(e)
-
-		
-
-	//}
+	}
 
 //	return;
 
@@ -103,31 +99,21 @@ globals.doc.addEventListener('touchmove', function(e) {
 
 	e.preventDefault();
 
-	
-
 	// store.heldBalls.forEach(function(i) {
 		
 	// 	//setDragPosition(e.touches[0], globals.ballArr[store.heldBalls[0]]);
 
 	// })
 
-
-	//console.log(e.touches[0])
-
 	if (store.heldBalls.length) {
 
 		for (let i = 0; i < e.touches.length; i++) {
 
-			setDragPosition(e.touches[i], globals.ballArr[store.heldBalls[i]]);
-
-			//console.log(store.heldBalls)
-
-			//setDragPosition(e.touches[i], store.heldBalls[i]);
+			setDragPosition(e.touches[i], globals.ballArr[i]);
 
 		}
+
 	}
-
-
 
 
 

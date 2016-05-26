@@ -95,7 +95,6 @@ var circlePack = function(i, currentBall) {
 			// if the ball is over the boundary divide its movement by 100 so it doesn't disappear out of viewport
 			c.vx += Math.cos( t ) * f / (hozBoundary ? 1 : 100);
 			c.vy += Math.sin( t ) * f / (verBoundary ? 1 : 100);
-
 		}
 	}
 }

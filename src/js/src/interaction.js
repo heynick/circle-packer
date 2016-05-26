@@ -116,7 +116,7 @@ const updateInertia = function() {
 
 			if (globals.ballArr[i].isDragging === false) {
 
-				console.log('no inertia, removing')
+				//console.log('no inertia, removing')
 
 				globals.ballArr[i].hasInertia = false
 				

@@ -31,7 +31,6 @@ globals.doc.addEventListener('mousedown', function(e) {
 			globals.ballArr[newID].velocityX = 0
 			globals.ballArr[newID].velocityY = 0
 			globals.ballArr[newID].isDragging = true;
-			globals.ballArr[newID].hasInertia = false;
 
 			
 			setDragPosition(e, globals.ballArr[newID]);
@@ -69,7 +68,6 @@ globals.doc.addEventListener('mouseup', function(e) {
 			let newID = parseInt(el.id, 10);
 
 			globals.ballArr[newID].isDragging = false;
-			//globals.ballArr[newID].hasInertia = true;
 
 		}
 

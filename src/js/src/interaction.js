@@ -10,86 +10,15 @@ import globals from './globals';
 import utilities from './utilities';
 import * as store from './store';
 import * as options from './options';
-
-
-// function applyForce( forceX, forceY ) {
-
-// 	globals.ballArr[store.heldBalls[0]].velocityX += forceX;
-// 	globals.ballArr[store.heldBalls[0]].velocityY += forceY;
-// }
-
-
-// function applyBoundForce() {
-	
-// 	if ( store.isDragging || store.heldBalls.positionX < globals.w && store.heldBalls.positionX > options.leftBound && store.heldBalls.positionY < globals.h && store.heldBalls.positionY > options.topBound) {
-// 		return;
-// 	}
-
-// 	// bouncing past bound
-// 	let distanceX = globals.w - store.heldBalls.positionX;
-// 	let distanceY = globals.h - store.heldBalls.positionY;
-
-// 	let	forceX = distanceX * 0.1,
-// 		forceY = distanceY * 0.1,
-
-// 		distanceYtop = options.topBound - store.heldBalls.positionY,
-// 		distanceXleft = options.leftBound - store.heldBalls.positionX,
-// 		forceXleft = distanceXleft * 0.1,
-// 		forceYtop = distanceYtop * 0.1,
-
-// 	// calculate resting position with this force
-// 		restX = store.heldBalls.positionX + ( store.heldBalls.velocityX + forceX ) / ( 1 - options.friction ),
-// 		restY = store.heldBalls.positionY + ( store.heldBalls.velocityY + forceY ) / ( 1 - options.friction ),
-
-// 		restYneg = store.heldBalls.positionY + ( store.heldBalls.velocityY + forceYtop ) / ( 1 - options.friction ),
-// 		restXneg = store.heldBalls.positionX + ( store.heldBalls.velocityX + forceXleft ) / ( 1 - options.friction );
-
-//   	// if in bounds, apply force to align at bounds
-// 	if ( restX > globals.w) {
-// 		// passes right
-// 		applyForce( forceX, 0 );
-// 	} else if (restXneg < options.leftBound) {
-// 		// passes left
-// 		applyForce( forceXleft, 0 );
-// 	} else if (restY > globals.h) {
-// 		// passes bottom
-// 		applyForce( 0, forceY );
-// 	} else if (restYneg < options.topBound) {
-// 		// passes top
-// 		applyForce( 0, forceYtop );
-// 	}
-// }
-
-
-function applyDragForce(i) {
-
-	if ( !globals.ballArr[i].isDragging ) {
-		return;
-	}
-
-
-	let dragVelocityX = globals.ballArr[i].x - globals.ballArr[i].positionX;
-	let dragVelocityY = globals.ballArr[i].y - globals.ballArr[i].positionY;	
-	let dragForceX = dragVelocityX - globals.ballArr[i].velocityX;
-	let dragForceY = dragVelocityY - globals.ballArr[i].velocityY;
-
-	globals.ballArr[i].velocityX += dragForceX;
-	globals.ballArr[i].velocityY += dragForceY;
-
-	//applyForce( dragForceX, dragForceY );
-	
-
-}
+import applyDragForce from './inertia/applyDragForce'
+import applyForce from './inertia/applyForce'
+import applyBoundForce from './inertia/applyBoundForce'
 
 
 // globals.ballArr holds all the ball details, always and forever
-
 // store.heldBalls is an array which should only contain ID, nothing else about the ball
 
-
-
-const updateInertia = function() {
-
+export default function updateInertia() {
 
 	store.heldBalls.forEach(function(i) {
 
@@ -97,7 +26,7 @@ const updateInertia = function() {
 		globals.ballArr[i].velocityY *= options.friction;
 
 
-		//applyBoundForce();
+		applyBoundForce(i);
 		applyDragForce(i);
 
 		globals.ballArr[i].positionX += globals.ballArr[i].velocityX;
@@ -111,9 +40,6 @@ const updateInertia = function() {
 			if (globals.ballArr[i].isDragging === false) {
 
 				//console.log('no inertia, removing')
-
-				globals.ballArr[i].hasInertia = false;
-
 				
 				let itemToRemove = store.heldBalls.indexOf(i)
 
@@ -122,7 +48,6 @@ const updateInertia = function() {
 				}
 
 			}
-
 		
 		} else {
 			// this is what actually moves the balls coordinates
@@ -130,14 +55,6 @@ const updateInertia = function() {
 			globals.ballArr[i].y = globals.ballArr[i].positionY;
 		}
 
-
-
 	})
 
-	
-
 };
-
-
-
-module.exports['updateInertia'] = updateInertia

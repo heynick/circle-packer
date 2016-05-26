@@ -5,7 +5,9 @@
 var globals = require('./globals')
 var utilities = require('./utilities')
 var polypoints = require('./polypoints')
-var interaction = require('./interaction')
+
+
+import updateInertia from './interaction'
 
 
 // OPTIONS
@@ -154,7 +156,7 @@ var renderLoop = function() {
 
 	}
 
-	interaction.updateInertia()
+	updateInertia()
 
 	globals.animating = requestAnimationFrame(renderLoop)
 

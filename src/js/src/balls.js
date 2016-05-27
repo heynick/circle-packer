@@ -13,8 +13,8 @@ import updateInertia from './interaction'
 // OPTIONS
 const BALL_ROUGHNESS = 0.88, // 1 === perfect circle
 	SPREAD_PUSH = 0.6, // how hard the balls push against each other. 1 === neutral
-	MIN_SIZE = 70,
-	MAX_SIZE = 75,
+	MIN_SIZE = 90,
+	MAX_SIZE = 140,
 	SPREAD_SPEED = 0.075,
 	BALL_COUNT = 5;
 
@@ -22,12 +22,12 @@ var appendedBalls = []; // store a reference to all balls in here, so we don't n
 
 //http://www.colourlovers.com/palette/396423/Praise_Certain_Frogs
 var ballColors = [
-	'#888'
-	// '#F4FCE8', // dark blue
-	// '#C3FF68', // green
-	// '#87D69B', // blue
-	// '#4E9689', // metal blue
-	// '#7ED0D6'
+	'#888',
+	'#F4FCE8', // dark blue
+	'#C3FF68', // green
+	'#87D69B', // blue
+	'#4E9689', // metal blue
+	'#7ED0D6'
 ];
 
 const INNER_WIDTH = window.innerWidth,

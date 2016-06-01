@@ -1,11 +1,7 @@
-/*global window, app, navigator */
-/*jshint bitwise: false*/
-
 'use strict';
 
-
 // http://davidwalsh.name/javascript-debounce-function
-var debounce = function(func, wait, immediate) {
+const debounce = function(func, wait, immediate) {
   var timeout;
   return function() {
     var context = this, args = arguments;
@@ -24,20 +20,20 @@ var debounce = function(func, wait, immediate) {
 // similar to $.closest
 // so we can traverse up the tree for delegation
 // http://stackoverflow.com/questions/22100853/dom-pure-javascript-solution-to-jquery-closest-implementation
-var closest = function(el, fn) {
+const closest = function(el, fn) {
     return el && (
         fn(el) ? el : closest(el.parentNode, fn)
     );
 }
 
-var random = function( min, max ){
+const random = function( min, max ){
 	return parseInt( Math.random() * (max - min) + min);
 }
 
 
 // http://bl.ocks.org/jebeck/196406a3486985d2b92e
 // used for creating the arced text paths
-var getPathData = function(r) {
+const getPathData = function(r) {
 	r = Math.floor(r * 1.15); // adjust the radius a little so our text's baseline isn't sitting directly on the circle
 	var startX = r/2 - r;
 	return 'M' + startX*2 + ',' + "1" + ' ' +

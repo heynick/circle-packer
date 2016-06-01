@@ -1,4 +1,3 @@
-
 //http://www.colourlovers.com/palette/396423/Praise_Certain_Frogs
 export default [
 	'#888',

@@ -1,7 +1,7 @@
-import utilities from './utilities';
-import globals from './globals';
-import setDragPosition from './inertia/setDragPosition'
-import store from './store';
+import utilities from '../utilities';
+import globals from '../globals';
+import setDragPosition from '../inertia/setDragPosition'
+import store from '../store';
 
 
 globals.doc.addEventListener('touchstart', function(e) {

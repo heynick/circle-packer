@@ -1,8 +1,8 @@
 /*global window, document, app, navigator */
 
 'use strict';
-let globals = require('./globals')
-let utilities = require('./utilities')
+import globals from './globals'
+import utilities from './utilities'
 
 let ballsBrowserResize = utilities.debounce(function() {
 

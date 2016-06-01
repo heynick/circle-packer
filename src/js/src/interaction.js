@@ -8,8 +8,8 @@
 
 import globals from './globals';
 import utilities from './utilities';
-import * as store from './store';
-import * as options from './options';
+import store from './store';
+import options from './options';
 import applyDragForce from './inertia/applyDragForce'
 import applyForce from './inertia/applyForce'
 import applyBoundForce from './inertia/applyBoundForce'

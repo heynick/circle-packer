@@ -2,7 +2,7 @@ var userAgent = navigator.userAgent;
 var isIE = userAgent.indexOf("MSIE ") > -1 || userAgent.indexOf("Trident/") > -1;
 
 
-var globals = {
+export default {
     doc: document,
     animating: undefined,
     ballArr: [],
@@ -14,6 +14,3 @@ var globals = {
         return this.doc.getElementById('svg-el')
     }
 }
-
-module.exports = globals
-

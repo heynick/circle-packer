@@ -2,33 +2,15 @@
 /*jshint bitwise: false*/
 'use strict';
 
-var globals = require('./globals')
-var utilities = require('./utilities')
-var polypoints = require('./polypoints')
-
-
+import globals from './globals'
+import options from './settings/options'
+import colors from './settings/colors'
+import utilities from './utilities'
+import polypoints from './polypoints'
 import updateInertia from './interaction'
-
-
-// OPTIONS
-const BALL_ROUGHNESS = 0.88, // 1 === perfect circle
-	SPREAD_PUSH = 0.6, // how hard the balls push against each other. 1 === neutral
-	MIN_SIZE = 90,
-	MAX_SIZE = 140,
-	SPREAD_SPEED = 0.075,
-	BALL_COUNT = 5;
 
 var appendedBalls = []; // store a reference to all balls in here, so we don't need to query the dom
 
-//http://www.colourlovers.com/palette/396423/Praise_Certain_Frogs
-var ballColors = [
-	'#888',
-	'#F4FCE8', // dark blue
-	'#C3FF68', // green
-	'#87D69B', // blue
-	'#4E9689', // metal blue
-	'#7ED0D6'
-];
 
 const INNER_WIDTH = window.innerWidth,
 	INNER_HEIGHT = window.innerHeight,
@@ -39,7 +21,7 @@ var createCircle = function( i ) {
 
 	var circleObj = {
 		id: i,
-		fill: ballColors[Math.floor(Math.random() * ballColors.length)],
+		fill: colors[Math.floor(Math.random() * colors.length)],
 		x: INNER_WIDTH_HALF + Math.random(),
 		y: INNER_HEIGHT_HALF + Math.random(),
 		vx: 0,
@@ -52,7 +34,7 @@ var createCircle = function( i ) {
 		mousedownY: 0,
 		dragStartPositionX: 0,
 		dragStartPositionY: 0,
-		r: utilities.random(MIN_SIZE, MAX_SIZE),
+		r: utilities.random(options.MIN_SIZE, options.MAX_SIZE),
 		isDragging: false
 	};
 
@@ -84,7 +66,7 @@ var circlePack = function(i, currentBall) {
 		d = dx * dx + dy * dy;
 
 		r = c.r + currentBall.r;
-		l = r * r * SPREAD_PUSH;
+		l = r * r * options.SPREAD_PUSH;
 
 		if (d < l) {
 
@@ -113,7 +95,7 @@ var manageBall = function(i, currentBall) {
 			polyEl = globals.doc.createElementNS('http://www.w3.org/2000/svg', 'polygon');
 
 		polyEl.setAttribute('fill', currentBall.fill);
-		polyEl.setAttribute('points', polypoints.getPolyPoints(currentBall.r * BALL_ROUGHNESS, currentBall.r));
+		polyEl.setAttribute('points', polypoints.getPolyPoints(currentBall.r * options.BALL_ROUGHNESS, currentBall.r));
 
 		gEl.id = i;
 		gEl.appendChild(polyEl);
@@ -129,8 +111,8 @@ var manageBall = function(i, currentBall) {
 		var gEl = appendedBalls[i];
 	}
 
-	currentBall.vx *= SPREAD_SPEED;
-	currentBall.vy *= SPREAD_SPEED;
+	currentBall.vx *= options.SPREAD_SPEED;
+	currentBall.vy *= options.SPREAD_SPEED;
 
 	let roundedY = Math.round((currentBall.y += currentBall.vy) * 100) / 100,
 		roundedX = Math.round((currentBall.x += currentBall.vx) * 100) / 100;
@@ -187,7 +169,7 @@ setTimeout(function() {
 
 
 // generate the balls!
-for (let i = 0; i < BALL_COUNT; i++) {
+for (let i = 0; i < options.BALL_COUNT; i++) {
 	 createCircle(i);
 }
 

@@ -1,16 +1,16 @@
-var globals = require('./globals')
+// import globals from './globals'
 
 
-window.onload = function() {
-    'use strict';
+// window.onload = function() {
+//     'use strict';
 
-    globals.doc.documentElement.classList.remove('no-js');
+//     globals.doc.documentElement.classList.remove('no-js');
 
     
 
 
-    // initiate FastClick
-    //FastClick.attach(document.body);
+//     // initiate FastClick
+//     //FastClick.attach(document.body);
 
 
-};
+// };

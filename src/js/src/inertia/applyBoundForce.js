@@ -1,6 +1,6 @@
 import globals from '../globals';
 import applyForce from './applyForce'
-import * as options from '../options';
+import options from '../options';
 
 function right(restX, forceX, globals, i, distanceX) {
 

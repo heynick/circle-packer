@@ -5,19 +5,22 @@ import options from '../settings/options';
 
 function right(i) {
 
-	if ( globals.ballArr[i].positionX < options.rightBound ) {
+	let position = globals.ballArr[i].positionX;
+
+	if ( position < options.rightBound ) {
 		return;
 	}
 
-	let distance = options.rightBound - globals.ballArr[i].positionX;
+	let velocity = globals.ballArr[i].velocityX
+	let distance = options.rightBound - position;
 	let	force = distance * 0.1;
-	let rest = globals.ballArr[i].positionX + ( globals.ballArr[i].velocityX + force ) / ( 1 - options.friction );
+	let rest = position + ( velocity + force ) / ( 1 - options.friction );
 
   	// if in bounds, apply force to align at bounds
 	if ( rest > options.rightBound ) {
 		applyForceX( force, i )
 	} else {
-		force = distance * 0.1 - globals.ballArr[i].velocityX
+		force = distance * 0.1 - velocity
 		applyForceX( force, i)
 	}
 }
@@ -25,19 +28,21 @@ function right(i) {
 
 function left(i) {
 
-	if ( globals.ballArr[i].positionX > options.leftBound ) {
+	let position = globals.ballArr[i].positionX
+
+	if ( position > options.leftBound ) {
 		return;
 	}
 
-	// bouncing past bound
-	let distance = options.leftBound - globals.ballArr[i].positionX;
+	let velocity = globals.ballArr[i].velocityX
+	let distance = options.leftBound - position;
 	let	force = distance * 0.1;
-	let rest =  globals.ballArr[i].positionX + ( globals.ballArr[i].velocityX + force ) / ( 1 - options.friction );
+	let rest =  position + ( velocity + force ) / ( 1 - options.friction );
 
 	if (rest < options.leftBound ) {
 		applyForceX( force, i)
 	} else {
-		force = distance * 0.1 - globals.ballArr[i].velocityX
+		force = distance * 0.1 - velocity
 		applyForceX( force, i);
 	}
 
@@ -46,19 +51,21 @@ function left(i) {
 
 function top(i) {
 
-	if ( globals.ballArr[i].positionY > options.topBound ) {
+	let position = globals.ballArr[i].positionY
+
+	if ( position > options.topBound ) {
 		return;
 	}
 
-	// bouncing past bound
-	let distance = options.topBound - globals.ballArr[i].positionY;
+	let velocity = globals.ballArr[i].velocityY
+	let distance = options.topBound - position;
 	let	force = distance * 0.1;
-	let rest =  globals.ballArr[i].positionY + ( globals.ballArr[i].velocityY + force ) / ( 1 - options.friction );
+	let rest =  position + ( velocity + force ) / ( 1 - options.friction );
 
 	if (rest < options.topBound) {
 		applyForceY( force, i)
 	} else {
-		force = distance * 0.1 - globals.ballArr[i].velocityY
+		force = distance * 0.1 - velocity
 		applyForceY( force, i);
 	}
 
@@ -66,19 +73,21 @@ function top(i) {
 
 function bottom(i) {
 
-	if ( globals.ballArr[i].positionY < options.bottomBound ) {
+	let position = globals.ballArr[i].positionY
+
+	if ( position < options.bottomBound ) {
 		return;
 	}
 
-	// bouncing past bound
-	let distance = options.bottomBound - globals.ballArr[i].positionY;
+	let velocity = globals.ballArr[i].velocityY
+	let distance = options.bottomBound - position;
 	let	force = distance * 0.1;
-	let rest =  globals.ballArr[i].positionY + ( globals.ballArr[i].velocityY + force ) / ( 1 - options.friction );
+	let rest =  position + ( velocity + force ) / ( 1 - options.friction );
 
 	if (rest > options.bottomBound) {
 		applyForceY( force, i)
 	} else {
-		force = distance * 0.1 - globals.ballArr[i].velocityY
+		force = distance * 0.1 - velocity
 		applyForceY( force, i);
 	}
 

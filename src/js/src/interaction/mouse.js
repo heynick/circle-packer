@@ -15,8 +15,6 @@ globals.doc.addEventListener('mousedown', function(e) {
 
 			el.setAttribute('class', 'held');
 
-			
-
 			// get the ball id of the one just clicked
 			let newID = parseInt(el.id, 10);
 
@@ -32,7 +30,7 @@ globals.doc.addEventListener('mousedown', function(e) {
 			globals.ballArr[newID].velocityY = 0
 			globals.ballArr[newID].isDragging = true;
 
-			
+
 			setDragPosition(e, globals.ballArr[newID]);
 
 			store.heldBalls.push(newID);
@@ -49,7 +47,7 @@ globals.doc.addEventListener('mousedown', function(e) {
 globals.doc.addEventListener('mousemove', function(e) {
 
 	if (store.heldBalls.length) {
-		
+
 		for (var i = 0; i < store.heldBalls.length; i++) {
 			setDragPosition(e, globals.ballArr[store.heldBalls[i]]);
 		}
@@ -62,7 +60,7 @@ globals.doc.addEventListener('mouseup', function(e) {
 	utilities.closest(e.target, function(el) {
 
 		if (el.tagName === 'g') {
-			
+
 			el.setAttribute('class', '');
 
 			let newID = parseInt(el.id, 10);

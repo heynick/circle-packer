@@ -3,18 +3,16 @@
 'use strict';
 
 import globals from './globals';
-import utilities from './utilities';
 import store from './store';
 import options from './settings/options';
 import applyDragForce from './inertia/applyDragForce'
-import applyForce from './inertia/applyForce'
 import applyBoundForce from './inertia/applyBoundForce'
 
 
 // globals.ballArr holds all the ball details, always and forever
 // store.heldBalls is an array which should only contain ID, nothing else about the ball
 
-export default function updateInertia() {
+export default function() {
 
 	store.heldBalls.forEach(function(i) {
 
@@ -32,7 +30,7 @@ export default function updateInertia() {
 		// is infinitesimal
 		if (Math.round(Math.abs(globals.ballArr[i].velocityX) * 100) / 100 === 0 && Math.round(Math.abs(globals.ballArr[i].velocityY) * 100) / 100 === 0) {
 
-			// only remove if youre not dragging it
+			// only remove if you're not dragging it
 			if (globals.ballArr[i].isDragging === false) {
 
 				//console.log('no inertia, removing')

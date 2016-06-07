@@ -7,13 +7,12 @@ import options from './settings/options'
 import colors from './settings/colors'
 import utilities from './utilities'
 import polypoints from './polypoints'
-import updateInertia from './interaction'
+import updateInertia from './inertia'
 
 var appendedBalls = []; // store a reference to all balls in here, so we don't need to query the dom
 
-
-const INNER_WIDTH = window.innerWidth,
-	INNER_HEIGHT = window.innerHeight,
+const INNER_WIDTH = globals.w,
+	INNER_HEIGHT = globals.h,
 	INNER_WIDTH_HALF = INNER_WIDTH / 2,
 	INNER_HEIGHT_HALF = INNER_HEIGHT / 2;
 

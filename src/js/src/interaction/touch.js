@@ -7,7 +7,6 @@ import store from '../store';
 globals.doc.addEventListener('touchstart', function(e) {
 	e.preventDefault();
 
-
 	utilities.closest(e.changedTouches[0].target, function(el) {
 
 		if (el.tagName === 'g') {
@@ -27,13 +26,12 @@ globals.doc.addEventListener('touchstart', function(e) {
 			setDragPosition(e.changedTouches[0], globals.ballArr[newID]);
 			store.heldBalls.push(newID);
 
-
 		}
 
 	})
 
-
 });
+
 
 globals.doc.addEventListener('touchmove', function(e) {
 	e.preventDefault();
@@ -42,9 +40,9 @@ globals.doc.addEventListener('touchmove', function(e) {
 
 		// inertia works
 		for (let j = 0; j < e.touches.length; j++) {
-			
+
 			utilities.closest(e.touches[j].target, function(el) {
-			
+
 				if (el.tagName === 'g') {
 					for (var i = 0; i < store.heldBalls.length; i++) {
 
@@ -67,18 +65,17 @@ globals.doc.addEventListener('touchmove', function(e) {
 globals.doc.addEventListener('touchend', function(e) {
 
 	// get the <g> element of the finger which was removed
-
 	utilities.closest(e.changedTouches[0].target, function(el) {
-		
-		
+
+
 		if (el.tagName === 'g') {
-	
+
 			el.setAttribute('class', '');
 
 			let newID = parseInt(el.id, 10);
 
 			globals.ballArr[newID].isDragging = false;
-			
+
 		}
 
 	});

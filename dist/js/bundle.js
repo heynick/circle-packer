@@ -2,109 +2,118 @@
 'use strict';
 
 require('./src/prototypes');
-require('./src/namespace');
-require('./src/globals');
-require('./src/utilities');
-require('./src/polypoints');
-require('./src/balls');
-require('./src/interaction');
-require('./src/resize');
-require('./src/src');
 
-},{"./src/balls":2,"./src/globals":3,"./src/interaction":4,"./src/namespace":5,"./src/polypoints":6,"./src/prototypes":7,"./src/resize":8,"./src/src":9,"./src/utilities":10}],2:[function(require,module,exports){
+require('./src/globals');
+
+require('./src/utilities');
+
+require('./src/resize');
+
+require('./src/polypoints');
+
+require('./src/balls');
+
+require('./src/interaction');
+
+require('./src/interaction/touch');
+
+require('./src/interaction/mouse');
+
+},{"./src/balls":2,"./src/globals":3,"./src/interaction":10,"./src/interaction/mouse":11,"./src/interaction/touch":12,"./src/polypoints":13,"./src/prototypes":14,"./src/resize":15,"./src/utilities":19}],2:[function(require,module,exports){
 /*global window, app, navigator */
 /*jshint bitwise: false*/
 'use strict';
 
-var globals = require('./globals');
-var utilities = require('./utilities');
-var polypoints = require('./polypoints');
-var interaction = require('./interaction');
+var _globals = require('./globals');
 
-// OPTIONS
-var BALL_ROUGHNESS = 0.88,
-    // 1 === perfect circle
-SPREAD_PUSH = 0.6,
-    // how hard the balls push against each other. 1 === neutral
-MIN_SIZE = 70,
-    MAX_SIZE = 205,
-    SPREAD_SPEED = 0.075,
-    BALL_COUNT = 5;
+var _globals2 = _interopRequireDefault(_globals);
+
+var _options = require('./settings/options');
+
+var _options2 = _interopRequireDefault(_options);
+
+var _colors = require('./settings/colors');
+
+var _colors2 = _interopRequireDefault(_colors);
+
+var _utilities = require('./utilities');
+
+var _utilities2 = _interopRequireDefault(_utilities);
+
+var _polypoints = require('./polypoints');
+
+var _polypoints2 = _interopRequireDefault(_polypoints);
+
+var _interaction = require('./interaction');
+
+var _interaction2 = _interopRequireDefault(_interaction);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var appendedBalls = []; // store a reference to all balls in here, so we don't need to query the dom
-
-//http://www.colourlovers.com/palette/396423/Praise_Certain_Frogs
-var ballColors = ['#F4FCE8', // dark blue
-'#C3FF68', // green
-'#87D69B', // blue
-'#4E9689', // metal blue
-'#7ED0D6'];
 
 var INNER_WIDTH = window.innerWidth,
     INNER_HEIGHT = window.innerHeight,
     INNER_WIDTH_HALF = INNER_WIDTH / 2,
     INNER_HEIGHT_HALF = INNER_HEIGHT / 2;
 
-var createCircle = function createCircle() {
-	var r = arguments.length <= 0 || arguments[0] === undefined ? utilities.random(MIN_SIZE, MAX_SIZE) : arguments[0];
-	var fill = arguments.length <= 1 || arguments[1] === undefined ? ballColors[Math.floor(Math.random() * ballColors.length)] : arguments[1];
+var createCircle = function createCircle(i) {
 
 	var circleObj = {
-		fill: fill,
+		id: i,
+		fill: _colors2.default[Math.floor(Math.random() * _colors2.default.length)],
 		x: INNER_WIDTH_HALF + Math.random(),
 		y: INNER_HEIGHT_HALF + Math.random(),
 		vx: 0,
 		vy: 0,
-		// positionX: 0,
-		// positionY: 0,
-		// dragVelocityX: 0,
-		// dragVelocityY: 0,
-		// dragForceY: 0,
-		// dragForceX: 0,
-		// velocityX: 0,
-		// velocityY: 0,
-		// dragStartPositionX: 0,
-		// dragStartPositionY: 0,
-		r: r
+		positionX: 0,
+		positionY: 0,
+		velocityX: 0,
+		velocityY: 0,
+		mousedownX: 0,
+		mousedownY: 0,
+		dragStartPositionX: 0,
+		dragStartPositionY: 0,
+		r: _utilities2.default.random(_options2.default.MIN_SIZE, _options2.default.MAX_SIZE),
+		isDragging: false
 	};
 
-	globals.ballArr.push(circleObj);
+	_globals2.default.ballArr.push(circleObj);
 };
 
 var circlePack = function circlePack(i, currentBall) {
-	// circle packing, based off http://codepen.io/jun-lu/pen/rajrJx
+	// circle packing based on: http://codepen.io/jun-lu/pen/rajrJx
 
-	var c = undefined,
-	    dx = undefined,
-	    dy = undefined,
-	    d = undefined,
-	    l = undefined,
-	    r = undefined;
+	var c = void 0,
+	    dx = void 0,
+	    dy = void 0,
+	    d = void 0,
+	    l = void 0,
+	    r = void 0;
 
-	for (var j = 0; j < globals.ballArr.length; j++) {
+	for (var j = 0; j < _globals2.default.ballArr.length; j++) {
 
 		if (i === j) {
 			continue; // skip this loop
 		}
 
-		c = globals.ballArr[j];
+		c = _globals2.default.ballArr[j];
 
 		dx = c.x - currentBall.x;
 		dy = c.y - currentBall.y;
 		d = dx * dx + dy * dy;
 
 		r = c.r + currentBall.r;
-		l = r * r * SPREAD_PUSH;
+		l = r * r * _options2.default.SPREAD_PUSH;
 
 		if (d < l) {
 
-			var f = (1 - d / l) * r,
-			    t = Math.atan2(dy, dx),
-			   
+			var f = (1 - d / l) * r;
+			var t = Math.atan2(dy, dx);
 
 			// set right edge && left edge boundaries
-			hozBoundary = c.x < INNER_WIDTH - c.r && c.x > c.r,
-			    verBoundary = c.y < INNER_HEIGHT - c.r && c.y > c.r;
+			var hozBoundary = c.x < INNER_WIDTH - c.r && c.x > c.r;
+			var verBoundary = c.y < INNER_HEIGHT - c.r && c.y > c.r;
 
 			// if the ball is over the boundary divide its movement by 100 so it doesn't disappear out of viewport
 			c.vx += Math.cos(t) * f / (hozBoundary ? 1 : 100);
@@ -120,11 +129,11 @@ var manageBall = function manageBall(i, currentBall) {
 
 		currentBall.added = true;
 
-		var gEl = globals.doc.createElementNS('http://www.w3.org/2000/svg', 'g'),
-		    polyEl = globals.doc.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+		var gEl = _globals2.default.doc.createElementNS('http://www.w3.org/2000/svg', 'g'),
+		    polyEl = _globals2.default.doc.createElementNS('http://www.w3.org/2000/svg', 'polygon');
 
 		polyEl.setAttribute('fill', currentBall.fill);
-		polyEl.setAttribute('points', polypoints.getPolyPoints(currentBall.r * BALL_ROUGHNESS, currentBall.r));
+		polyEl.setAttribute('points', _polypoints2.default.getPolyPoints(currentBall.r * _options2.default.BALL_ROUGHNESS, currentBall.r));
 
 		gEl.id = i;
 		gEl.appendChild(polyEl);
@@ -132,19 +141,19 @@ var manageBall = function manageBall(i, currentBall) {
 		// create a record of appended ball
 		appendedBalls.push(gEl);
 		// and finally append it into the dom
-		globals.svgEl.appendChild(gEl);
+		_globals2.default.svgEl.appendChild(gEl);
 	} else {
 		// update existing ball
 		var gEl = appendedBalls[i];
 	}
 
-	currentBall.vx *= SPREAD_SPEED;
-	currentBall.vy *= SPREAD_SPEED;
+	currentBall.vx *= _options2.default.SPREAD_SPEED;
+	currentBall.vy *= _options2.default.SPREAD_SPEED;
 
 	var roundedY = Math.round((currentBall.y += currentBall.vy) * 100) / 100,
 	    roundedX = Math.round((currentBall.x += currentBall.vx) * 100) / 100;
 
-	if (!globals.isIE) {
+	if (!_globals2.default.isIE) {
 		gEl.style.webkitTransform = 'translate3d(' + roundedX + 'px, ' + roundedY + 'px, 0)';
 		gEl.style.transform = 'translate3d(' + roundedX + 'px, ' + roundedY + 'px, 0)';
 	} else {
@@ -155,29 +164,29 @@ var manageBall = function manageBall(i, currentBall) {
 
 var renderLoop = function renderLoop() {
 
-	for (var i = 0; i < globals.ballArr.length; i++) {
+	for (var i = 0; i < _globals2.default.ballArr.length; i++) {
 
-		var currentBall = globals.ballArr[i];
+		var currentBall = _globals2.default.ballArr[i];
 
 		circlePack(i, currentBall);
 		manageBall(i, currentBall);
 	}
 
-	interaction.updateInertia();
+	(0, _interaction2.default)();
 
-	globals.animating = requestAnimationFrame(renderLoop);
+	_globals2.default.animating = requestAnimationFrame(renderLoop);
 };
 
 function startAnimationLoop() {
-	if (!globals.animating) {
+	if (!_globals2.default.animating) {
 		renderLoop();
 	}
 }
 
 function stopAnimationLoop() {
-	if (globals.animating) {
-		cancelAnimationFrame(globals.animating);
-		globals.animating = undefined;
+	if (_globals2.default.animating) {
+		cancelAnimationFrame(_globals2.default.animating);
+		_globals2.default.animating = undefined;
 	}
 }
 
@@ -188,22 +197,22 @@ setTimeout(function () {
 }, 3000);
 
 // generate the balls!
-for (var i = 0; i < BALL_COUNT; i++) {
-	createCircle();
+for (var i = 0; i < _options2.default.BALL_COUNT; i++) {
+	createCircle(i);
 }
 
 startAnimationLoop();
 
-//module.exports['createCircle'] = createCircle;
-//module.exports['renderLoop'] = renderLoop;
-
-},{"./globals":3,"./interaction":4,"./polypoints":6,"./utilities":10}],3:[function(require,module,exports){
+},{"./globals":3,"./interaction":10,"./polypoints":13,"./settings/colors":16,"./settings/options":17,"./utilities":19}],3:[function(require,module,exports){
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
 var userAgent = navigator.userAgent;
 var isIE = userAgent.indexOf("MSIE ") > -1 || userAgent.indexOf("Trident/") > -1;
 
-var globals = {
+exports.default = {
     doc: document,
     animating: undefined,
     ballArr: [],
@@ -217,310 +226,486 @@ var globals = {
     }
 };
 
-module.exports = globals;
-
 },{}],4:[function(require,module,exports){
-/*global window, globals.doc, app, navigator */
-/*jshint bitwise: false*/
-
-// http://codepen.io/desandro/pen/QbPKEq?editors=001
-
 'use strict';
 
-var globals = require('./globals');
-var utilities = require('./utilities');
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.default = applyBoundForce;
 
-var cursorPos = [],
+var _globals = require('../globals');
 
-// particle properties
-velocityX = 0,
-    velocityY = 0,
-    friction = 0.85,
-    isDragging = false,
-    mouseBallHeld = {},
+var _globals2 = _interopRequireDefault(_globals);
 
-//mousedownX,
-//mousedownY,
+var _applyForceX = require('./applyForceX');
 
-leftBound = 0,
-    topBound = 0;
+var _applyForceX2 = _interopRequireDefault(_applyForceX);
 
-var heldBalls = [];
+var _applyForceY = require('./applyForceY');
 
-// // function applyForce( forceX, forceY ) {
-// 	velocityX += dragForceX;
-// 	velocityY += dragForceY;
-// // }
+var _applyForceY2 = _interopRequireDefault(_applyForceY);
 
-function applyBoundForce() {
-	if (isDragging || positionX < globals.w && positionX > leftBound && positionY < globals.h && positionY > topBound) {
+var _options = require('../settings/options');
+
+var _options2 = _interopRequireDefault(_options);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function right(i) {
+
+	if (_globals2.default.ballArr[i].positionX < _options2.default.rightBound) {
+		return;
+	}
+
+	var distance = _options2.default.rightBound - _globals2.default.ballArr[i].positionX;
+	var force = distance * 0.1;
+	var rest = _globals2.default.ballArr[i].positionX + (_globals2.default.ballArr[i].velocityX + force) / (1 - _options2.default.friction);
+
+	// if in bounds, apply force to align at bounds
+	if (rest > _options2.default.rightBound) {
+		(0, _applyForceX2.default)(force, i);
+	} else {
+		force = distance * 0.1 - _globals2.default.ballArr[i].velocityX;
+		(0, _applyForceX2.default)(force, i);
+	}
+}
+
+function left(i) {
+
+	if (_globals2.default.ballArr[i].positionX > _options2.default.leftBound) {
 		return;
 	}
 
 	// bouncing past bound
-	var distanceX = globals.w - positionX,
-	    distanceY = globals.h - positionY,
-	    forceX = distanceX * 0.1,
-	    forceY = distanceY * 0.1,
-	    distanceYtop = topBound - positionY,
-	    distanceXleft = leftBound - positionX,
-	    forceXleft = distanceXleft * 0.1,
-	    forceYtop = distanceYtop * 0.1,
-	   
+	var distance = _options2.default.leftBound - _globals2.default.ballArr[i].positionX;
+	var force = distance * 0.1;
+	var rest = _globals2.default.ballArr[i].positionX + (_globals2.default.ballArr[i].velocityX + force) / (1 - _options2.default.friction);
 
-	// calculate resting position with this force
-	restX = positionX + (velocityX + forceX) / (1 - friction),
-	    restY = positionY + (velocityY + forceY) / (1 - friction),
-	    restYneg = positionY + (velocityY + forceYtop) / (1 - friction),
-	    restXneg = positionX + (velocityX + forceXleft) / (1 - friction);
-
-	// if in bounds, apply force to align at bounds
-	if (restX > globals.w) {
-		// passes right
-		applyForce(forceX, 0);
-	} else if (restXneg < leftBound) {
-		// passes left
-		applyForce(forceXleft, 0);
-	} else if (restY > globals.h) {
-		// passes bottom
-		applyForce(0, forceY);
-	} else if (restYneg < topBound) {
-		// passes top
-		applyForce(0, forceYtop);
+	if (rest < _options2.default.leftBound) {
+		(0, _applyForceX2.default)(force, i);
+	} else {
+		force = distance * 0.1 - _globals2.default.ballArr[i].velocityX;
+		(0, _applyForceX2.default)(force, i);
 	}
 }
 
-function applyDragForce() {
+function top(i) {
 
-	if (!isDragging) {
+	if (_globals2.default.ballArr[i].positionY > _options2.default.topBound) {
 		return;
 	}
 
-	//console.log(mouseBallHeld)
+	// bouncing past bound
+	var distance = _options2.default.topBound - _globals2.default.ballArr[i].positionY;
+	var force = distance * 0.1;
+	var rest = _globals2.default.ballArr[i].positionY + (_globals2.default.ballArr[i].velocityY + force) / (1 - _options2.default.friction);
 
-	var dragVelocityX = globals.ballArr[mouseBallHeld.id].x - mouseBallHeld.positionX;
-	var dragVelocityY = globals.ballArr[mouseBallHeld.id].y - mouseBallHeld.positionY;
-	var dragForceX = dragVelocityX - mouseBallHeld.velocityX;
-	var dragForceY = dragVelocityY - mouseBallHeld.velocityY;
-
-	mouseBallHeld.velocityX += dragForceX;
-	mouseBallHeld.velocityY += dragForceY;
-
-	//applyForce( dragForceX, dragForceY );
+	if (rest < _options2.default.topBound) {
+		(0, _applyForceY2.default)(force, i);
+	} else {
+		force = distance * 0.1 - _globals2.default.ballArr[i].velocityY;
+		(0, _applyForceY2.default)(force, i);
+	}
 }
+
+function bottom(i) {
+
+	if (_globals2.default.ballArr[i].positionY < _options2.default.bottomBound) {
+		return;
+	}
+
+	// bouncing past bound
+	var distance = _options2.default.bottomBound - _globals2.default.ballArr[i].positionY;
+	var force = distance * 0.1;
+	var rest = _globals2.default.ballArr[i].positionY + (_globals2.default.ballArr[i].velocityY + force) / (1 - _options2.default.friction);
+
+	if (rest > _options2.default.bottomBound) {
+		(0, _applyForceY2.default)(force, i);
+	} else {
+		force = distance * 0.1 - _globals2.default.ballArr[i].velocityY;
+		(0, _applyForceY2.default)(force, i);
+	}
+}
+
+function applyBoundForce(i) {
+
+	if (_globals2.default.ballArr[i].isDragging) {
+		return;
+	}
+
+	left(i);
+	right(i);
+	top(i);
+	bottom(i);
+}
+
+},{"../globals":3,"../settings/options":17,"./applyForceX":7,"./applyForceY":8}],5:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.default = applyDragForce;
+
+var _globals = require('../globals');
+
+var _globals2 = _interopRequireDefault(_globals);
+
+var _applyForce = require('./applyForce');
+
+var _applyForce2 = _interopRequireDefault(_applyForce);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function applyDragForce(i) {
+
+	if (!_globals2.default.ballArr[i].isDragging) {
+		return;
+	}
+
+	var dragVelocityX = _globals2.default.ballArr[i].x - _globals2.default.ballArr[i].positionX;
+	var dragVelocityY = _globals2.default.ballArr[i].y - _globals2.default.ballArr[i].positionY;
+	var dragForceX = dragVelocityX - _globals2.default.ballArr[i].velocityX;
+	var dragForceY = dragVelocityY - _globals2.default.ballArr[i].velocityY;
+
+	(0, _applyForce2.default)(dragForceX, dragForceY, i);
+}
+
+},{"../globals":3,"./applyForce":6}],6:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.default = applyForce;
+
+var _globals = require('../globals');
+
+var _globals2 = _interopRequireDefault(_globals);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function applyForce(forceX, forceY, i) {
+	_globals2.default.ballArr[i].velocityX += forceX;
+	_globals2.default.ballArr[i].velocityY += forceY;
+}
+
+},{"../globals":3}],7:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+exports.default = function (forceX, i) {
+	_globals2.default.ballArr[i].velocityX += forceX;
+};
+
+var _globals = require('../globals');
+
+var _globals2 = _interopRequireDefault(_globals);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+},{"../globals":3}],8:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+exports.default = function (forceY, i) {
+	_globals2.default.ballArr[i].velocityY += forceY;
+};
+
+var _globals = require('../globals');
+
+var _globals2 = _interopRequireDefault(_globals);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+},{"../globals":3}],9:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.default = setDragPosition;
+
+var _globals = require('../globals');
+
+var _globals2 = _interopRequireDefault(_globals);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function setDragPosition(e, currentBall) {
-	//e.preventDefault();
+    //e.preventDefault();
 
-	var moveX = e.pageX - currentBall.mousedownX;
-	var moveY = e.pageY - currentBall.mousedownY;
+    // dont move the ball around if inertia is carrying it, only when were dragging
+    if (!currentBall.isDragging) {
+        return;
+    }
 
-	currentBall.dragPositionX = currentBall.dragStartPositionX + moveX;
-	currentBall.dragPositionY = currentBall.dragStartPositionY + moveY;
+    var moveX = e.pageX - currentBall.mousedownX;
+    var moveY = e.pageY - currentBall.mousedownY;
 
-	globals.ballArr[currentBall.id].x = currentBall.dragPositionX;
-	globals.ballArr[currentBall.id].y = currentBall.dragPositionY;
+    currentBall.dragPositionX = currentBall.dragStartPositionX + moveX;
+    currentBall.dragPositionY = currentBall.dragStartPositionY + moveY;
+
+    _globals2.default.ballArr[currentBall.id].x = currentBall.dragPositionX;
+    _globals2.default.ballArr[currentBall.id].y = currentBall.dragPositionY;
 }
 
-var updateInertia = function updateInertia() {
+},{"../globals":3}],10:[function(require,module,exports){
+// inertia physics based on http://codepen.io/desandro/pen/QbPKEq?editors=001
 
-	mouseBallHeld.velocityX *= friction;
-	mouseBallHeld.velocityY *= friction;
+'use strict';
 
-	//applyBoundForce();
-	applyDragForce();
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.default = updateInertia;
 
-	mouseBallHeld.positionX += mouseBallHeld.velocityX;
-	mouseBallHeld.positionY += mouseBallHeld.velocityY;
+var _globals = require('./globals');
 
-	if (globals.ballArr[mouseBallHeld.id]) {
+var _globals2 = _interopRequireDefault(_globals);
 
-		globals.ballArr[mouseBallHeld.id].x = mouseBallHeld.positionX;
-		globals.ballArr[mouseBallHeld.id].y = mouseBallHeld.positionY;
-	}
-};
+var _utilities = require('./utilities');
 
-var mouse = function mouse() {
+var _utilities2 = _interopRequireDefault(_utilities);
 
-	globals.doc.addEventListener('mousedown', function (e) {
+var _store = require('./store');
 
-		cursorPos = [e.pageX, e.pageY];
+var _store2 = _interopRequireDefault(_store);
 
-		utilities.closest(e.target, function (el) {
+var _options = require('./settings/options');
 
-			if (el.tagName === 'g') {
+var _options2 = _interopRequireDefault(_options);
 
-				el.setAttribute('class', 'held');
+var _applyDragForce = require('./inertia/applyDragForce');
 
-				isDragging = true;
+var _applyDragForce2 = _interopRequireDefault(_applyDragForce);
 
-				var newID = parseInt(el.id, 10);
+var _applyForce = require('./inertia/applyForce');
 
-				var _positionX = globals.ballArr[newID].x;
-				var _positionY = globals.ballArr[newID].y;
+var _applyForce2 = _interopRequireDefault(_applyForce);
 
-				var newBall = {
-					id: newID,
-					positionX: _positionX,
-					positionY: _positionY,
-					mousedownX: e.pageX,
-					mousedownY: e.pageY,
-					dragStartPositionX: _positionX,
-					dragStartPositionY: _positionY,
-					velocityX: 0,
-					velocityY: 0
+var _applyBoundForce = require('./inertia/applyBoundForce');
 
-				};
+var _applyBoundForce2 = _interopRequireDefault(_applyBoundForce);
 
-				mouseBallHeld = newBall;
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-				heldBalls.push(newBall);
-			}
-		});
-	});
+// globals.ballArr holds all the ball details, always and forever
+// store.heldBalls is an array which should only contain ID, nothing else about the ball
 
-	globals.doc.addEventListener('mousemove', function (e) {
+function updateInertia() {
 
-		if (isDragging) {
+	_store2.default.heldBalls.forEach(function (i) {
 
-			for (var i = 0; i < heldBalls.length; i++) {
+		_globals2.default.ballArr[i].velocityX *= _options2.default.friction;
+		_globals2.default.ballArr[i].velocityY *= _options2.default.friction;
 
-				//console.log('mouse', e)
-				setDragPosition(e, heldBalls[i]);
-			}
-		}
-	});
+		(0, _applyBoundForce2.default)(i);
+		(0, _applyDragForce2.default)(i);
 
-	globals.doc.addEventListener('mouseup', function (e) {
+		_globals2.default.ballArr[i].positionX += _globals2.default.ballArr[i].velocityX;
+		_globals2.default.ballArr[i].positionY += _globals2.default.ballArr[i].velocityY;
 
-		utilities.closest(e.target, function (el) {
+		// is infinitesimal
+		if (Math.round(Math.abs(_globals2.default.ballArr[i].velocityX) * 100) / 100 === 0 && Math.round(Math.abs(_globals2.default.ballArr[i].velocityY) * 100) / 100 === 0) {
 
-			if (el.tagName === 'g') {
-				(function () {
+			// only remove if youre not dragging it
+			if (_globals2.default.ballArr[i].isDragging === false) {
 
-					isDragging = false;
-					el.setAttribute('class', '');
+				//console.log('no inertia, removing')
 
-					var newID = parseInt(el.id, 10);
+				var itemToRemove = _store2.default.heldBalls.indexOf(i);
 
-					// remove item from array which matches the id of item released
-					heldBalls = heldBalls.filter(function (obj) {
-						return obj.id !== newID;
-					});
-
-					mouseBallHeld === {};
-				})();
-			}
-		});
-	});
-};
-
-var touch = function touch() {
-
-	globals.doc.addEventListener('touchstart', function (e) {
-		e.preventDefault();
-
-		utilities.closest(e.target, function (el) {
-
-			if (el.tagName === 'g') {
-
-				el.setAttribute('class', 'held');
-
-				isDragging = true;
-
-				var newBall = {};
-
-				var newID = parseInt(el.id, 10);
-
-				for (var i = 0; i < e.touches.length; i++) {
-
-					var _positionX2 = globals.ballArr[newID].x;
-					var _positionY2 = globals.ballArr[newID].y;
-
-					newBall = {
-						id: newID,
-						positionX: _positionX2,
-						positionY: _positionY2,
-						mousedownX: e.touches[i].pageX,
-						mousedownY: e.touches[i].pageY,
-						dragStartPositionX: _positionX2,
-						dragStartPositionY: _positionY2,
-						velocityX: 0,
-						velocityY: 0
-					};
+				if (itemToRemove !== -1) {
+					_store2.default.heldBalls.splice(itemToRemove, 1);
 				}
-
-				mouseBallHeld = newBall;
-				heldBalls.push(newBall);
 			}
-		});
-	});
-
-	globals.doc.addEventListener('touchmove', function (e) {
-
-		e.preventDefault();
-
-		if (isDragging) {
-
-			for (var i = 0; i < e.touches.length; i++) {
-
-				if (globals.ballArr[heldBalls[i].id] === undefined) return; // if you touchmove not on a ball
-
-				//console.log(e.touches.length)
-
-				globals.ballArr[heldBalls[i].id].x = e.touches[i].pageX;
-				globals.ballArr[heldBalls[i].id].y = e.touches[i].pageY;
-
-				//setDragPosition(e.touches[i], heldBalls[i]);
-			}
-
-			// for (var i = 0; i < e.touches.length; i++) {
-
-			// 	//console.log('touchmove', e.touches[i])
-			// 	setDragPosition(e.touches[i], touchBallsHeld[i]);
-
-			// }
+		} else {
+			// this is what actually moves the balls coordinates
+			_globals2.default.ballArr[i].x = _globals2.default.ballArr[i].positionX;
+			_globals2.default.ballArr[i].y = _globals2.default.ballArr[i].positionY;
 		}
-	});
-
-	globals.doc.addEventListener('touchend', function (e) {
-
-		// get the 'g' element of the finger which was removed
-		utilities.closest(e.changedTouches[0].target, function (el) {
-
-			if (el.tagName === 'g') {
-				(function () {
-
-					el.setAttribute('class', '');
-
-					var newID = parseInt(el.id, 10);
-
-					// remove item from array which matches the id of item released
-					heldBalls = heldBalls.filter(function (obj) {
-						return obj.id !== newID;
-					});
-
-					if (!heldBalls.length) {
-						mouseBallHeld === {};
-						isDragging = false;
-					}
-				})();
-			}
-		});
 	});
 };
 
-mouse();
-touch();
+},{"./globals":3,"./inertia/applyBoundForce":4,"./inertia/applyDragForce":5,"./inertia/applyForce":6,"./settings/options":17,"./store":18,"./utilities":19}],11:[function(require,module,exports){
+'use strict';
 
-module.exports['updateInertia'] = updateInertia;
+var _utilities = require('../utilities');
 
-},{"./globals":3,"./utilities":10}],5:[function(require,module,exports){
-"use strict";
+var _utilities2 = _interopRequireDefault(_utilities);
 
-var app = app || {};
+var _globals = require('../globals');
 
-},{}],6:[function(require,module,exports){
+var _globals2 = _interopRequireDefault(_globals);
+
+var _setDragPosition = require('../inertia/setDragPosition');
+
+var _setDragPosition2 = _interopRequireDefault(_setDragPosition);
+
+var _store = require('../store');
+
+var _store2 = _interopRequireDefault(_store);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+_globals2.default.doc.addEventListener('mousedown', function (e) {
+	e.preventDefault();
+
+	//store.cursorPos = [e.pageX, e.pageY];
+
+	_utilities2.default.closest(e.target, function (el) {
+
+		if (el.tagName === 'g') {
+
+			el.setAttribute('class', 'held');
+
+			// get the ball id of the one just clicked
+			var newID = parseInt(el.id, 10);
+
+			var positionX = _globals2.default.ballArr[newID].x;
+			var positionY = _globals2.default.ballArr[newID].y;
+
+			_globals2.default.ballArr[newID].mousedownX = e.pageX;
+			_globals2.default.ballArr[newID].mousedownY = e.pageY;
+			_globals2.default.ballArr[newID].dragStartPositionX = positionX;
+			_globals2.default.ballArr[newID].dragStartPositionY = positionY;
+			_globals2.default.ballArr[newID].velocityX = 0;
+			_globals2.default.ballArr[newID].velocityY = 0;
+			_globals2.default.ballArr[newID].isDragging = true;
+
+			(0, _setDragPosition2.default)(e, _globals2.default.ballArr[newID]);
+
+			_store2.default.heldBalls.push(newID);
+
+			//console.log(globals.ballArr[newID])
+		}
+	});
+});
+
+_globals2.default.doc.addEventListener('mousemove', function (e) {
+
+	if (_store2.default.heldBalls.length) {
+
+		for (var i = 0; i < _store2.default.heldBalls.length; i++) {
+			(0, _setDragPosition2.default)(e, _globals2.default.ballArr[_store2.default.heldBalls[i]]);
+		}
+	}
+});
+
+_globals2.default.doc.addEventListener('mouseup', function (e) {
+
+	_utilities2.default.closest(e.target, function (el) {
+
+		if (el.tagName === 'g') {
+
+			el.setAttribute('class', '');
+
+			var newID = parseInt(el.id, 10);
+
+			_globals2.default.ballArr[newID].isDragging = false;
+		}
+	});
+});
+
+},{"../globals":3,"../inertia/setDragPosition":9,"../store":18,"../utilities":19}],12:[function(require,module,exports){
+'use strict';
+
+var _utilities = require('../utilities');
+
+var _utilities2 = _interopRequireDefault(_utilities);
+
+var _globals = require('../globals');
+
+var _globals2 = _interopRequireDefault(_globals);
+
+var _setDragPosition = require('../inertia/setDragPosition');
+
+var _setDragPosition2 = _interopRequireDefault(_setDragPosition);
+
+var _store = require('../store');
+
+var _store2 = _interopRequireDefault(_store);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+_globals2.default.doc.addEventListener('touchstart', function (e) {
+	e.preventDefault();
+
+	_utilities2.default.closest(e.changedTouches[0].target, function (el) {
+
+		if (el.tagName === 'g') {
+
+			var newID = parseInt(el.id, 10);
+			var positionX = _globals2.default.ballArr[newID].x;
+			var positionY = _globals2.default.ballArr[newID].y;
+
+			_globals2.default.ballArr[newID].mousedownX = e.changedTouches[0].pageX;
+			_globals2.default.ballArr[newID].mousedownY = e.changedTouches[0].pageY;
+			_globals2.default.ballArr[newID].dragStartPositionX = positionX;
+			_globals2.default.ballArr[newID].dragStartPositionY = positionY;
+			_globals2.default.ballArr[newID].velocityX = 0;
+			_globals2.default.ballArr[newID].velocityY = 0;
+			_globals2.default.ballArr[newID].isDragging = true;
+
+			(0, _setDragPosition2.default)(e.changedTouches[0], _globals2.default.ballArr[newID]);
+			_store2.default.heldBalls.push(newID);
+		}
+	});
+});
+
+_globals2.default.doc.addEventListener('touchmove', function (e) {
+	e.preventDefault();
+
+	if (_store2.default.heldBalls.length) {
+		var _loop = function _loop(j) {
+
+			_utilities2.default.closest(e.touches[j].target, function (el) {
+
+				if (el.tagName === 'g') {
+					for (var i = 0; i < _store2.default.heldBalls.length; i++) {
+
+						// only move the ball that your fingers touch target is touching. jebus this took a long time.
+						if (parseInt(el.id, 10) === _globals2.default.ballArr[_store2.default.heldBalls[i]].id) {
+							(0, _setDragPosition2.default)(e.touches[j], _globals2.default.ballArr[_store2.default.heldBalls[i]]);
+						}
+					}
+				}
+			});
+		};
+
+		// inertia works
+		for (var j = 0; j < e.touches.length; j++) {
+			_loop(j);
+		}
+	}
+});
+
+_globals2.default.doc.addEventListener('touchend', function (e) {
+
+	// get the <g> element of the finger which was removed
+
+	_utilities2.default.closest(e.changedTouches[0].target, function (el) {
+
+		if (el.tagName === 'g') {
+
+			el.setAttribute('class', '');
+
+			var newID = parseInt(el.id, 10);
+
+			_globals2.default.ballArr[newID].isDragging = false;
+		}
+	});
+});
+
+},{"../globals":3,"../inertia/setDragPosition":9,"../store":18,"../utilities":19}],13:[function(require,module,exports){
 /*global window, document, app, navigator */
 /*jshint bitwise: false*/
 
@@ -530,71 +715,71 @@ var app = app || {};
 'use strict';
 
 var setLinePoints = function setLinePoints(iterations) {
-		var point;
-		var pointList = {};
-		pointList.first = { x: 0, y: 1 };
+	var point;
+	var pointList = {};
+	pointList.first = { x: 0, y: 1 };
 
-		var lastPoint = { x: 1, y: 1 };
-		var nextPoint;
-		var dx, newX, newY;
+	var lastPoint = { x: 1, y: 1 };
+	var nextPoint;
+	var dx, newX, newY;
 
-		pointList.first.next = lastPoint;
+	pointList.first.next = lastPoint;
 
-		for (var i = 0; i < iterations; i++) {
-				point = pointList.first;
+	for (var i = 0; i < iterations; i++) {
+		point = pointList.first;
 
-				while (point.next != null) {
-						nextPoint = point.next;
+		while (point.next != null) {
+			nextPoint = point.next;
 
-						dx = nextPoint.x - point.x;
-						newX = 0.5 * (point.x + nextPoint.x);
-						newY = 0.5 * (point.y + nextPoint.y);
-						newY += dx * (Math.random() * 2 - 1);
+			dx = nextPoint.x - point.x;
+			newX = 0.5 * (point.x + nextPoint.x);
+			newY = 0.5 * (point.y + nextPoint.y);
+			newY += dx * (Math.random() * 2 - 1);
 
-						var newPoint = { x: newX, y: newY };
+			var newPoint = { x: newX, y: newY };
 
-						//put between points
-						newPoint.next = nextPoint;
-						point.next = newPoint;
+			//put between points
+			newPoint.next = nextPoint;
+			point.next = newPoint;
 
-						point = nextPoint;
-				}
+			point = nextPoint;
 		}
+	}
 
-		return pointList;
+	return pointList;
 };
 
 var getPolyPoints = function getPolyPoints(minBallSize, maxBallSize) {
-		var point;
-		var rad;
-		var twoPi = 2 * Math.PI;
-		var x0, y0;
-		var phase = 0;
+	var point;
+	var rad;
+	var twoPi = 2 * Math.PI;
+	var x0, y0;
+	var phase = 0;
 
-		//generate the random function that will be used to vary the radius, 9 iterations of subdivision
-		var pointList = setLinePoints(6);
+	//generate the random function that will be used to vary the radius, 9 iterations of subdivision
+	var pointList = setLinePoints(6);
 
-		var coordString = '';
+	var coordString = '';
 
-		point = pointList.first;
+	point = pointList.first;
 
-		while (point.next) {
-				point = point.next;
-				phase = twoPi * point.x;
-				rad = minBallSize + point.y * (maxBallSize - minBallSize);
-				x0 = rad * Math.cos(phase);
-				y0 = rad * Math.sin(phase);
+	while (point.next) {
+		point = point.next;
+		phase = twoPi * point.x;
+		rad = minBallSize + point.y * (maxBallSize - minBallSize);
+		x0 = rad * Math.cos(phase);
+		y0 = rad * Math.sin(phase);
 
-				coordString = coordString + (Math.round(x0 * 100) / 100 + ',' + Math.round(y0 * 100) / 100 + ' ');
-		}
+		coordString = coordString + (Math.round(x0 * 100) / 100 + ',' + Math.round(y0 * 100) / 100 + ' ');
+	}
 
-		return coordString;
+	return coordString;
 };
 
 module.exports['setLinePoints'] = setLinePoints;
 module.exports['getPolyPoints'] = getPolyPoints;
 
-},{}],7:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 "use strict";
 
 // http://stackoverflow.com/a/31080629
@@ -619,49 +804,91 @@ Array.prototype.equals = function (array) {
     return true;
 };
 
-},{}],8:[function(require,module,exports){
-/*global window, document, app, navigator */
-
+},{}],15:[function(require,module,exports){
 'use strict';
 
-var globals = require('./globals');
-var utilities = require('./utilities');
+var _globals = require('./globals');
 
-var ballsBrowserResize = utilities.debounce(function () {
+var _globals2 = _interopRequireDefault(_globals);
 
-	globals.w = window.innerWidth;
-	globals.h = window.innerHeight;
+var _utilities = require('./utilities');
 
-	// need to remove balls if small, add if large
+var _utilities2 = _interopRequireDefault(_utilities);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var ballsBrowserResize = _utilities2.default.debounce(function () {
+
+	_globals2.default.w = window.innerWidth;
+	_globals2.default.h = window.innerHeight;
+
+	// TODO: need to remove balls if small, add if large
 
 	// reset ball position just like on init
-	globals.ballArr.forEach(function (el) {
+	_globals2.default.ballArr.forEach(function (el) {
 
-		el.x = globals.w / 2 + Math.random();
-		el.y = globals.h / 2 + Math.random();
+		el.x = _globals2.default.w / 2 + Math.random();
+		el.y = _globals2.default.h / 2 + Math.random();
 	});
 }, 500);
 
 window.addEventListener('resize', ballsBrowserResize);
 
-},{"./globals":3,"./utilities":10}],9:[function(require,module,exports){
+},{"./globals":3,"./utilities":19}],16:[function(require,module,exports){
 'use strict';
 
-var globals = require('./globals');
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+//http://www.colourlovers.com/palette/396423/Praise_Certain_Frogs
+exports.default = ['#888', '#F4FCE8', // dark blue
+'#C3FF68', // green
+'#87D69B', // blue
+'#4E9689', // metal blue
+'#7ED0D6'];
 
-window.onload = function () {
-    'use strict';
+},{}],17:[function(require,module,exports){
+'use strict';
 
-    globals.doc.documentElement.classList.remove('no-js');
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
 
-    // initiate FastClick
-    //FastClick.attach(document.body);
+var _globals = require('../globals');
+
+var _globals2 = _interopRequireDefault(_globals);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = {
+	BALL_ROUGHNESS: 0.88, // 1:== perfect circle
+	SPREAD_PUSH: 0.6, // how hard the balls push against each other. 1:== neutral
+	MIN_SIZE: 90,
+	MAX_SIZE: 140,
+	SPREAD_SPEED: 0.075, // how fast they initially push
+	BALL_COUNT: 8,
+	friction: 0.95, // for inertia
+	topBound: 0,
+	leftBound: 0,
+	bottomBound: _globals2.default.h,
+	rightBound: _globals2.default.w
 };
 
-},{"./globals":3}],10:[function(require,module,exports){
-/*global window, app, navigator */
-/*jshint bitwise: false*/
+},{"../globals":3}],18:[function(require,module,exports){
+"use strict";
 
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+//var cursorPos = [];
+
+exports.default = {
+	isDragging: false, // will remove this
+	heldBalls: []
+};
+
+},{}],19:[function(require,module,exports){
 'use strict';
 
 // http://davidwalsh.name/javascript-debounce-function

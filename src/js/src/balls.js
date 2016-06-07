@@ -44,7 +44,7 @@ var createCircle = function( i ) {
 
 
 var circlePack = function(i, currentBall) {
-	// circle packing, based off http://codepen.io/jun-lu/pen/rajrJx
+	// circle packing based on: http://codepen.io/jun-lu/pen/rajrJx
 
 	let c,
 		dx,
@@ -63,7 +63,7 @@ var circlePack = function(i, currentBall) {
 
 		dx = c.x - currentBall.x;
 		dy = c.y - currentBall.y;
-		d = dx * dx + dy * dy;
+		d = (dx * dx) + (dy * dy);
 
 		r = c.r + currentBall.r;
 		l = r * r * options.SPREAD_PUSH;

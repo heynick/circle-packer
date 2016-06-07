@@ -1,8 +1,4 @@
-/*global window, globals.doc, app, navigator */
-/*jshint bitwise: false*/
-
-// inertia physics:
-// http://codepen.io/desandro/pen/QbPKEq?editors=001
+// inertia physics based on http://codepen.io/desandro/pen/QbPKEq?editors=001
 
 'use strict';
 
@@ -40,7 +36,7 @@ export default function updateInertia() {
 			if (globals.ballArr[i].isDragging === false) {
 
 				//console.log('no inertia, removing')
-				
+
 				let itemToRemove = store.heldBalls.indexOf(i)
 
 				if (itemToRemove !== -1) {
@@ -48,7 +44,7 @@ export default function updateInertia() {
 				}
 
 			}
-		
+
 		} else {
 			// this is what actually moves the balls coordinates
 			globals.ballArr[i].x = globals.ballArr[i].positionX;

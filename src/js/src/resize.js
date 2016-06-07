@@ -1,6 +1,5 @@
-/*global window, document, app, navigator */
-
 'use strict';
+
 import globals from './globals'
 import utilities from './utilities'
 
@@ -9,7 +8,7 @@ let ballsBrowserResize = utilities.debounce(function() {
 	globals.w = window.innerWidth;
 	globals.h = window.innerHeight;
 
-	// need to remove balls if small, add if large
+	// TODO: need to remove balls if small, add if large
 
 	// reset ball position just like on init
 	globals.ballArr.forEach(function(el) {

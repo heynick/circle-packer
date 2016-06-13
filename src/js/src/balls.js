@@ -1,5 +1,3 @@
-/*global window, app, navigator */
-/*jshint bitwise: false*/
 'use strict';
 
 import globals from './globals'
@@ -9,16 +7,16 @@ import utilities from './utilities'
 import polypoints from './polypoints'
 import updateInertia from './inertia'
 
-var appendedBalls = []; // store a reference to all balls in here, so we don't need to query the dom
+let appendedBalls = []; // store a reference to all balls in here, so we don't need to query the dom
 
-const INNER_WIDTH = globals.w,
-	INNER_HEIGHT = globals.h,
-	INNER_WIDTH_HALF = INNER_WIDTH / 2,
-	INNER_HEIGHT_HALF = INNER_HEIGHT / 2;
+const INNER_WIDTH = globals.w
+const INNER_HEIGHT = globals.h
+const INNER_WIDTH_HALF = INNER_WIDTH / 2
+const INNER_HEIGHT_HALF = INNER_HEIGHT / 2
 
-var createCircle = function( i ) {
+const createCircle = function(i) {
 
-	var circleObj = {
+	let circleObj = {
 		id: i,
 		fill: colors[Math.floor(Math.random() * colors.length)],
 		x: INNER_WIDTH_HALF + Math.random(),
@@ -42,7 +40,7 @@ var createCircle = function( i ) {
 };
 
 
-var circlePack = function(i, currentBall) {
+const circlePack = function(i, currentBall) {
 	// circle packing based on: http://codepen.io/jun-lu/pen/rajrJx
 
 	let c,
@@ -83,38 +81,40 @@ var circlePack = function(i, currentBall) {
 	}
 }
 
-var manageBall = function(i, currentBall) {
+const manageBall = function(i, currentBall) {
+
+	let gEl
 
 	if (!currentBall.added) {
 		// CREATE NEW BALL
 
 		currentBall.added = true;
 
-		var gEl = globals.doc.createElementNS('http://www.w3.org/2000/svg', 'g'),
-			polyEl = globals.doc.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+		gEl = globals.doc.createElementNS('http://www.w3.org/2000/svg', 'g')
+		let polyEl = globals.doc.createElementNS('http://www.w3.org/2000/svg', 'polygon')
 
-		polyEl.setAttribute('fill', currentBall.fill);
-		polyEl.setAttribute('points', polypoints.getPolyPoints(currentBall.r * options.BALL_ROUGHNESS, currentBall.r));
+		polyEl.setAttribute('fill', currentBall.fill)
+		polyEl.setAttribute('points', polypoints.getPolyPoints(currentBall.r * options.BALL_ROUGHNESS, currentBall.r))
 
-		gEl.id = i;
-		gEl.appendChild(polyEl);
+		gEl.id = i
+		gEl.appendChild(polyEl)
 
 		// create a record of appended ball
-		appendedBalls.push(gEl);
+		appendedBalls.push(gEl)
 		// and finally append it into the dom
-		globals.svgEl.appendChild(gEl);
+		globals.svgEl.appendChild(gEl)
 
 
 	} else {
 		// update existing ball
-		var gEl = appendedBalls[i];
+		gEl = appendedBalls[i];
 	}
 
 	currentBall.vx *= options.SPREAD_SPEED;
 	currentBall.vy *= options.SPREAD_SPEED;
 
-	let roundedY = Math.round((currentBall.y += currentBall.vy) * 100) / 100,
-		roundedX = Math.round((currentBall.x += currentBall.vx) * 100) / 100;
+	let roundedY = Math.round((currentBall.y += currentBall.vy) * 100) / 100
+	let roundedX = Math.round((currentBall.x += currentBall.vx) * 100) / 100
 
 	if (!globals.isIE) {
 		gEl.style.webkitTransform = 'translate3d(' + roundedX + 'px, ' + roundedY + 'px, 0)';
@@ -126,7 +126,7 @@ var manageBall = function(i, currentBall) {
 }
 
 
-var renderLoop = function() {
+const renderLoop = function() {
 
 	for (let i = 0; i < globals.ballArr.length; i++) {
 

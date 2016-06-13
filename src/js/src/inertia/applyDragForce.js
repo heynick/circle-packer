@@ -1,5 +1,6 @@
 import globals from '../globals';
-import applyForce from './applyForce'
+import applyForceX from './applyForceX'
+import applyForceY from './applyForceY'
 
 export default function applyDragForce(i) {
 
@@ -8,10 +9,11 @@ export default function applyDragForce(i) {
 	}
 
 	let dragVelocityX = globals.ballArr[i].x - globals.ballArr[i].positionX;
-	let dragVelocityY = globals.ballArr[i].y - globals.ballArr[i].positionY;	
+	let dragVelocityY = globals.ballArr[i].y - globals.ballArr[i].positionY;
 	let dragForceX = dragVelocityX - globals.ballArr[i].velocityX;
 	let dragForceY = dragVelocityY - globals.ballArr[i].velocityY;
 
-	applyForce( dragForceX, dragForceY, i );
+	applyForceX( dragForceX, i )
+	applyForceY( dragForceY, i )
 
 }

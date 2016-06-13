@@ -8,7 +8,6 @@ import options from './settings/options';
 import applyDragForce from './inertia/applyDragForce'
 import applyBoundForce from './inertia/applyBoundForce'
 
-
 // globals.ballArr holds all the ball details, always and forever
 // store.heldBalls is an array which should only contain ID, nothing else about the ball
 

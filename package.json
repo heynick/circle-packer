@@ -12,5 +12,24 @@
     "browserify": "13.0.0",
     "concurrently": "^1.0.0",
     "watchify": "3.7.0"
-  }
+  },
+  "name": "pushy-packy",
+  "description": "npm run serve",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/heynick/circle-packer.git"
+  },
+  "keywords": [
+    "circle",
+    "packing",
+    "inertia"
+  ],
+  "author": "nick mcmillan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/heynick/circle-packer/issues"
+  },
+  "homepage": "https://github.com/heynick/circle-packer#readme"
 }

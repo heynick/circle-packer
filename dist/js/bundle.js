@@ -13,15 +13,13 @@ require('./src/polypoints');
 
 require('./src/balls');
 
-require('./src/interaction');
+require('./src/inertia');
 
 require('./src/interaction/touch');
 
 require('./src/interaction/mouse');
 
-},{"./src/balls":2,"./src/globals":3,"./src/interaction":11,"./src/interaction/mouse":12,"./src/interaction/touch":13,"./src/polypoints":14,"./src/prototypes":15,"./src/resize":16,"./src/utilities":20}],2:[function(require,module,exports){
-/*global window, app, navigator */
-/*jshint bitwise: false*/
+},{"./src/balls":2,"./src/globals":3,"./src/inertia":4,"./src/interaction/mouse":10,"./src/interaction/touch":11,"./src/polypoints":12,"./src/prototypes":13,"./src/resize":14,"./src/utilities":18}],2:[function(require,module,exports){
 'use strict';
 
 var _globals = require('./globals');
@@ -52,10 +50,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var appendedBalls = []; // store a reference to all balls in here, so we don't need to query the dom
 
-var INNER_WIDTH = _globals2.default.w,
-    INNER_HEIGHT = _globals2.default.h,
-    INNER_WIDTH_HALF = INNER_WIDTH / 2,
-    INNER_HEIGHT_HALF = INNER_HEIGHT / 2;
+var INNER_WIDTH = _globals2.default.w;
+var INNER_HEIGHT = _globals2.default.h;
+var INNER_WIDTH_HALF = INNER_WIDTH / 2;
+var INNER_HEIGHT_HALF = INNER_HEIGHT / 2;
 
 var createCircle = function createCircle(i) {
 
@@ -108,7 +106,7 @@ var circlePack = function circlePack(i, currentBall) {
 
 		if (d < l) {
 
-			var f = (1 - d / l) * r;
+			var f = (_options2.default.attachment - d / l) * r;
 			var t = Math.atan2(dy, dx);
 
 			// set right edge && left edge boundaries
@@ -124,13 +122,15 @@ var circlePack = function circlePack(i, currentBall) {
 
 var manageBall = function manageBall(i, currentBall) {
 
+	var gEl = void 0;
+
 	if (!currentBall.added) {
 		// CREATE NEW BALL
 
 		currentBall.added = true;
 
-		var gEl = _globals2.default.doc.createElementNS('http://www.w3.org/2000/svg', 'g'),
-		    polyEl = _globals2.default.doc.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+		gEl = _globals2.default.doc.createElementNS('http://www.w3.org/2000/svg', 'g');
+		var polyEl = _globals2.default.doc.createElementNS('http://www.w3.org/2000/svg', 'polygon');
 
 		polyEl.setAttribute('fill', currentBall.fill);
 		polyEl.setAttribute('points', _polypoints2.default.getPolyPoints(currentBall.r * _options2.default.BALL_ROUGHNESS, currentBall.r));
@@ -144,14 +144,14 @@ var manageBall = function manageBall(i, currentBall) {
 		_globals2.default.svgEl.appendChild(gEl);
 	} else {
 		// update existing ball
-		var gEl = appendedBalls[i];
+		gEl = appendedBalls[i];
 	}
 
 	currentBall.vx *= _options2.default.SPREAD_SPEED;
 	currentBall.vy *= _options2.default.SPREAD_SPEED;
 
-	var roundedY = Math.round((currentBall.y += currentBall.vy) * 100) / 100,
-	    roundedX = Math.round((currentBall.x += currentBall.vx) * 100) / 100;
+	var roundedY = Math.round((currentBall.y += currentBall.vy) * 100) / 100;
+	var roundedX = Math.round((currentBall.x += currentBall.vx) * 100) / 100;
 
 	if (!_globals2.default.isIE) {
 		gEl.style.webkitTransform = 'translate3d(' + roundedX + 'px, ' + roundedY + 'px, 0)';
@@ -203,7 +203,7 @@ for (var i = 0; i < _options2.default.BALL_COUNT; i++) {
 
 startAnimationLoop();
 
-},{"./globals":3,"./inertia":4,"./polypoints":14,"./settings/colors":17,"./settings/options":18,"./utilities":20}],3:[function(require,module,exports){
+},{"./globals":3,"./inertia":4,"./polypoints":12,"./settings/colors":15,"./settings/options":16,"./utilities":18}],3:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -297,7 +297,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 // globals.ballArr holds all the ball details, always and forever
 // store.heldBalls is an array which should only contain ID, nothing else about the ball
 
-},{"./globals":3,"./inertia/applyBoundForce":5,"./inertia/applyDragForce":6,"./settings/options":18,"./store":19}],5:[function(require,module,exports){
+},{"./globals":3,"./inertia/applyBoundForce":5,"./inertia/applyDragForce":6,"./settings/options":16,"./store":17}],5:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -420,7 +420,7 @@ function applyBoundForce(i) {
 	bottom(i);
 }
 
-},{"../globals":3,"../settings/options":18,"./applyForceX":8,"./applyForceY":9}],6:[function(require,module,exports){
+},{"../globals":3,"../settings/options":16,"./applyForceX":7,"./applyForceY":8}],6:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -432,9 +432,13 @@ var _globals = require('../globals');
 
 var _globals2 = _interopRequireDefault(_globals);
 
-var _applyForce = require('./applyForce');
+var _applyForceX = require('./applyForceX');
 
-var _applyForce2 = _interopRequireDefault(_applyForce);
+var _applyForceX2 = _interopRequireDefault(_applyForceX);
+
+var _applyForceY = require('./applyForceY');
+
+var _applyForceY2 = _interopRequireDefault(_applyForceY);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -449,29 +453,11 @@ function applyDragForce(i) {
 	var dragForceX = dragVelocityX - _globals2.default.ballArr[i].velocityX;
 	var dragForceY = dragVelocityY - _globals2.default.ballArr[i].velocityY;
 
-	(0, _applyForce2.default)(dragForceX, dragForceY, i);
+	(0, _applyForceX2.default)(dragForceX, i);
+	(0, _applyForceY2.default)(dragForceY, i);
 }
 
-},{"../globals":3,"./applyForce":7}],7:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-exports.default = applyForce;
-
-var _globals = require('../globals');
-
-var _globals2 = _interopRequireDefault(_globals);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function applyForce(forceX, forceY, i) {
-	_globals2.default.ballArr[i].velocityX += forceX;
-	_globals2.default.ballArr[i].velocityY += forceY;
-}
-
-},{"../globals":3}],8:[function(require,module,exports){
+},{"../globals":3,"./applyForceX":7,"./applyForceY":8}],7:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -488,7 +474,7 @@ var _globals2 = _interopRequireDefault(_globals);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"../globals":3}],9:[function(require,module,exports){
+},{"../globals":3}],8:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -505,7 +491,7 @@ var _globals2 = _interopRequireDefault(_globals);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"../globals":3}],10:[function(require,module,exports){
+},{"../globals":3}],9:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -537,82 +523,7 @@ function setDragPosition(e, currentBall) {
     _globals2.default.ballArr[currentBall.id].y = currentBall.dragPositionY;
 }
 
-},{"../globals":3}],11:[function(require,module,exports){
-// inertia physics based on http://codepen.io/desandro/pen/QbPKEq?editors=001
-
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-exports.default = function () {
-
-	_store2.default.heldBalls.forEach(function (i) {
-
-		_globals2.default.ballArr[i].velocityX *= _options2.default.friction;
-		_globals2.default.ballArr[i].velocityY *= _options2.default.friction;
-
-		(0, _applyBoundForce2.default)(i);
-		(0, _applyDragForce2.default)(i);
-
-		_globals2.default.ballArr[i].positionX += _globals2.default.ballArr[i].velocityX;
-		_globals2.default.ballArr[i].positionY += _globals2.default.ballArr[i].velocityY;
-
-		// is infinitesimal
-		if (Math.round(Math.abs(_globals2.default.ballArr[i].velocityX) * 100) / 100 === 0 && Math.round(Math.abs(_globals2.default.ballArr[i].velocityY) * 100) / 100 === 0) {
-
-			// only remove if youre not dragging it
-			if (_globals2.default.ballArr[i].isDragging === false) {
-
-				//console.log('no inertia, removing')
-
-				var itemToRemove = _store2.default.heldBalls.indexOf(i);
-
-				if (itemToRemove !== -1) {
-					_store2.default.heldBalls.splice(itemToRemove, 1);
-				}
-			}
-		} else {
-			// this is what actually moves the balls coordinates
-			_globals2.default.ballArr[i].x = _globals2.default.ballArr[i].positionX;
-			_globals2.default.ballArr[i].y = _globals2.default.ballArr[i].positionY;
-		}
-	});
-};
-
-var _globals = require('./globals');
-
-var _globals2 = _interopRequireDefault(_globals);
-
-var _utilities = require('./utilities');
-
-var _utilities2 = _interopRequireDefault(_utilities);
-
-var _store = require('./store');
-
-var _store2 = _interopRequireDefault(_store);
-
-var _options = require('./settings/options');
-
-var _options2 = _interopRequireDefault(_options);
-
-var _applyDragForce = require('./inertia/applyDragForce');
-
-var _applyDragForce2 = _interopRequireDefault(_applyDragForce);
-
-var _applyBoundForce = require('./inertia/applyBoundForce');
-
-var _applyBoundForce2 = _interopRequireDefault(_applyBoundForce);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-;
-
-// globals.ballArr holds all the ball details, always and forever
-// store.heldBalls is an array which should only contain ID, nothing else about the ball
-
-},{"./globals":3,"./inertia/applyBoundForce":5,"./inertia/applyDragForce":6,"./settings/options":18,"./store":19,"./utilities":20}],12:[function(require,module,exports){
+},{"../globals":3}],10:[function(require,module,exports){
 'use strict';
 
 var _utilities = require('../utilities');
@@ -692,7 +603,7 @@ _globals2.default.doc.addEventListener('mouseup', function (e) {
 	});
 });
 
-},{"../globals":3,"../inertia/setDragPosition":10,"../store":19,"../utilities":20}],13:[function(require,module,exports){
+},{"../globals":3,"../inertia/setDragPosition":9,"../store":17,"../utilities":18}],11:[function(require,module,exports){
 'use strict';
 
 var _utilities = require('../utilities');
@@ -781,7 +692,7 @@ _globals2.default.doc.addEventListener('touchend', function (e) {
 	});
 });
 
-},{"../globals":3,"../inertia/setDragPosition":10,"../store":19,"../utilities":20}],14:[function(require,module,exports){
+},{"../globals":3,"../inertia/setDragPosition":9,"../store":17,"../utilities":18}],12:[function(require,module,exports){
 /*global window, document, app, navigator */
 /*jshint bitwise: false*/
 
@@ -855,7 +766,7 @@ var getPolyPoints = function getPolyPoints(minBallSize, maxBallSize) {
 module.exports['setLinePoints'] = setLinePoints;
 module.exports['getPolyPoints'] = getPolyPoints;
 
-},{}],15:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 "use strict";
 
 // http://stackoverflow.com/a/31080629
@@ -880,7 +791,7 @@ Array.prototype.equals = function (array) {
     return true;
 };
 
-},{}],16:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 'use strict';
 
 var _globals = require('./globals');
@@ -910,7 +821,7 @@ var ballsBrowserResize = _utilities2.default.debounce(function () {
 
 window.addEventListener('resize', ballsBrowserResize);
 
-},{"./globals":3,"./utilities":20}],17:[function(require,module,exports){
+},{"./globals":3,"./utilities":18}],15:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -923,7 +834,7 @@ exports.default = ['#888', '#F4FCE8', // dark blue
 '#4E9689', // metal blue
 '#7ED0D6'];
 
-},{}],18:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -938,10 +849,11 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 exports.default = {
 	BALL_ROUGHNESS: 0.82, // 1:== perfect circle
-	SPREAD_PUSH: 0.8, // how hard the balls push against each other. 1:== neutral
+	SPREAD_PUSH: 5, // how hard the balls push against each other. 1:== neutral
 	MIN_SIZE: 80,
 	MAX_SIZE: 140,
-	SPREAD_SPEED: 0.075, // how fast react to each other
+	attachment: 0.5,
+	SPREAD_SPEED: 0.02, // how fast react to each other
 	BALL_COUNT: 10,
 	friction: 0.95, // for inertia
 	topBound: 0,
@@ -950,7 +862,7 @@ exports.default = {
 	rightBound: _globals2.default.w
 };
 
-},{"../globals":3}],19:[function(require,module,exports){
+},{"../globals":3}],17:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -964,7 +876,7 @@ exports.default = {
 	heldBalls: []
 };
 
-},{}],20:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 'use strict';
 
 // http://davidwalsh.name/javascript-debounce-function

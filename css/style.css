@@ -20,8 +20,7 @@ body {
 g {
   cursor: -webkit-grab;
   mix-blend-mode: multiply;
-  -webkit-transition: opacity 200ms linear;
-          transition: opacity 200ms linear;
+  transition: opacity 200ms linear;
   will-change: opacity;
 }
 
@@ -29,11 +28,7 @@ g:hover {
   opacity: 0.8;
 }
 
-g::after {
-  content: 'hi';
-}
-
 .held {
   cursor: -webkit-grabbing;
-  opacity: 0.5 !important;
+  opacity: 0.5;
 }

@@ -67,7 +67,7 @@ const circlePack = function(i, currentBall) {
 
 		if (d < l) {
 
-			let f = (1 - d / l) * r;
+			let f = (options.attachment - d / l) * r;
 			let t = Math.atan2(dy, dx);
 
 			// set right edge && left edge boundaries
